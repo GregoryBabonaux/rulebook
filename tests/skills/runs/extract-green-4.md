@@ -36,3 +36,21 @@ only tests call, two contradictory password minimums, a rule decided in a templa
   over-broad statements.
 - Not a controlled experiment: two domains of different difficulty, written differently (JEU
   by an orchestrator from three readers' notes, ENQ by a single agent), one run each.
+
+### JEU redone from scratch with the detection skill (same code, commit 238ea8f)
+
+| | JEU, skill 0.1.0 | JEU, detection skill |
+|---|---|---|
+| Rules | 43 (48 after the scan pass) | 78 |
+| Decision points examined | 53 / 196 | 196 / 196 |
+| First blind audit failures | 21 / 43 (49 %) | 17 / 78 (22 %) |
+| — wrong lines or parameters | ~10 | 2 |
+| — statement wrong or too broad | ~5 | 8 |
+| — a cited test does not assert the rule | ~8 | 9 |
+| Old rules found again | — | 46 / 48 |
+
+- The two old rules not found again live outside the paths the map gives JEU (badges decided
+  in a Blade view, the AI circuit breaker in app/Ai): the scan only inventories mapped paths.
+- The gain is on mechanical errors; a test cited that does not assert the rule is now the
+  main failure, and the next thing to check mechanically.
+- Found while running: the agent handed back before its parallel readers finished (skill fixed).
