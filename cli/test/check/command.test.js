@@ -103,3 +103,9 @@ test('hostile environments: no git, no rulebook, corrupt index -> exit 0', async
   assert.match(r.err, /^rulebook: check skipped \(/);
   assert.equal((await check(repo, ['--strict'])).code, 2);
 });
+
+test('a blank line added inside a rule range is not a change', async () => {
+  const repo = await indexedRepo();
+  repo.write(POLICY, POLICY_SRC.replace('    {\n        return $order', '    {\n\n        return $order'));
+  assert.equal((await check(repo)).out, '');
+});

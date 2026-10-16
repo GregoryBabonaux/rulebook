@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import { detect } from '../../src/check/detect.js';
 import { globToRegExp, matchesAny } from '../../src/check/globs.js';
 import { isRuleBearing } from '../../src/check/patterns.js';
-import { splitLines, hashRange } from '../../src/index/hash.js';
+import { splitLines, fingerprint } from '../../src/index/hash.js';
 import { POLICY_SRC } from '../helpers/fixture.js';
 
 const PATH = 'app/Policies/OrderPolicy.php';
-const anchor = { rule: 'PAY-R012', kind: 'enforcement', path: PATH, symbol: 'OrderPolicy::refund', lines: [9, 13], hash: hashRange(splitLines(POLICY_SRC), 9, 13) };
+const anchor = { rule: 'PAY-R012', kind: 'enforcement', path: PATH, symbol: 'OrderPolicy::refund', lines: [9, 13], ...fingerprint(splitLines(POLICY_SRC), 9, 13) };
 const index = { version: 1, verifiedAt: 'abc', anchors: [anchor] };
 const modified = (hunks) => [{ path: PATH, oldPath: PATH, status: 'modified', hunks }];
 const hunk = (newStart, added, removed = []) => ({ oldStart: newStart, oldLines: removed.length, newStart, newLines: added.length, removed, added });

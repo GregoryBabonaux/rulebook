@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { parseDomainFile } from '../parse/cards.js';
 import { domainFiles } from '../project.js';
-import { splitLines, hashRange } from './hash.js';
+import { splitLines, fingerprint } from './hash.js';
 
 export function loadCards(project) {
   const cards = [];
@@ -31,7 +31,7 @@ export function buildIndex(root, cards, verifiedAt) {
         unresolved.push({ rule: card.id, path: ev.path, reason: `lines ${ev.start}-${ev.end} out of range (file has ${lines.length})` });
         continue;
       }
-      anchors.push({ rule: card.id, kind: ev.kind, path: ev.path, symbol: ev.symbol, lines: [ev.start, ev.end], hash: hashRange(lines, ev.start, ev.end) });
+      anchors.push({ rule: card.id, kind: ev.kind, path: ev.path, symbol: ev.symbol, lines: [ev.start, ev.end], ...fingerprint(lines, ev.start, ev.end) });
     }
   }
   return { index: { version: 1, verifiedAt, anchors }, unresolved };

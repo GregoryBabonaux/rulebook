@@ -24,9 +24,8 @@ export function detect({ index, diffs, readFile, hotspots = [], rulebookDir = 'r
     const reported = new Set();
 
     for (const a of anchors) {
-      const len = a.lines[1] - a.lines[0] + 1;
-      const at = lines ? findRange(lines, a.hash, len, a.lines[0]) : null;
-      if (at !== null) { covered.push([at, at + len - 1]); continue; }
+      const at = lines ? findRange(lines, a, a.lines[0]) : null;
+      if (at) { covered.push([at.start, at.end]); continue; }
       covered.push(a.lines);
       const type = lines && symbolPresent(text, a.symbol) ? 'modified?' : 'removed?';
       if (reported.has(`${type}|${a.rule}`)) continue;
