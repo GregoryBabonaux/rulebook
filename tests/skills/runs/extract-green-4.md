@@ -21,3 +21,18 @@ only tests call, two contradictory password minimums, a rule decided in a templa
   calculations, boolean conditions and transition tables (scan recall 8/14 → 14/14);
   reachability counted an export list as a call; the fixture's functions were not wired to any
   route, and its login route was inverted (flagged by the 4b blind audit).
+
+## On a real project (Cluengo, Laravel), 2026-10-16
+
+| Domain | Skill | Rules | Decision points examined | First blind audit |
+|---|---|---|---|---|
+| JEU | 0.1.0 | 43 | 53 / 196 (27 %) | 21 / 43 failed (49 %) |
+| ENQ | detection | 21 | 28 / 28 (100 %) | 3 / 21 failed (14 %) |
+
+- JEU's second pass with the scan found 5 rules the first extraction missed and 8 pieces of
+  dead code.
+- The 3 ENQ failures share one cause: `verified` claimed where no cited test asserts the rule
+  (downgraded to `read`). JEU's failures were mostly evidence outside the deciding lines and
+  over-broad statements.
+- Not a controlled experiment: two domains of different difficulty, written differently (JEU
+  by an orchestrator from three readers' notes, ENQ by a single agent), one run each.
