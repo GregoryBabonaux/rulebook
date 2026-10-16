@@ -13,6 +13,11 @@
   const COL = 250;
   const ROW = 32;
   const view = { x: 40, y: 40, k: 1 };
+  const STORE = `rulebook-map-offsets:${data.name}`;
+  let offsets = {};
+  try { offsets = JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch { offsets = {}; }
+  const saveOffsets = () => { try { localStorage.setItem(STORE, JSON.stringify(offsets)); } catch { /* storage may be blocked */ } };
+  function paint(node, color) { node.color = node.color || color; for (const c of node.children || []) paint(c, node.color); }
 
   const short = (s, n) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
   const ruleNode = (id) => {
@@ -25,7 +30,7 @@
   const root = {
     id: '__root', kind: 'root', label: data.name, open: true,
     children: data.domains.map((d) => ({
-      id: d.code, kind: 'domain', label: `${d.code} · ${d.title}`, extracted: d.extracted, domain: d, open: true,
+      id: d.code, kind: 'domain', label: `${d.code} · ${d.title}`, extracted: d.extracted, domain: d, color: d.color, open: true,
       children: [
         ...d.policies.map((p) => ({ id: p.id, kind: 'policy', label: short(p.title, 34), policy: p, open: false, children: p.rules.map(ruleNode) })),
         ...(d.otherRules.length ? [{ id: `${d.code}-other`, kind: 'policy', label: L.otherRules, open: false, children: d.otherRules.map(ruleNode) }] : []),
@@ -70,27 +75,57 @@
   }
   function draw() {
     markMatches(root);
-    const { nodes } = tidyLayout(root, { colWidth: COL, rowHeight: ROW });
+    paint(root, null);
+    const nodes = placeWithOffsets(tidyLayout(root, { colWidth: COL, rowHeight: ROW }).nodes, offsets);
     viewport.textContent = '';
     const links = el('g', { class: 'mm-links' }, viewport);
     for (const p of nodes) {
       if (!p.parent) continue;
       const x1 = p.parent.x + 12; const y1 = p.parent.y; const x2 = p.x; const y2 = p.y; const mx = (x1 + x2) / 2;
-      el('path', { d: `M${x1} ${y1} C${mx} ${y1},${mx} ${y2},${x2} ${y2}`, class: filtering() && !p.node.hit ? 'mm-dim' : '' }, links);
+      el('path', { d: `M${x1} ${y1} C${mx} ${y1},${mx} ${y2},${x2} ${y2}`, class: filtering() && !p.node.hit ? 'mm-dim' : '', style: p.node.color ? `--dom:${p.node.color}` : '' }, links);
     }
     for (const p of nodes) {
       const n = p.node;
-      const g = el('g', { class: nodeClass(n), transform: `translate(${p.x},${p.y})`, tabindex: '0', role: 'button' }, viewport);
+      const g = el('g', { class: nodeClass(n), transform: `translate(${p.x},${p.y})`, tabindex: '0', role: 'button', style: n.color ? `--dom:${n.color}` : '' }, viewport);
       const conf = n.rule?.confidence || n.edge?.confidence;
       el('circle', { r: n.kind === 'edge' ? 3.5 : 5.5, class: conf ? `conf-${conf}` : 'mm-dot' }, g);
       const t = el('text', { x: 12, y: 4 }, g);
       const more = n.children?.length && !n.open ? ` ▸ ${n.children.length}` : '';
       t.textContent = n.kind === 'domain' && !n.extracted ? `${n.label} · ${L.notExtracted}` : `${n.label}${more}`;
-      g.addEventListener('click', (ev) => { ev.stopPropagation(); activate(n); });
+      if (n.kind === 'root' || n.kind === 'domain' || n.kind === 'policy') {
+        const w = t.getComputedTextLength ? t.getComputedTextLength() : t.textContent.length * 7;
+        g.insertBefore(el('rect', { class: 'mm-pill', x: -10, y: -13, width: w + 34, height: 26, rx: 13 }), g.firstChild);
+      }
+      g.addEventListener('pointerdown', (ev) => startNodeDrag(ev, n));
       g.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); activate(n); } });
     }
     apply();
   }
+  // drag a node: it and its branch move; a press without movement opens it
+  let nodeDrag = null;
+  function startNodeDrag(ev, n) {
+    ev.stopPropagation();
+    nodeDrag = { n, x: ev.clientX, y: ev.clientY, moved: false, base: { ...(offsets[n.id] || { dx: 0, dy: 0 }) } };
+    svg.setPointerCapture(ev.pointerId);
+  }
+  svg.addEventListener('pointermove', (ev) => {
+    if (!nodeDrag) return;
+    const dx = (ev.clientX - nodeDrag.x) / view.k;
+    const dy = (ev.clientY - nodeDrag.y) / view.k;
+    if (!nodeDrag.moved && Math.hypot(dx, dy) < 4) return;
+    nodeDrag.moved = true;
+    svg.classList.add('dragging');
+    offsets[nodeDrag.n.id] = { dx: nodeDrag.base.dx + dx, dy: nodeDrag.base.dy + dy };
+    draw();
+  });
+  svg.addEventListener('pointerup', () => {
+    if (!nodeDrag) return;
+    const { n, moved } = nodeDrag;
+    nodeDrag = null;
+    svg.classList.remove('dragging');
+    if (moved) saveOffsets(); else activate(n);
+  });
+
   function activate(n) {
     if (n.kind === 'rule') showRule(n);
     if (n.kind === 'domain') showDomain(n);
@@ -158,7 +193,7 @@
     svg.classList.add('dragging');
   });
   svg.addEventListener('pointermove', (ev) => {
-    if (!drag) return;
+    if (!drag || nodeDrag) return;
     view.x = drag.vx + ev.clientX - drag.x;
     view.y = drag.vy + ev.clientY - drag.y;
     apply();
@@ -170,6 +205,7 @@
     const w = svg.clientWidth / 2; const h = svg.clientHeight / 2;
     if (b.dataset.zoom === 'in') zoom(1.25, w, h);
     else if (b.dataset.zoom === 'out') zoom(0.8, w, h);
+    else if (b.dataset.zoom === 'reset') { offsets = {}; saveOffsets(); draw(); fit(); }
     else fit();
   }));
 

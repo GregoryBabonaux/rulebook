@@ -143,3 +143,15 @@ test('without JavaScript, a notice says where the map and dashboard are', () => 
   assert.match(renderHtml(data({ language: 'fr' })), /<noscript><p class="noscript">[^<]*Carte[^<]*Tableau de bord[^<]*navigateur/);
   assert.match(renderHtml(data()), /<noscript><p class="noscript">[^<]*Map[^<]*Dashboard[^<]*browser/);
 });
+
+test('app shell: sidebar with search, views and coloured domain links', () => {
+  const html = renderHtml(data({ language: 'fr' }));
+  const side = html.slice(html.indexOf('<aside class="sidebar"'), html.indexOf('</aside>'));
+  assert.match(side, /id="q"/);
+  assert.match(side, /class="views"/);
+  assert.match(side, /<a class="side-domain" href="#PAY" style="--dom:#[0-9a-f]{6}">/i);
+  assert.match(html, /<section class="domain" id="PAY" style="--dom:#[0-9a-f]{6}">/i);
+  const map = JSON.parse(html.match(/<script id="rulebook-data" type="application\/json">(.*?)<\/script>/s)[1]);
+  assert.match(map.domains[0].color, /^#[0-9a-f]{6}$/i);
+  assert.notEqual(map.domains[0].color, map.domains[1].color);
+});
