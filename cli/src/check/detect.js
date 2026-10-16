@@ -1,4 +1,4 @@
-import { splitLines, findRange, hashText } from '../index/hash.js';
+import { splitLines, findRange, hashText, normalizeLines } from '../index/hash.js';
 import { matchesAny } from './globs.js';
 import { isRuleBearing, TEST_PATH } from './patterns.js';
 
@@ -11,7 +11,7 @@ function symbolPresent(text, symbol) {
   return new RegExp(`\\b${escapeRe(name)}\\b`).test(text);
 }
 
-const keyOf = (type, rule, path) => hashText(`${type}|${rule ?? ''}|${path}`);
+const keyOf = (type, rule, path, extra = '') => hashText(`${type}|${rule ?? ''}|${path}|${extra}`);
 
 export function detect({ index, diffs, readFile, hotspots = [], rulebookDir = 'rulebook' }) {
   const detections = [];
@@ -37,13 +37,12 @@ export function detect({ index, diffs, readFile, hotspots = [], rulebookDir = 'r
     const hot = matchesAny(f.path, hotspots);
     for (const h of f.hunks) {
       if (!h.added.length) continue;
-      const bearing = hot ? h.added.some((l) => l.trim() !== '') : h.added.some(isRuleBearing);
-      if (!bearing) continue;
+      const bearing = hot ? h.added.filter((l) => l.trim() !== '') : h.added.filter(isRuleBearing);
+      if (!bearing.length) continue;
       const s = h.newStart;
       const e = h.newStart + h.added.length - 1;
       if (covered.some(([as, ae]) => s <= ae && e >= as)) continue;
-      detections.push({ type: 'new?', rule: null, path: f.path, lines: [s, e], key: keyOf('new?', null, f.path) });
-      break;
+      detections.push({ type: 'new?', rule: null, path: f.path, lines: [s, e], key: keyOf('new?', null, f.path, normalizeLines(bearing)) });
     }
   }
   return detections;

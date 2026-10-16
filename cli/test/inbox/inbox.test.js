@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { appendDetections, pendingKeys, formatEntry, formatNotice } from '../../src/inbox/inbox.js';
+import { appendDetections, knownKeys, formatEntry, formatNotice } from '../../src/inbox/inbox.js';
 
 const now = new Date(2026, 9, 15, 14, 2);
 const mod = { type: 'modified?', rule: 'PAY-R012', path: 'app/Policies/OrderPolicy.php', lines: [41, 47], key: 'aaaaaaaaaaaa' };
@@ -26,10 +26,10 @@ test('appendDetections creates the inbox with a header and dedups pending keys',
   assert.equal(text.match(/^- \[ \]/gm).length, 2);
 });
 
-test('a checked entry no longer blocks a new detection with the same key', () => {
+test('a ticked entry is remembered: the same key is not added again', () => {
   const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'rulebook-inbox-')), 'inbox.md');
   appendDetections(file, [mod], now);
   fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replace('- [ ]', '- [x]'));
-  assert.deepEqual([...pendingKeys(fs.readFileSync(file, 'utf8'))], []);
-  assert.equal(appendDetections(file, [mod], now).length, 1);
+  assert.deepEqual([...knownKeys(fs.readFileSync(file, 'utf8'))], ['aaaaaaaaaaaa']);
+  assert.equal(appendDetections(file, [mod], now).length, 0);
 });

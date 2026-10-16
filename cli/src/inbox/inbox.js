@@ -5,10 +5,12 @@ const pad = (n) => String(n).padStart(2, '0');
 
 export const INBOX_HEADER = '# rulebook inbox\n\nDetections awaiting validation. Process them with the rulebook-sync skill.\n\n';
 
-export function pendingKeys(text) {
+// Keys of every entry, pending or ticked: a ticked entry stands for
+// "seen, leave it", so the same detection is not raised again.
+export function knownKeys(text) {
   return new Set(
     text.replace(/\r\n?/g, '\n').split('\n')
-      .filter((l) => l.startsWith('- [ ]'))
+      .filter((l) => /^- \[[ xX]\]/.test(l))
       .map((l) => l.match(KEY)?.[1])
       .filter(Boolean),
   );
@@ -31,7 +33,7 @@ export function formatNotice(det, inboxRel) {
 
 export function appendDetections(file, detections, now = new Date()) {
   const existing = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
-  const seen = pendingKeys(existing);
+  const seen = knownKeys(existing);
   const added = [];
   for (const d of detections) {
     if (seen.has(d.key)) continue;

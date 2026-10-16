@@ -109,3 +109,27 @@ test('a blank line added inside a rule range is not a change', async () => {
   repo.write(POLICY, POLICY_SRC.replace('    {\n        return $order', '    {\n\n        return $order'));
   assert.equal((await check(repo)).out, '');
 });
+
+test('two distinct new rules in one file give two entries; unrelated edits add nothing', async () => {
+  const repo = await indexedRepo();
+  const svc = 'app/Services/Coupon.php';
+  repo.write(svc, '<?php\nfunction a() {\n  return 1;\n}\nfunction b() {\n  return 2;\n}\n');
+  repo.commit('service');
+  repo.write(svc, '<?php\nfunction a() {\n  if ($x) throw new Gone();\n  return 1;\n}\nfunction b() {\n  return 2;\n}\n');
+  assert.match((await check(repo)).out, /possible new rule in app\/Services\/Coupon\.php:3/);
+  repo.write(svc, '<?php\nfunction a() {\n  if ($x) throw new Gone();\n  return 1;\n}\nfunction b() {\n  abort_if($y, 403);\n  return 2;\n}\n');
+  assert.match((await check(repo)).out, /possible new rule in app\/Services\/Coupon\.php:7/);
+  repo.write(svc, '<?php\nfunction a() {\n  if ($x) throw new Gone();\n  return 10;\n}\nfunction b() {\n  abort_if($y, 403);\n  return 2;\n}\n');
+  assert.equal((await check(repo)).out, '');
+  assert.equal(repo.read('rulebook/inbox.md').match(/^- \[ \]/gm).length, 2);
+});
+
+test('a ticked detection does not come back on the next edit of the same file', async () => {
+  const repo = await indexedRepo();
+  repo.write('app/Services/Coupon.php', '<?php\n\nif ($coupon->expired()) throw new Gone();\n');
+  await check(repo);
+  const inbox = path.join(repo.dir, 'rulebook/inbox.md');
+  fs.writeFileSync(inbox, fs.readFileSync(inbox, 'utf8').replace('- [ ]', '- [x]'));
+  repo.write('app/Services/Coupon.php', '<?php\n// tidy\nif ($coupon->expired()) throw new Gone();\n');
+  assert.equal((await check(repo)).out, '');
+});
