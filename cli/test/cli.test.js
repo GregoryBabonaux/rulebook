@@ -13,5 +13,5 @@ test('unknown command fails with the command list', async () => {
   const io = fakeIo(process.cwd());
   assert.equal(await run(['frobnicate'], io), 1);
   assert.match(io.err, /unknown command "frobnicate"/);
-  assert.match(io.err, /index, check/);
+  assert.match(io.err, /index, check, hook, init, doctor, update/);
 });

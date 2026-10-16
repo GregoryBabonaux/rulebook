@@ -1,0 +1,63 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { git } from '../git.js';
+import { loadProject, SUPPORTED_FORMAT } from '../project.js';
+import { loadCards, buildIndex } from '../index/build.js';
+import { ADAPTERS } from './agents.js';
+import { detectAgents } from './init.js';
+
+const STAMP = /--stamp (\d+\.\d+\.\d+)/;
+
+export function diagnose(root, version) {
+  const out = [];
+  const ok = (message) => out.push({ level: 'ok', message });
+  const warn = (message) => out.push({ level: 'warn', message });
+  ok(`rulebook-cli ${version}`);
+
+  let project = null;
+  try { project = loadProject(root); } catch (err) { warn(err.message); }
+  if (!project) {
+    if (!out.some((o) => o.level === 'warn')) warn('no rulebook/ folder — run the rulebook-map skill or rulebook init');
+  } else {
+    const fv = project.config.formatVersion;
+    if (fv === undefined) warn(`config.json has no formatVersion (expected ${SUPPORTED_FORMAT})`);
+    else if (fv > SUPPORTED_FORMAT) warn(`format ${fv} is newer than this CLI supports (${SUPPORTED_FORMAT}) — run: npx rulebook-cli@latest update`);
+    else ok(`format ${fv}`);
+    try {
+      const { cards } = loadCards(project);
+      const { unresolved } = buildIndex(project.root, cards, null);
+      if (unresolved.length) warn(`${unresolved.length} evidence anchor(s) unresolved — run rulebook index`);
+      else ok(`${cards.length} cards, all evidence resolvable`);
+    } catch (err) { warn(`cannot read cards (${err.message})`); }
+  }
+
+  const detected = detectAgents(root);
+  for (const a of ADAPTERS) {
+    const file = path.join(root, a.file);
+    const text = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
+    const stamp = text.includes(` hook ${a.agent} `) ? text.match(STAMP)?.[1] : null;
+    if (!stamp) {
+      if (detected.includes(a.agent)) warn(`${a.agent}: detected but no rulebook hooks — run rulebook init`);
+      continue;
+    }
+    if (stamp === version) ok(`${a.agent}: hooks installed`);
+    else warn(`${a.agent}: hooks from rulebook ${stamp} — run rulebook update`);
+  }
+
+  const hooksRel = git(root, ['rev-parse', '--git-path', 'hooks'])?.trim() || '.git/hooks';
+  const preCommit = path.resolve(root, hooksRel, 'pre-commit');
+  const hookText = fs.existsSync(preCommit) ? fs.readFileSync(preCommit, 'utf8') : '';
+  if (hookText.includes('# >>> rulebook')) ok('pre-commit hook installed');
+  else warn('no rulebook pre-commit hook — run rulebook init');
+  return out;
+}
+
+export function runDoctor(io, opts, version) {
+  const root = git(io.cwd, ['rev-parse', '--show-toplevel'])?.trim();
+  const results = root ? diagnose(root, version) : [{ level: 'warn', message: 'not inside a git repository' }];
+  for (const r of results) {
+    if (r.level === 'ok' && opts.quiet) continue;
+    io.stdout.write(`${r.level === 'ok' ? '✓' : '!'} ${r.message}\n`);
+  }
+  return 0;
+}

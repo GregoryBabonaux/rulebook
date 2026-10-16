@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { repoRoot } from './git.js';
 
+export const SUPPORTED_FORMAT = 1;
+
 export const DEFAULT_CONFIG = { language: 'en', repoUrl: null, hotspots: [] };
 
 export function loadProject(cwd, dirName = 'rulebook') {

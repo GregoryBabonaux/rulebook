@@ -1,16 +1,24 @@
-import fs, { readFileSync } from 'node:fs';
-import path from 'node:path';
+import { readFileSync } from 'node:fs';
 import { loadProject } from './project.js';
-import { git, headSha } from './git.js';
-import { loadCards, buildIndex, writeIndex, readIndex } from './index/build.js';
-import { getDiff } from './git/diff.js';
-import { detect } from './check/detect.js';
-import { appendDetections, formatNotice } from './inbox/inbox.js';
+import { headSha } from './git.js';
+import { loadCards, buildIndex, writeIndex } from './index/build.js';
+import { checkProject } from './check/run.js';
+import { runHook } from './hook/run.js';
+import { runInit } from './install/init.js';
+import { runDoctor } from './install/doctor.js';
+import { runUpdate } from './install/update.js';
+import { updateNotice } from './update/notice.js';
 
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+export const VERSION = pkg.version;
+
+const notice = (io) => updateNotice({ env: io.env, now: io.now ? io.now() : new Date(), current: VERSION });
 
 export function parseOptions(args) {
-  const o = { scope: { kind: 'worktree' }, format: 'line', strict: false, dir: 'rulebook' };
+  const o = {
+    scope: { kind: 'worktree' }, format: 'line', strict: false, dir: 'rulebook',
+    agents: null, yes: false, dryRun: false, bin: null, quiet: false,
+  };
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
     if (a === '--staged') o.scope = { kind: 'staged' };
@@ -19,6 +27,11 @@ export function parseOptions(args) {
     else if (a === '--format') o.format = args[++i];
     else if (a === '--strict') o.strict = true;
     else if (a === '--dir') o.dir = args[++i];
+    else if (a === '--agents') o.agents = (args[++i] ?? '').split(',').map((s) => s.trim()).filter(Boolean);
+    else if (a === '--yes') o.yes = true;
+    else if (a === '--dry-run') o.dryRun = true;
+    else if (a === '--bin') o.bin = args[++i] ?? null;
+    else if (a === '--quiet') o.quiet = true;
   }
   return o;
 }
@@ -46,22 +59,15 @@ function runIndex(io, opts) {
 
 function runCheck(io, opts) {
   try {
-    const project = loadProject(io.cwd, opts.dir);
-    if (!project) return 0;
-    const index = readIndex(project.dir);
-    const diffs = getDiff(project.root, opts.scope);
-    const readFile = opts.scope.kind === 'staged'
-      ? (p) => git(project.root, ['show', `:${p}`])
-      : (p) => { try { return fs.readFileSync(path.join(project.root, p), 'utf8'); } catch { return null; } };
-    const detections = detect({ index, diffs, readFile, hotspots: project.config.hotspots, rulebookDir: project.dirName });
-    const inboxRel = `${project.dirName}/inbox.md`;
-    const added = appendDetections(path.join(project.dir, 'inbox.md'), detections, io.now ? io.now() : new Date());
+    const result = checkProject(io.cwd, { scope: opts.scope, dir: opts.dir, now: io.now ? io.now() : new Date() });
     if (opts.format === 'json') {
-      io.stdout.write(`${JSON.stringify({ detections, added: added.map((d) => d.key) })}\n`);
+      if (result) io.stdout.write(`${JSON.stringify({ detections: result.detections, added: result.added.map((d) => d.key) })}\n`);
     } else {
-      for (const d of added) io.stdout.write(`${formatNotice(d, inboxRel)}\n`);
+      for (const line of result?.notices ?? []) io.stdout.write(`${line}\n`);
+      const n = notice(io);
+      if (n) io.stdout.write(`${n}\n`);
     }
-    return opts.strict && detections.length ? 1 : 0;
+    return opts.strict && result?.detections.length ? 1 : 0;
   } catch (err) {
     io.stderr.write(`rulebook: check skipped (${err.message})\n`);
     return opts.strict ? 2 : 0;
@@ -70,13 +76,22 @@ function runCheck(io, opts) {
 
 export async function run(argv, io) {
   const [cmd, ...rest] = argv;
-  const opts = parseOptions(rest);
+  const positional = cmd === 'hook' ? rest.slice(0, 2) : [];
+  const opts = parseOptions(cmd === 'hook' ? rest.slice(2) : rest);
   if (cmd === '--version' || cmd === '-v') {
     io.stdout.write(`${pkg.version}\n`);
     return 0;
   }
   if (cmd === 'index') return runIndex(io, opts);
   if (cmd === 'check') return runCheck(io, opts);
-  io.stderr.write(`rulebook: unknown command "${cmd ?? ''}". Commands: index, check\n`);
+  if (cmd === 'init') return runInit(io, opts, VERSION);
+  if (cmd === 'doctor') return runDoctor(io, opts, VERSION);
+  if (cmd === 'update') return runUpdate(io, opts, VERSION);
+  if (cmd === 'hook') {
+    // The update notice is for the human: only on turn-end events, never in the model's post-edit context.
+    const extra = positional[1] === 'stop' ? () => { const n = notice(io); return n ? [n] : []; } : () => [];
+    return runHook(io, positional[0] ?? '', positional[1] ?? '', opts, extra);
+  }
+  io.stderr.write(`rulebook: unknown command "${cmd ?? ''}". Commands: index, check, hook, init, doctor, update\n`);
   return 1;
 }
