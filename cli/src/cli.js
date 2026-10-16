@@ -54,12 +54,16 @@ function runIndex(io, opts) {
     return 1;
   }
   const { cards, warnings } = loadCards(project);
-  const { index, unresolved } = buildIndex(project.root, cards, headSha(project.root));
+  const { index, unresolved, mismatches } = buildIndex(project.root, cards, headSha(project.root));
   writeIndex(project.dir, index);
   for (const w of warnings) io.stderr.write(`rulebook: ${w.file}:${w.line} ${w.message}\n`);
   for (const u of unresolved) io.stderr.write(`rulebook: ${u.rule} evidence ${u.path} unresolved (${u.reason})\n`);
+  for (const m of mismatches) {
+    const range = m.lines[1] !== m.lines[0] ? `${m.lines[0]}-${m.lines[1]}` : `${m.lines[0]}`;
+    io.stderr.write(`rulebook: ${m.rule} evidence ${m.path}:${range} — ${m.reason}\n`);
+  }
   io.stdout.write(`rulebook: indexed ${index.anchors.length} anchors from ${cards.length} cards\n`);
-  return unresolved.length && opts.strict ? 1 : 0;
+  return (unresolved.length || mismatches.length) && opts.strict ? 1 : 0;
 }
 
 function runCheck(io, opts) {

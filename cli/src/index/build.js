@@ -3,6 +3,7 @@ import path from 'node:path';
 import { parseDomainFile } from '../parse/cards.js';
 import { domainFiles } from '../project.js';
 import { splitLines, fingerprint } from './hash.js';
+import { checkEvidence } from './checks.js';
 
 export function loadCards(project) {
   const cards = [];
@@ -18,6 +19,7 @@ export function loadCards(project) {
 export function buildIndex(root, cards, verifiedAt) {
   const anchors = [];
   const unresolved = [];
+  const mismatches = [];
   for (const card of cards) {
     if (card.kind !== 'rule' || card.meta.status === 'retired') continue;
     for (const ev of card.evidence) {
@@ -35,10 +37,11 @@ export function buildIndex(root, cards, verifiedAt) {
         unresolved.push({ rule: card.id, path: ev.path, reason: `lines ${ev.start}-${ev.end} out of range (file has ${lines.length})` });
         continue;
       }
+      for (const reason of checkEvidence(ev, lines)) mismatches.push({ rule: card.id, path: ev.path, lines: [ev.start, ev.end], reason });
       anchors.push({ rule: card.id, kind: ev.kind, path: ev.path, symbol: ev.symbol, lines: [ev.start, ev.end], ...fingerprint(lines, ev.start, ev.end) });
     }
   }
-  return { index: { version: 1, verifiedAt, anchors }, unresolved };
+  return { index: { version: 1, verifiedAt, anchors }, unresolved, mismatches };
 }
 
 export function readIndex(dir) {
