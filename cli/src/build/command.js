@@ -47,7 +47,11 @@ export function runBuild(io, opts, version) {
   if (project.config.repoUrl && !isHttpUrl(project.config.repoUrl)) {
     io.stderr.write('rulebook: repoUrl must start with http:// or https:// — evidence links stay relative\n');
   }
+  // the coverage computed by `rulebook scan`, when it has run
+  let scan = null;
+  try { scan = JSON.parse(readText(path.join(project.dir, '.scan.json')) || 'null'); } catch { scan = null; }
   const data = buildData({
+    scan,
     name: path.basename(project.root),
     commit: headSha(project.root),
     today,

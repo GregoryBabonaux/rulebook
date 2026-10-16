@@ -87,6 +87,18 @@ export function parseDomainFile(text, file = '') {
       return;
     }
     if (!card) {
+      if (!result.domain) return;
+      // "**Scope.** …" under the domain title: what was read, what was not
+      if ((section === 'domain' || section === 'scope') && (m = trimmed.match(SECTION)) && (m[2] || m[3]) && labelToKey(m[1]) === 'scope') {
+        result.domain.scope = m[4].trim();
+        section = 'scope';
+        return;
+      }
+      if (section === 'scope') {
+        if (trimmed) result.domain.scope += (result.domain.scope ? ' ' : '') + trimmed;
+        else section = 'domain';
+        return;
+      }
       if (section === 'domain' && trimmed) {
         result.domain.description += (result.domain.description ? ' ' : '') + trimmed;
       }

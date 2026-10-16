@@ -142,3 +142,11 @@ test('an edge case whose tail cannot be parsed is reported', () => {
   assert.equal(warnings.length, 1);
   assert.match(warnings[0].message, /edge case PAY-R001\.E1: unreadable confidence or reference/);
 });
+
+test('a domain may carry a Scope paragraph under its title', () => {
+  const md = '# PAY · Payments\nHow the shop refunds money.\n\n**Scope.** Read: app/Policies, app/Pay.\nNot read: the admin panel.\n\n## Other operating rules\n';
+  const { domain } = parseDomainFile(md);
+  assert.equal(domain.description, 'How the shop refunds money.');
+  assert.equal(domain.scope, 'Read: app/Policies, app/Pay. Not read: the admin panel.');
+  assert.equal(parseDomainFile(md.replace('**Scope.**', '**Périmètre.**')).domain.scope, 'Read: app/Policies, app/Pay. Not read: the admin panel.');
+});

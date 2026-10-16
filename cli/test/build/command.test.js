@@ -83,3 +83,14 @@ test('SOURCE_DATE_EPOCH pins the build date, for reproducible documents', async 
   await run(['build'], io);
   assert.match(fs.readFileSync(path.join(repo.dir, 'rulebook/rulebook.html'), 'utf8'), /class="hero-meta">2025-03-04 · /);
 });
+
+test('build reads rulebook/.scan.json for the coverage of each domain', async () => {
+  const repo = makeRepo({
+    ...baseFiles(),
+    'rulebook/config.json': JSON.stringify({ language: 'en', hotspots: ['app/**'] }),
+    'rulebook/index.md': '# Business domains\n\n- **PAY** · Payments — Refunds.\n  - **Code**: `app/Policies/`\n',
+  });
+  await run(['scan'], fakeIo(repo.dir));
+  await run(['build'], fakeIo(repo.dir));
+  assert.match(fs.readFileSync(path.join(repo.dir, 'rulebook/rulebook.html'), 'utf8'), /class="coverage"><span class="label">Coverage<\/span> 1 decision point examined out of 1 \(100 %\)/);
+});

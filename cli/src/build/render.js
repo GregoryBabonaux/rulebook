@@ -58,11 +58,24 @@ const renderDetails = (details) => (details?.length
 const DOMAIN_COLORS = ['#6366f1', '#14b8a6', '#f59e0b', '#ec4899', '#0ea5e9', '#8b5cf6', '#22c55e', '#ef4444', '#06b6d4', '#d946ef', '#84cc16', '#f97316'];
 export const domainColor = (i) => DOMAIN_COLORS[i % DOMAIN_COLORS.length];
 
+const percent = (part, whole) => (whole ? Math.round((part / whole) * 100) : 0);
+
+function renderCoverage(domain, L) {
+  const parts = [];
+  if (domain.coverage) {
+    const c = domain.coverage;
+    const examined = c.covered + c.dismissed;
+    parts.push(`<p class="coverage"><span class="label">${escapeHtml(L.codeCoverage)}</span> ${escapeHtml(L.examined(examined, c.total, percent(examined, c.total)))}${c.review ? ` · ${escapeHtml(L.toReview(c.review))}` : ''}</p>`);
+  }
+  if (domain.scope) parts.push(`<p class="scope"><span class="label">${escapeHtml(L.scope)}</span> ${inline(domain.scope)}</p>`);
+  return parts.join('');
+}
+
 function renderDomain(domain, index, data, L) {
   const n = index + 1;
   const dom = `style="--dom:${domainColor(index)}"`;
   if (!domain.extracted) {
-    return `<section class="domain is-empty" id="${escapeHtml(domain.code)}" ${dom}><h2>${n}. ${inline(domain.title)}</h2><p class="lede">${inline(domain.description)}</p>${renderDetails(domain.details)}<p class="muted">${escapeHtml(L.notExtracted)}</p></section>`;
+    return `<section class="domain is-empty" id="${escapeHtml(domain.code)}" ${dom}><h2>${n}. ${inline(domain.title)}</h2><p class="lede">${inline(domain.description)}</p>${renderDetails(domain.details)}${renderCoverage(domain, L)}<p class="muted">${escapeHtml(L.notExtracted)}</p></section>`;
   }
   const policies = domain.policies.map((p, i) => `<section class="policy" id="${escapeHtml(p.card.id)}" data-kind="policy" data-search="${escapeHtml([p.card.id, p.card.title, p.card.sections.statement].join(' ').toLowerCase())}">
   <h3>${n}.${i + 1} ${inline(p.card.title)}</h3>
@@ -74,7 +87,7 @@ function renderDomain(domain, index, data, L) {
   const others = domain.otherRules.length
     ? `<section class="policy" data-kind="policy"><h3>${n}.${domain.policies.length + 1} ${escapeHtml(L.otherRules)}</h3>${domain.otherRules.map((r) => renderRule(r, data, L)).join('\n')}</section>`
     : '';
-  return `<section class="domain" id="${escapeHtml(domain.code)}" ${dom}><h2>${n}. ${inline(domain.title)}</h2>${domain.description ? `<p class="lede">${inline(domain.description)}</p>` : ''}${renderDetails(domain.details)}${policies}${others}</section>`;
+  return `<section class="domain" id="${escapeHtml(domain.code)}" ${dom}><h2>${n}. ${inline(domain.title)}</h2>${domain.description ? `<p class="lede">${inline(domain.description)}</p>` : ''}${renderDetails(domain.details)}${renderCoverage(domain, L)}${policies}${others}</section>`;
 }
 
 const CONFIDENCES = ['verified', 'read', 'inferred', 'conflicting'];
@@ -119,13 +132,20 @@ function renderDashboard(data, L) {
     }).join('');
     return `<div class="bar-row" data-domain="${escapeHtml(d.code)}" style="--dom:${domainColor(index)}"><a href="#${escapeHtml(d.code)}">${inline(d.title)}</a><span class="bar">${segs}</span><span class="muted">${own.length}</span></div>`;
   }).join('');
+  const coverageBars = data.coverage ? data.domains.map((d, index) => {
+    if (!d.coverage) return '';
+    const examined = d.coverage.covered + d.coverage.dismissed;
+    const pct = percent(examined, d.coverage.total);
+    return `<div class="bar-row" data-coverage="${escapeHtml(d.code)}" style="--dom:${domainColor(index)}"><a href="#${escapeHtml(d.code)}">${inline(d.title)}</a><span class="bar"><span class="seg examined" style="width:${pct}%" title="${escapeHtml(L.examined(examined, d.coverage.total, pct))}"></span></span><span class="muted">${examined} / ${d.coverage.total}</span></div>`;
+  }).join('') : '';
   const recent = data.since.items.slice(0, 8).map((i) => `<li><span class="tag tag-${i.type}">${escapeHtml(L.tag[i.type])}</span> <a href="#${escapeHtml(i.id)}">${escapeHtml(i.id)}</a> · ${inline(i.title)}</li>`).join('');
   const pending = data.toValidate.slice(0, 8).map((v) => `<li><span class="label">${escapeHtml(L.item[v.type])}</span> ${v.id ? `<a href="#${escapeHtml(v.id)}">${escapeHtml(v.id)}</a> · ` : ''}${inline(v.text)}</li>`).join('');
   return `<section class="view" id="view-dashboard" hidden>
-  <div class="kpis">${kpi(`${data.counts.extracted} / ${data.counts.domains}`, L.kpiExtracted)}${kpi(String(rules.length), L.kpiRules)}${kpi(`${pct} %`, L.kpiVerified)}${kpi(String(data.toValidate.length), L.kpiToValidate)}</div>
+  <div class="kpis">${kpi(`${data.counts.extracted} / ${data.counts.domains}`, L.kpiExtracted)}${kpi(String(rules.length), L.kpiRules)}${kpi(`${pct} %`, L.kpiVerified)}${kpi(String(data.toValidate.length), L.kpiToValidate)}${data.coverage ? kpi(`${percent(data.coverage.examined, data.coverage.total)} %`, L.kpiExamined) : ''}</div>
   <h2 class="small">${escapeHtml(L.byDomain)}</h2>
   <div class="bars">${bars}</div>
   <p class="map-legend muted">${CONFIDENCES.map((k) => `<span><span class="dot conf-${k}"></span>${escapeHtml(L.conf[k])}</span>`).join(' ')}</p>
+  ${coverageBars ? `<h2 class="small">${escapeHtml(L.byCoverage)}</h2><div class="bars">${coverageBars}</div>` : ''}
   <div class="dash-cols">
     <div><h2 class="small">${escapeHtml(L.recentChanges)}</h2>${recent ? `<ul class="plain">${recent}</ul>` : `<p class="muted">${escapeHtml(L.noRecentChanges)}</p>`}</div>
     <div><h2 class="small">${escapeHtml(L.toValidate)}</h2>${pending ? `<ul class="plain">${pending}</ul>` : `<p class="muted">${escapeHtml(L.nothingToValidate)}</p>`}</div>

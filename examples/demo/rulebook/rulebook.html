@@ -197,6 +197,9 @@ circle.conf-inferred { fill: var(--grey); } circle.conf-conflicting { fill: var(
 .seg.conf-verified { background: linear-gradient(90deg, #059669, var(--green)); }
 .seg.conf-read { background: linear-gradient(90deg, #2563eb, var(--blue)); }
 .seg.conf-conflicting { background: linear-gradient(90deg, #dc2626, var(--red)); }
+.seg.examined { background: linear-gradient(90deg, var(--dom), color-mix(in srgb, var(--dom) 55%, #fff)); }
+.coverage, .scope { font-size: 0.9rem; color: var(--muted); margin: 0.35rem 0; }
+.coverage .label, .scope .label { color: var(--text); }
 .dash-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 1.25rem; margin-top: 1.5rem; }
 .dash-cols > div { background: var(--surface); border-radius: 18px; padding: 1.1rem 1.3rem; box-shadow: var(--shadow); }
 .plain { list-style: none; padding: 0; margin: 0; font-size: 0.92rem; line-height: 1.9; }
@@ -248,7 +251,7 @@ circle.conf-inferred { fill: var(--grey); } circle.conf-conflicting { fill: var(
 </aside>
 <main class="page">
 <header class="hero">
-  <p class="hero-meta">2026-10-16 · f504337</p>
+  <p class="hero-meta">2026-10-16 · 1918102</p>
   <h1>Référentiel des règles</h1>
   <p class="lede">3 règles réparties en 2 domaines. Chaque règle dit ce que fait le produit, pourquoi, et où le vérifier dans le code.</p>
 </header>
@@ -311,12 +314,13 @@ circle.conf-inferred { fill: var(--grey); } circle.conf-conflicting { fill: var(
   <h2 class="small">Règles par domaine</h2>
   <div class="bars"><div class="bar-row" data-domain="PAY" style="--dom:#6366f1"><a href="#PAY">Paiements</a><span class="bar"><span class="seg conf-verified" style="width:33%" title="Prouvée par le code et un test · 1"></span><span class="seg conf-read" style="width:33%" title="Lue dans le code, pas testée · 1"></span><span class="seg conf-inferred" style="width:33%" title="Déduite des noms ou de la configuration · 1"></span></span><span class="muted">3</span></div><div class="bar-row" data-domain="ORD" style="--dom:#14b8a6"><a href="#ORD">Commandes</a><span class="bar empty"></span><span class="muted">pas encore extrait</span></div></div>
   <p class="map-legend muted"><span><span class="dot conf-verified"></span>Prouvée par le code et un test</span> <span><span class="dot conf-read"></span>Lue dans le code, pas testée</span> <span><span class="dot conf-inferred"></span>Déduite des noms ou de la configuration</span> <span><span class="dot conf-conflicting"></span>Preuves contradictoires</span></p>
+  
   <div class="dash-cols">
     <div><h2 class="small">Changements récents</h2><ul class="plain"><li><span class="tag tag-new">nouvelle</span> <a href="#PAY-R019">PAY-R019</a> · Un remboursement de plus de 500 € demande un administrateur</li><li><span class="tag tag-new">nouvelle</span> <a href="#PAY-R012">PAY-R012</a> · Remboursement possible jusqu&#39;à 14 jours après la livraison</li></ul></div>
     <div><h2 class="small">À valider</h2><ul class="plain"><li><span class="label">Question ouverte</span> <a href="#PAY-R012">PAY-R012</a> · Les jours fériés comptent-ils dans les 14 jours ? Aujourd&#39;hui, oui.</li></ul></div>
   </div>
 </section>
-<footer class="footer muted"><p>Généré par rulebook 0.1.0 depuis le commit f504337. 1 domaine(s) extrait(s) sur 2.</p></footer>
+<footer class="footer muted"><p>Généré par rulebook 0.1.0 depuis le commit 1918102. 1 domaine(s) extrait(s) sur 2.</p></footer>
 </main>
 </div>
 <script id="rulebook-labels" type="application/json">{"shown":"{n} affichées","noMatch":"Aucune règle ne correspond à ces filtres.","conf":{"verified":"Prouvée par le code et un test","read":"Lue dans le code, pas testée","inferred":"Déduite des noms ou de la configuration","conflicting":"Preuves contradictoires"},"tag":{"new":"nouvelle","changed":"modifiée","retired":"retirée"},"change":{"created":"créée","changed":"modifiée","retired":"retirée","reanchored":"réancrée"},"otherRules":"Autres règles de gestion","edgeCases":"Cas particuliers","history":"Historique","toValidate":"À valider","policy":"Règle métier","notExtracted":"pas encore extrait","openInDocument":"Ouvrir dans le document","close":"Fermer"}</script>

@@ -162,3 +162,25 @@ test('the document is signed by the generator and fully reproducible', () => {
   assert.equal(a, b, 'same cards, same file, byte for byte');
   assert.match(a, /<meta name="generator" content="rulebook-cli 0\.1\.0">/);
 });
+
+test('with a scan, each domain shows how many decision points were examined, and the dashboard sums it up', () => {
+  const model = data({ language: 'fr' });
+  model.domains.find((d) => d.code === 'PAY').coverage = { total: 20, covered: 12, dismissed: 3, review: 5 };
+  model.domains.find((d) => d.code === 'PAY').scope = 'Lu : `app/Pay`. Non lu : l’administration.';
+  model.domains.find((d) => d.code === 'STK').coverage = { total: 10, covered: 0, dismissed: 0, review: 10 };
+  model.coverage = { total: 30, examined: 15 };
+  const html = renderHtml(model);
+  const pay = html.slice(html.indexOf('id="PAY"'), html.indexOf('id="PAY-P03"'));
+  assert.match(pay, /<p class="coverage"><span class="label">Couverture<\/span> 15 points de décision examinés sur 20 \(75 %\) · 5 à examiner<\/p>/);
+  assert.match(pay, /<p class="scope"><span class="label">Périmètre<\/span> Lu : <code>app\/Pay<\/code>\. Non lu : l’administration\.<\/p>/);
+  const stk = html.slice(html.indexOf('id="STK"'), html.indexOf('id="to-validate"'));
+  assert.match(stk, /0 points de décision examinés sur 10 \(0 %\)/);
+  const dash = html.slice(html.indexOf('id="view-dashboard"'));
+  assert.match(dash, /<b>50 %<\/b><span>points de décision examinés<\/span>/);
+  assert.match(dash, /data-coverage="PAY"[^>]*>.*?<span class="seg examined" style="width:75%"/s);
+});
+
+test('without a scan, no coverage is shown', () => {
+  const html = renderHtml(data({ language: 'fr' }));
+  assert.doesNotMatch(html, /class="coverage"|points de décision/);
+});

@@ -31,7 +31,7 @@ function toValidate(cards, inboxText) {
   return out;
 }
 
-export function buildData({ name, commit, today, version, config, domainsMap, domainFiles, inboxText, sinceFrom }) {
+export function buildData({ name, commit, today, version, config, domainsMap, domainFiles, inboxText, sinceFrom, scan = null }) {
   const byCode = new Map();
   for (const entry of domainsMap) byCode.set(entry.code, { ...entry, file: null });
   for (const file of domainFiles) {
@@ -56,12 +56,18 @@ export function buildData({ name, commit, today, version, config, domainsMap, do
     const policies = cards.filter((c) => c.kind === 'policy').map((card) => ({ card, rules: cards.filter((r) => r.kind === 'rule' && r.policy === card.id) }));
     return {
       code: d.code, title: d.title, description: d.description, details: d.details ?? [], extracted: Boolean(d.file),
+      scope: d.file?.domain?.scope ?? null, coverage: scan?.domains?.[d.code] ?? null,
       policies, otherRules: cards.filter((r) => r.kind === 'rule' && !r.policy),
     };
   });
 
   const rules = allCards.filter((c) => c.kind === 'rule');
+  const measured = domains.filter((d) => d.coverage);
+  const coverage = measured.length
+    ? { total: measured.reduce((n, d) => n + d.coverage.total, 0), examined: measured.reduce((n, d) => n + d.coverage.covered + d.coverage.dismissed, 0) }
+    : null;
   return {
+    coverage,
     project: { name, commit, builtAt: today, version, language: config.language ?? 'en', repoUrl: config.repoUrl ?? null },
     since: { from: sinceFrom ?? null, items: sinceItems(allCards, sinceFrom) },
     counts: {
