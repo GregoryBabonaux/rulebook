@@ -29,7 +29,8 @@
   let initial = 'document';
   try { initial = sessionStorage.getItem('rulebook-view') || 'document'; } catch { /* ignore */ }
   if (location.hash && document.getElementById(location.hash.slice(1))?.closest('#view-document')) initial = 'document';
-  show(tabs.some((t) => t.dataset.view === initial) ? initial : 'document');
+  // deferred: the map script registers its listener after this one runs
+  setTimeout(() => show(tabs.some((t) => t.dataset.view === initial) ? initial : 'document'), 0);
 
   const q = document.getElementById('q');
   const kind = document.getElementById('f-kind');

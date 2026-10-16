@@ -131,3 +131,10 @@ test('the dashboard shows key figures and one bar per domain', () => {
   assert.match(dash, /data-domain="PAY"[^>]*>.*?<span class="seg conf-verified" style="width:50%"/s);
   assert.match(dash, /data-domain="STK"[^>]*>.*?not extracted yet/s);
 });
+
+test('the map data carries domain details', () => {
+  const model = data();
+  model.domains.find((d) => d.code === 'STK').details = [{ label: 'Couvre', text: 'réservations' }];
+  const map = JSON.parse(renderHtml(model).match(/<script id="rulebook-data" type="application\/json">(.*?)<\/script>/s)[1]);
+  assert.deepEqual(map.domains.find((d) => d.code === 'STK').details, [{ label: 'Couvre', text: 'réservations' }]);
+});

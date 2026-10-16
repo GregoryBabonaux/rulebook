@@ -25,7 +25,7 @@
   const root = {
     id: '__root', kind: 'root', label: data.name, open: true,
     children: data.domains.map((d) => ({
-      id: d.code, kind: 'domain', label: `${d.code} · ${d.title}`, extracted: d.extracted, open: true,
+      id: d.code, kind: 'domain', label: `${d.code} · ${d.title}`, extracted: d.extracted, domain: d, open: true,
       children: [
         ...d.policies.map((p) => ({ id: p.id, kind: 'policy', label: short(p.title, 34), policy: p, open: false, children: p.rules.map(ruleNode) })),
         ...(d.otherRules.length ? [{ id: `${d.code}-other`, kind: 'policy', label: L.otherRules, open: false, children: d.otherRules.map(ruleNode) }] : []),
@@ -93,15 +93,31 @@
   }
   function activate(n) {
     if (n.kind === 'rule') showRule(n);
+    if (n.kind === 'domain') showDomain(n);
     if (n.children?.length) { n.open = !n.open; draw(); }
   }
 
   // --- side panel with the rule card
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const code = (s) => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>');
+  function openPanel(html) {
+    panel.innerHTML = `<button type="button" class="mm-close" aria-label="${esc(L.close)}">×</button>${html}`;
+    panel.hidden = false;
+    frame.classList.add('with-panel');
+    requestAnimationFrame(fit);
+    panel.querySelector('.mm-close').addEventListener('click', () => { panel.hidden = true; frame.classList.remove('with-panel'); requestAnimationFrame(fit); });
+  }
+  function showDomain(n) {
+    const d = n.domain;
+    openPanel(`<p class="muted">${esc(d.code)}${d.extracted ? '' : ` · ${esc(L.notExtracted)}`}</p>
+      <h3>${code(d.title)}</h3>
+      ${d.description ? `<p class="context">${code(d.description)}</p>` : ''}
+      ${d.details.length ? `<dl class="details">${d.details.map((x) => `<dt>${code(x.label)}</dt><dd>${code(x.text)}</dd>`).join('')}</dl>` : ''}
+      <p><a href="#${esc(d.code)}">${esc(L.openInDocument)} →</a></p>`);
+  }
   function showRule(n) {
     const r = n.rule;
-    panel.innerHTML = `<button type="button" class="mm-close" aria-label="${esc(L.close)}">×</button>
+    openPanel(`
       <p class="muted">${esc(n.id)}${r.category ? ` · ${esc(r.category)}` : ''}${r.tag ? ` · <span class="tag tag-${esc(r.tag)}">${esc(L.tag[r.tag])}</span>` : ''}</p>
       <h3>${code(r.title)}</h3>
       ${r.rule ? `<p class="statement">${code(r.rule)}</p>` : ''}
@@ -110,10 +126,7 @@
       ${r.edgeCases.length ? `<p class="label">${esc(L.edgeCases)}</p><ul>${r.edgeCases.map((e) => `<li>${code(e.text)}</li>`).join('')}</ul>` : ''}
       ${r.openQuestions ? `<aside class="question"><strong>${esc(L.toValidate)}</strong> ${code(r.openQuestions)}</aside>` : ''}
       ${r.history.length ? `<p class="label">${esc(L.history)}</p><ul>${r.history.map((h) => `<li>${esc(h.date)} · ${esc(L.change[h.change] || h.change)}${h.note ? ` · ${code(h.note)}` : ''}</li>`).join('')}</ul>` : ''}
-      <p><a href="#${esc(n.id)}" data-open-document>${esc(L.openInDocument)} →</a></p>`;
-    panel.hidden = false;
-    frame.classList.add('with-panel');
-    panel.querySelector('.mm-close').addEventListener('click', () => { panel.hidden = true; frame.classList.remove('with-panel'); });
+      <p><a href="#${esc(n.id)}" data-open-document>${esc(L.openInDocument)} →</a></p>`);
   }
 
   // --- pan and zoom

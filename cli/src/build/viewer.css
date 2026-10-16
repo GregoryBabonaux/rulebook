@@ -134,6 +134,10 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
 .mm-hit circle { stroke: var(--text); stroke-width: 1.5; }
 .map-panel { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1.25rem; position: relative; }
 .map-panel h3 { margin-top: 0.2rem; }
+.map-panel { overflow-x: hidden; }
+.map-panel .details { grid-template-columns: 1fr; gap: 0.1rem; }
+.map-panel .details dd { margin-bottom: 0.5rem; }
+.details code, .map-panel code { overflow-wrap: anywhere; }
 .mm-close { position: absolute; top: 0.5rem; right: 0.6rem; border: 0; background: none; color: var(--muted); font-size: 1.4rem; cursor: pointer; }
 .map-legend { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.85rem; }
 @media (min-width: 64rem) {

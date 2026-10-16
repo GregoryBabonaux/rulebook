@@ -141,6 +141,10 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
 .mm-hit circle { stroke: var(--text); stroke-width: 1.5; }
 .map-panel { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1.25rem; position: relative; }
 .map-panel h3 { margin-top: 0.2rem; }
+.map-panel { overflow-x: hidden; }
+.map-panel .details { grid-template-columns: 1fr; gap: 0.1rem; }
+.map-panel .details dd { margin-bottom: 0.5rem; }
+.details code, .map-panel code { overflow-wrap: anywhere; }
 .mm-close { position: absolute; top: 0.5rem; right: 0.6rem; border: 0; background: none; color: var(--muted); font-size: 1.4rem; cursor: pointer; }
 .map-legend { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.85rem; }
 @media (min-width: 64rem) {
@@ -169,7 +173,7 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
 <body>
 <main class="page">
 <header class="masthead">
-  <p class="muted">rulebook · 2026-10-16 · 1170599</p>
+  <p class="muted">rulebook · 2026-10-16 · f6d0f00</p>
   <div class="title-row"><h1>Référentiel des règles</h1><button type="button" id="theme" class="theme" aria-label="Changer de thème">◐</button></div>
   <p class="lede">3 règles réparties en 2 domaines. Chaque règle dit ce que fait le produit, pourquoi, et où le vérifier dans le code.</p>
 </header>
@@ -249,10 +253,10 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
     <div><h2 class="small">À valider</h2><ul class="plain"><li><span class="label">Question ouverte</span> <a href="#PAY-R012">PAY-R012</a> · Les jours fériés comptent-ils dans les 14 jours ? Aujourd&#39;hui, oui.</li></ul></div>
   </div>
 </section>
-<footer class="footer muted"><p>Généré par rulebook 0.1.0 depuis le commit 1170599. 1 domaine(s) extrait(s) sur 2.</p></footer>
+<footer class="footer muted"><p>Généré par rulebook 0.1.0 depuis le commit f6d0f00. 1 domaine(s) extrait(s) sur 2.</p></footer>
 </main>
 <script id="rulebook-labels" type="application/json">{"shown":"{n} affichées","noMatch":"Aucune règle ne correspond à ces filtres.","conf":{"verified":"Prouvée par le code et un test","read":"Lue dans le code, pas testée","inferred":"Déduite des noms ou de la configuration","conflicting":"Preuves contradictoires"},"tag":{"new":"nouvelle","changed":"modifiée","retired":"retirée"},"change":{"created":"créée","changed":"modifiée","retired":"retirée","reanchored":"réancrée"},"otherRules":"Autres règles de gestion","edgeCases":"Cas particuliers","history":"Historique","toValidate":"À valider","policy":"Règle métier","notExtracted":"pas encore extrait","openInDocument":"Ouvrir dans le document","close":"Fermer"}</script>
-<script id="rulebook-data" type="application/json">{"name":"rulebook","domains":[{"code":"PAY","title":"Paiements","description":"Comment la boutique encaisse, rembourse et protège le client en cas de litige.","extracted":true,"policies":[{"id":"PAY-P03","title":"Droit de rétractation","statement":"Un client doit pouvoir renoncer à un achat dans un délai donné après l'avoir reçu.","rules":["PAY-R012","PAY-R019"]}],"otherRules":["PAY-R020"]},{"code":"ORD","title":"Commandes","description":"Du panier à la livraison.","extracted":false,"policies":[],"otherRules":[]}],"rules":{"PAY-R012":{"title":"Remboursement possible jusqu'à 14 jours après la livraison","rule":"Un remboursement ne peut être demandé que si la commande a été livrée il y a 14 jours ou moins.","context":"Le délai part de la livraison, pas de la commande. C'est la façon dont le produit applique le droit de rétractation.","confidence":"verified","category":"timing","status":"changed","tag":"new","evidence":[{"label":"OrderPolicy.php:9","href":"../../../app/Policies/OrderPolicy.php"},{"label":"RefundTest.php:3","href":"../../../tests/RefundTest.php"}],"edgeCases":[{"id":"PAY-R012.E1","text":"Étant donné une commande jamais livrée, quand le client demande un remboursement, alors la demande est refusée.","confidence":"read"},{"id":"PAY-R012.E2","text":"Étant donné une livraison il y a exactement 14 jours, quand le client demande un remboursement, alors la demande est acceptée.","confidence":"verified"}],"history":[{"date":"2026-10-14","change":"changed","note":"délai passé de 30 à 14 jours"},{"date":"2026-10-02","change":"created","note":null}],"openQuestions":"Les jours fériés comptent-ils dans les 14 jours ? Aujourd'hui, oui."},"PAY-R019":{"title":"Un remboursement de plus de 500 € demande un administrateur","rule":"Un remboursement de plus de 500 € doit être approuvé par un administrateur avant d'être versé.","context":"Protège la boutique contre les remboursements importants faits par erreur depuis le support.","confidence":"read","category":"authorization","status":"active","tag":"new","evidence":[{"label":"RefundService.php:6","href":"../../../app/Services/RefundService.php"}],"edgeCases":[],"history":[{"date":"2026-10-15","change":"created","note":null}],"openQuestions":""},"PAY-R020":{"title":"Le remboursement revient sur le moyen de paiement d'origine","rule":"Un remboursement est toujours renvoyé sur la carte utilisée pour la commande.","context":"Déduit du nom de la méthode de paiement ; aucun chemin d'exécution lu de bout en bout.","confidence":"inferred","category":"integration","status":"active","tag":null,"evidence":[],"edgeCases":[],"history":[],"openQuestions":""}}}</script>
+<script id="rulebook-data" type="application/json">{"name":"rulebook","domains":[{"code":"PAY","title":"Paiements","description":"Comment la boutique encaisse, rembourse et protège le client en cas de litige.","extracted":true,"details":[],"policies":[{"id":"PAY-P03","title":"Droit de rétractation","statement":"Un client doit pouvoir renoncer à un achat dans un délai donné après l'avoir reçu.","rules":["PAY-R012","PAY-R019"]}],"otherRules":["PAY-R020"]},{"code":"ORD","title":"Commandes","description":"Du panier à la livraison.","extracted":false,"details":[],"policies":[],"otherRules":[]}],"rules":{"PAY-R012":{"title":"Remboursement possible jusqu'à 14 jours après la livraison","rule":"Un remboursement ne peut être demandé que si la commande a été livrée il y a 14 jours ou moins.","context":"Le délai part de la livraison, pas de la commande. C'est la façon dont le produit applique le droit de rétractation.","confidence":"verified","category":"timing","status":"changed","tag":"new","evidence":[{"label":"OrderPolicy.php:9","href":"../../../app/Policies/OrderPolicy.php"},{"label":"RefundTest.php:3","href":"../../../tests/RefundTest.php"}],"edgeCases":[{"id":"PAY-R012.E1","text":"Étant donné une commande jamais livrée, quand le client demande un remboursement, alors la demande est refusée.","confidence":"read"},{"id":"PAY-R012.E2","text":"Étant donné une livraison il y a exactement 14 jours, quand le client demande un remboursement, alors la demande est acceptée.","confidence":"verified"}],"history":[{"date":"2026-10-14","change":"changed","note":"délai passé de 30 à 14 jours"},{"date":"2026-10-02","change":"created","note":null}],"openQuestions":"Les jours fériés comptent-ils dans les 14 jours ? Aujourd'hui, oui."},"PAY-R019":{"title":"Un remboursement de plus de 500 € demande un administrateur","rule":"Un remboursement de plus de 500 € doit être approuvé par un administrateur avant d'être versé.","context":"Protège la boutique contre les remboursements importants faits par erreur depuis le support.","confidence":"read","category":"authorization","status":"active","tag":"new","evidence":[{"label":"RefundService.php:6","href":"../../../app/Services/RefundService.php"}],"edgeCases":[],"history":[{"date":"2026-10-15","change":"created","note":null}],"openQuestions":""},"PAY-R020":{"title":"Le remboursement revient sur le moyen de paiement d'origine","rule":"Un remboursement est toujours renvoyé sur la carte utilisée pour la commande.","context":"Déduit du nom de la méthode de paiement ; aucun chemin d'exécution lu de bout en bout.","confidence":"inferred","category":"integration","status":"active","tag":null,"evidence":[],"edgeCases":[],"history":[],"openQuestions":""}}}</script>
 <script>
 // Horizontal tidy tree: depth on the x axis, leaves stacked on the y axis, each parent centred
 // on its visible children. A closed node is laid out as a leaf. Plain script (no export): it is
@@ -310,7 +314,8 @@ function tidyLayout(root, opts) {
   let initial = 'document';
   try { initial = sessionStorage.getItem('rulebook-view') || 'document'; } catch { /* ignore */ }
   if (location.hash && document.getElementById(location.hash.slice(1))?.closest('#view-document')) initial = 'document';
-  show(tabs.some((t) => t.dataset.view === initial) ? initial : 'document');
+  // deferred: the map script registers its listener after this one runs
+  setTimeout(() => show(tabs.some((t) => t.dataset.view === initial) ? initial : 'document'), 0);
 
   const q = document.getElementById('q');
   const kind = document.getElementById('f-kind');
@@ -377,7 +382,7 @@ function tidyLayout(root, opts) {
   const root = {
     id: '__root', kind: 'root', label: data.name, open: true,
     children: data.domains.map((d) => ({
-      id: d.code, kind: 'domain', label: `${d.code} · ${d.title}`, extracted: d.extracted, open: true,
+      id: d.code, kind: 'domain', label: `${d.code} · ${d.title}`, extracted: d.extracted, domain: d, open: true,
       children: [
         ...d.policies.map((p) => ({ id: p.id, kind: 'policy', label: short(p.title, 34), policy: p, open: false, children: p.rules.map(ruleNode) })),
         ...(d.otherRules.length ? [{ id: `${d.code}-other`, kind: 'policy', label: L.otherRules, open: false, children: d.otherRules.map(ruleNode) }] : []),
@@ -445,15 +450,31 @@ function tidyLayout(root, opts) {
   }
   function activate(n) {
     if (n.kind === 'rule') showRule(n);
+    if (n.kind === 'domain') showDomain(n);
     if (n.children?.length) { n.open = !n.open; draw(); }
   }
 
   // --- side panel with the rule card
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const code = (s) => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>');
+  function openPanel(html) {
+    panel.innerHTML = `<button type="button" class="mm-close" aria-label="${esc(L.close)}">×</button>${html}`;
+    panel.hidden = false;
+    frame.classList.add('with-panel');
+    requestAnimationFrame(fit);
+    panel.querySelector('.mm-close').addEventListener('click', () => { panel.hidden = true; frame.classList.remove('with-panel'); requestAnimationFrame(fit); });
+  }
+  function showDomain(n) {
+    const d = n.domain;
+    openPanel(`<p class="muted">${esc(d.code)}${d.extracted ? '' : ` · ${esc(L.notExtracted)}`}</p>
+      <h3>${code(d.title)}</h3>
+      ${d.description ? `<p class="context">${code(d.description)}</p>` : ''}
+      ${d.details.length ? `<dl class="details">${d.details.map((x) => `<dt>${code(x.label)}</dt><dd>${code(x.text)}</dd>`).join('')}</dl>` : ''}
+      <p><a href="#${esc(d.code)}">${esc(L.openInDocument)} →</a></p>`);
+  }
   function showRule(n) {
     const r = n.rule;
-    panel.innerHTML = `<button type="button" class="mm-close" aria-label="${esc(L.close)}">×</button>
+    openPanel(`
       <p class="muted">${esc(n.id)}${r.category ? ` · ${esc(r.category)}` : ''}${r.tag ? ` · <span class="tag tag-${esc(r.tag)}">${esc(L.tag[r.tag])}</span>` : ''}</p>
       <h3>${code(r.title)}</h3>
       ${r.rule ? `<p class="statement">${code(r.rule)}</p>` : ''}
@@ -462,10 +483,7 @@ function tidyLayout(root, opts) {
       ${r.edgeCases.length ? `<p class="label">${esc(L.edgeCases)}</p><ul>${r.edgeCases.map((e) => `<li>${code(e.text)}</li>`).join('')}</ul>` : ''}
       ${r.openQuestions ? `<aside class="question"><strong>${esc(L.toValidate)}</strong> ${code(r.openQuestions)}</aside>` : ''}
       ${r.history.length ? `<p class="label">${esc(L.history)}</p><ul>${r.history.map((h) => `<li>${esc(h.date)} · ${esc(L.change[h.change] || h.change)}${h.note ? ` · ${code(h.note)}` : ''}</li>`).join('')}</ul>` : ''}
-      <p><a href="#${esc(n.id)}" data-open-document>${esc(L.openInDocument)} →</a></p>`;
-    panel.hidden = false;
-    frame.classList.add('with-panel');
-    panel.querySelector('.mm-close').addEventListener('click', () => { panel.hidden = true; frame.classList.remove('with-panel'); });
+      <p><a href="#${esc(n.id)}" data-open-document>${esc(L.openInDocument)} →</a></p>`);
   }
 
   // --- pan and zoom

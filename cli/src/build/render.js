@@ -92,7 +92,7 @@ function mapModel(data) {
       };
     }
     return {
-      code: d.code, title: d.title, description: d.description, extracted: d.extracted,
+      code: d.code, title: d.title, description: d.description, extracted: d.extracted, details: d.details ?? [],
       policies: d.policies.map((p) => ({ id: p.card.id, title: p.card.title, statement: p.card.sections.statement ?? '', rules: p.rules.map((r) => r.id) })),
       otherRules: d.otherRules.map((r) => r.id),
     };
