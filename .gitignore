@@ -2,3 +2,5 @@ node_modules/
 *.log
 .superpowers/
 cli/skills/
+cli/README.md
+cli/LICENSE

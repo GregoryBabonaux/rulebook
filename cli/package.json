@@ -9,7 +9,9 @@
   "files": [
     "bin",
     "src",
-    "skills"
+    "skills",
+    "README.md",
+    "LICENSE"
   ],
   "engines": {
     "node": ">=22"
@@ -18,5 +20,11 @@
     "test": "node --test \"test/**/*.test.js\"",
     "prepack": "node ../scripts/bundle-skills.mjs"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/<owner>/rulebook.git",
+    "directory": "cli"
+  },
+  "homepage": "https://github.com/<owner>/rulebook#readme"
 }

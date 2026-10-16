@@ -63,7 +63,7 @@ npx skills add <owner>/rulebook
 /plugin marketplace add <owner>/rulebook
 /plugin install rulebook@rulebook
 ```
-Auto-update is off by default for third-party marketplaces. To turn it on, open `/plugin` → Marketplaces → rulebook → *Enable auto-update*.
+Auto-update is off by default for third-party marketplaces. To turn it on, open `/plugin` → Marketplaces → rulebook → *Enable auto-update*. The plugin's hooks only run in projects that have a `rulebook/` folder, and step aside when the project installed its own with `rulebook init`.
 
 **npm** (skills for agents that read `~/.agents/skills` or `~/.claude/skills`):
 ```bash
@@ -121,7 +121,7 @@ The CLI prints `rulebook <version> available — …` at most once a day, from a
 
 ## FAQ
 
-**Does it change my code?** No. Skills write only under `rulebook/`. The CLI writes `rulebook/.index.json`, `rulebook/inbox.md`, the HTML, and the hook files you approve with `init --yes`.
+**Does it change my code?** No. Skills write only under `rulebook/`. The CLI writes `rulebook/.index.json`, `rulebook/inbox.md` and the HTML; `init --yes` writes the hook files you approved, `update` refreshes only what rulebook already installed, and `skills --yes` copies the skills into your home directory.
 
 **Which languages?** The skills are written in English. The reference is written in your project's language (`rulebook/config.json` → `language`). The document's labels exist in English and French.
 

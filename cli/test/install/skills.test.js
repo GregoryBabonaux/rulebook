@@ -56,3 +56,22 @@ test('update refreshes stamped copies from an older version', async () => {
   assert.equal(fs.readFileSync(path.join(skill, '.rulebook-version'), 'utf8').trim(), VERSION);
   assert.match(io.out, /refreshed 1 skill copy/);
 });
+
+test('update outside a git repository still refreshes stamped skills', async () => {
+  const h = home();
+  const env = { RULEBOOK_HOME: h, RULEBOOK_NO_UPDATE_CHECK: '1' };
+  await run(['skills', '--yes'], fakeIo(os.tmpdir(), { env }));
+  fs.writeFileSync(path.join(h, '.agents', 'skills', 'rulebook-map', '.rulebook-version'), '0.0.1\n');
+  const io = fakeIo(fs.mkdtempSync(path.join(os.tmpdir(), 'rulebook-nogit-')), { env });
+  assert.equal(await run(['update'], io), 0);
+  assert.match(io.out, /refreshed 1 skill copy/);
+});
+
+test('update in a repository without rulebook installation writes nothing', async () => {
+  const repo = makeRepo({ 'a.txt': 'x' });
+  const io = fakeIo(repo.dir, { env: { RULEBOOK_HOME: home() } });
+  assert.equal(await run(['update'], io), 0);
+  assert.equal(fs.existsSync(path.join(repo.dir, 'AGENTS.md')), false);
+  assert.equal(fs.existsSync(path.join(repo.dir, 'rulebook')), false);
+  assert.match(io.out, /no rulebook installation in this repository/);
+});

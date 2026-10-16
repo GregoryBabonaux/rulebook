@@ -19,7 +19,7 @@ const notice = (io) => updateNotice({ env: io.env, now: io.now ? io.now() : new 
 export function parseOptions(args) {
   const o = {
     scope: { kind: 'worktree' }, format: 'line', strict: false, dir: 'rulebook',
-    agents: null, yes: false, dryRun: false, bin: null, quiet: false, out: null, target: null,
+    agents: null, yes: false, dryRun: false, bin: null, quiet: false, out: null, target: null, via: null,
   };
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
@@ -36,6 +36,7 @@ export function parseOptions(args) {
     else if (a === '--quiet') o.quiet = true;
     else if (a === '--out') o.out = args[++i] ?? null;
     else if (a === '--target') o.target = args[++i] ?? null;
+    else if (a === '--via') o.via = args[++i] ?? null;
   }
   return o;
 }

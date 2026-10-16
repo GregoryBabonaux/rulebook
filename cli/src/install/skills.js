@@ -7,7 +7,11 @@ const STAMP = '.rulebook-version';
 
 // Bundled copy (npm package, filled at prepack) first, then the repository's skills/ (development).
 export function skillsSource() {
-  const candidates = ['../../skills', '../../../skills'].map((rel) => fileURLToPath(new URL(rel, import.meta.url)));
+  // in the repository (references/ next to skills/), the live skills win over a stale cli/skills/
+  const repo = fileURLToPath(new URL('../../../skills', import.meta.url));
+  const bundled = fileURLToPath(new URL('../../skills', import.meta.url));
+  const inRepo = fs.existsSync(fileURLToPath(new URL('../../../references', import.meta.url)));
+  const candidates = inRepo ? [repo, bundled] : [bundled, repo];
   return candidates.find((dir) => fs.existsSync(dir) && listSkills(dir).length) ?? null;
 }
 
