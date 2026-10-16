@@ -51,7 +51,7 @@ test('hostile card text never becomes markup or breaks the script', () => {
   const html = renderHtml(data({}, md));
   assert.doesNotMatch(html, /<script>alert/);
   assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
-  assert.equal(html.match(/<\/script>/g).length, 2, 'only the labels and viewer scripts close a script tag');
+  assert.equal(html.match(/<\/script>/g).length, 3, 'only the labels, data and viewer scripts close a script tag');
 });
 
 test('self-contained: no external resources', () => {
@@ -94,4 +94,40 @@ test('domain details are rendered, for extracted and not-yet-extracted domains',
   const html = renderHtml(model);
   const stk = html.slice(html.indexOf('id="STK"'), html.indexOf('id="to-validate"'));
   assert.match(stk, /<dt>Couvre<\/dt><dd>les <code>réservations<\/code><\/dd>/);
+});
+
+test('three views: document, map and dashboard, with tabs', () => {
+  const html = renderHtml(data({ language: 'fr' }));
+  assert.match(html, /<nav class="views"[^>]*>.*Document.*Carte.*Tableau de bord/s);
+  assert.match(html, /<section class="view" id="view-document">/);
+  assert.match(html, /<section class="view" id="view-map" hidden>/);
+  assert.match(html, /<section class="view" id="view-dashboard" hidden>/);
+  assert.match(html, /function tidyLayout/);
+});
+
+test('the map data is embedded as JSON with domains, policies and rules', () => {
+  const html = renderHtml(data());
+  const json = html.match(/<script id="rulebook-data" type="application\/json">(.*?)<\/script>/s)[1];
+  const map = JSON.parse(json);
+  assert.equal(map.name, 'shop');
+  const pay = map.domains.find((d) => d.code === 'PAY');
+  assert.deepEqual(pay.policies.map((p) => [p.id, p.rules]), [['PAY-P03', ['PAY-R012']]]);
+  assert.deepEqual(pay.otherRules, ['PAY-R020']);
+  assert.equal(map.domains.find((d) => d.code === 'STK').extracted, false);
+  const r = map.rules['PAY-R012'];
+  assert.equal(r.confidence, 'verified');
+  assert.equal(r.tag, 'changed');
+  assert.equal(r.evidence[0].href, '../app/Policies/OrderPolicy.php');
+  assert.equal(r.edgeCases.length, 2);
+});
+
+test('the dashboard shows key figures and one bar per domain', () => {
+  const html = renderHtml(data());
+  const dash = html.slice(html.indexOf('id="view-dashboard"'));
+  assert.match(dash, /<b>1 \/ 2<\/b><span>domains extracted<\/span>/);
+  assert.match(dash, /<b>2<\/b><span>operating rules<\/span>/);
+  assert.match(dash, /<b>50 %<\/b><span>proven by a test<\/span>/);
+  assert.match(dash, /<b>1<\/b><span>items to validate<\/span>/);
+  assert.match(dash, /data-domain="PAY"[^>]*>.*?<span class="seg conf-verified" style="width:50%"/s);
+  assert.match(dash, /data-domain="STK"[^>]*>.*?not extracted yet/s);
 });

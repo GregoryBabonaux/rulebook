@@ -55,7 +55,11 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
 .controls input, .controls select { font: inherit; font-size: 0.9rem; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 0.35rem 0.6rem; }
 .controls input { flex: 1 1 12rem; min-width: 0; }
 .domain { padding-top: 2.5rem; margin-top: 1rem; border-top: 1px solid var(--line); }
-.domain.is-empty h2 { color: var(--muted); }
+.domain.is-empty h2 { color: var(--text); }
+.details { display: grid; grid-template-columns: max-content 1fr; gap: 0.35rem 1rem; margin: 0.5rem 0 1rem; font-size: 0.95rem; }
+.details dt { color: var(--muted); font-weight: 500; }
+.details dd { margin: 0; }
+@media (max-width: 30rem) { .details { grid-template-columns: 1fr; } .details dd { margin-bottom: 0.4rem; } }
 .policy-statement { font-family: var(--serif); font-size: 1.05rem; color: var(--muted); margin: 0 0 0.5rem; }
 .rule { padding: 1.1rem 0; border-bottom: 1px solid var(--line); }
 .rule:last-child { border-bottom: 0; }
@@ -104,17 +108,76 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
   a { color: inherit; }
 }
 
+/* --- views */
+[data-view="map"] .controls, [data-view="dashboard"] .controls { position: static; }
+[data-view="dashboard"] .controls { display: none; }
+.views { display: none; gap: 0.25rem; border-bottom: 1px solid var(--line); margin: 0 0 0.5rem; }
+.js .views { display: flex; }
+.views button { font: inherit; font-size: 0.95rem; background: none; border: 0; border-bottom: 2px solid transparent; color: var(--muted); padding: 0.55rem 0.9rem; cursor: pointer; }
+.views button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--text); }
+.views button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wide { width: min(96vw, 76rem); position: relative; left: 50%; transform: translateX(-50%); }
+
+/* --- map */
+.map-frame { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.5rem; }
+.map-tools { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; }
+.map-tools button { font: inherit; width: 2rem; height: 2rem; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); cursor: pointer; }
+#mindmap { width: 100%; height: min(72vh, 46rem); background: var(--surface); border-radius: 12px; cursor: grab; touch-action: none; user-select: none; }
+#mindmap.dragging { cursor: grabbing; }
+.mm-links path { fill: none; stroke: var(--line); stroke-width: 1.2; }
+.mm-node { cursor: pointer; }
+.mm-node text { font: 13px var(--sans); fill: var(--text); }
+.mm-node:focus { outline: none; }
+.mm-node:focus-visible text, .mm-node:hover text { text-decoration: underline; }
+.mm-dot { fill: var(--faint); }
+.mm-root text { font-size: 15px; font-weight: 600; }
+.mm-domain text { font-weight: 600; }
+.mm-policy .mm-dot { fill: var(--accent); }
+.mm-empty text { fill: var(--muted); }
+.mm-edge text { font-size: 12px; fill: var(--muted); }
+.mm-tag-new text, .mm-tag-changed text { font-weight: 600; }
+.mm-tag-new circle, .mm-tag-changed circle { stroke: var(--amber); stroke-width: 2; stroke-opacity: 0.8; }
+.mm-dim { opacity: 0.25; }
+.mm-hit circle { stroke: var(--text); stroke-width: 1.5; }
+.map-panel { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1.25rem; position: relative; }
+.map-panel h3 { margin-top: 0.2rem; }
+.mm-close { position: absolute; top: 0.5rem; right: 0.6rem; border: 0; background: none; color: var(--muted); font-size: 1.4rem; cursor: pointer; }
+.map-legend { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.85rem; }
+@media (min-width: 64rem) {
+  .map-frame.with-panel { grid-template-columns: minmax(0, 1fr) 22rem; }
+  .map-frame .map-tools, .map-frame .map-legend { grid-column: 1 / -1; }
+  .map-panel { grid-column: 2; grid-row: 2; max-height: min(72vh, 46rem); overflow: auto; }
+  .map-panel[hidden] { display: none; }
+}
+
+/* --- dashboard */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.75rem; margin: 1rem 0 2rem; }
+.kpi { background: var(--surface); border-radius: 10px; padding: 0.9rem 1rem; }
+.kpi b { display: block; font: 500 1.6rem/1.2 var(--sans); }
+.kpi span { font-size: 0.85rem; color: var(--muted); }
+.bars { display: grid; gap: 0.55rem; margin-bottom: 0.75rem; }
+.bar-row { display: grid; grid-template-columns: minmax(8rem, 14rem) minmax(0, 1fr) 9rem; gap: 0.75rem; align-items: center; font-size: 0.92rem; }
+.bar { display: flex; height: 0.6rem; border-radius: 4px; overflow: hidden; background: var(--surface); }
+.bar .seg { display: block; height: 100%; }
+.dash-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 2rem; margin-top: 2rem; }
+.plain { list-style: none; padding: 0; margin: 0; font-size: 0.92rem; line-height: 1.9; }
+@media (max-width: 30rem) { .bar-row { grid-template-columns: 1fr; gap: 0.2rem; } }
+@media print { .views, #view-map, #view-dashboard { display: none !important; } #view-document { display: block !important; } }
+
 </style>
 </head>
 <body>
 <main class="page">
 <header class="masthead">
-  <p class="muted">rulebook · 2026-10-16 · a365123</p>
+  <p class="muted">rulebook · 2026-10-16 · 1170599</p>
   <div class="title-row"><h1>Référentiel des règles</h1><button type="button" id="theme" class="theme" aria-label="Changer de thème">◐</button></div>
   <p class="lede">3 règles réparties en 2 domaines. Chaque règle dit ce que fait le produit, pourquoi, et où le vérifier dans le code.</p>
 </header>
-<section class="since" id="since"><h2 class="small">Depuis la version du 2026-09-01</h2><ul><li><span class="tag tag-new">nouvelle</span> <a href="#PAY-R019">PAY-R019</a> · Un remboursement de plus de 500 € demande un administrateur</li><li><span class="tag tag-new">nouvelle</span> <a href="#PAY-R012">PAY-R012</a> · Remboursement possible jusqu&#39;à 14 jours après la livraison</li></ul><p class="pending"><a href="#to-validate">1 point à valider</a></p></section>
-<nav class="toc" id="toc"><h2 class="small">Sommaire</h2><ol><li class=""><a href="#PAY">Paiements</a> <span class="muted">· 3 règles</span></li><li class="muted"><a href="#ORD">Commandes</a> <span class="muted">· pas encore extrait</span></li></ol></nav>
+<nav class="views" role="tablist" aria-label="Vues">
+  <button type="button" role="tab" data-view="document" aria-selected="true">Document</button>
+  <button type="button" role="tab" data-view="map" aria-selected="false">Carte</button>
+  <button type="button" role="tab" data-view="dashboard" aria-selected="false">Tableau de bord</button>
+</nav>
 <div class="controls" role="search">
   <input type="search" id="q" placeholder="Rechercher une règle" aria-label="Rechercher une règle">
   <select id="f-kind" aria-label="Règles métier et de gestion"><option value="">Règles métier et de gestion</option><option value="policy">Règles métier</option><option value="rule">Règles de gestion</option></select>
@@ -123,6 +186,9 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
   <select id="f-status" aria-label="Tout statut"><option value="">Tout statut</option><option value="candidate">Candidate</option><option value="active">Active</option><option value="changed">Modifiée</option><option value="retired">Retirée</option></select>
   <span class="muted" id="shown" aria-live="polite"></span>
 </div>
+<section class="view" id="view-document">
+<section class="since" id="since"><h2 class="small">Depuis la version du 2026-09-01</h2><ul><li><span class="tag tag-new">nouvelle</span> <a href="#PAY-R019">PAY-R019</a> · Un remboursement de plus de 500 € demande un administrateur</li><li><span class="tag tag-new">nouvelle</span> <a href="#PAY-R012">PAY-R012</a> · Remboursement possible jusqu&#39;à 14 jours après la livraison</li></ul><p class="pending"><a href="#to-validate">1 point à valider</a></p></section>
+<nav class="toc" id="toc"><h2 class="small">Sommaire</h2><ol><li class=""><a href="#PAY">Paiements</a> <span class="muted">· 3 règles</span></li><li class="muted"><a href="#ORD">Commandes</a> <span class="muted">· pas encore extrait</span></li></ol></nav>
 <p class="muted no-match" id="no-match" hidden>Aucune règle ne correspond à ces filtres.</p>
 <section class="domain" id="PAY"><h2>1. Paiements</h2><p class="lede">Comment la boutique encaisse, rembourse et protège le client en cas de litige.</p><section class="policy" id="PAY-P03" data-kind="policy" data-search="pay-p03 droit de rétractation un client doit pouvoir renoncer à un achat dans un délai donné après l&#39;avoir reçu.">
   <h3>1.1 Droit de rétractation</h3>
@@ -164,10 +230,55 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
 </article></section></section>
 <section class="domain is-empty" id="ORD"><h2>2. Commandes</h2><p class="lede">Du panier à la livraison.</p><p class="muted">pas encore extrait</p></section>
 <section class="to-validate" id="to-validate"><h2>À valider</h2><ul><li><span class="label">Question ouverte</span> <a href="#PAY-R012">PAY-R012</a> · Les jours fériés comptent-ils dans les 14 jours ? Aujourd&#39;hui, oui.</li></ul></section>
-<footer class="footer muted"><p>Généré par rulebook 0.1.0 depuis le commit a365123. 1 domaine(s) extrait(s) sur 2.</p></footer>
+</section>
+<section class="view" id="view-map" hidden>
+  <div class="map-frame wide">
+    <div class="map-tools"><button type="button" data-zoom="in" aria-label="+">+</button><button type="button" data-zoom="out" aria-label="−">−</button><button type="button" data-zoom="fit" aria-label="Ajuster à l&#39;écran">⤢</button><span class="muted">glisser pour se déplacer · molette pour zoomer · clic sur un nœud pour le déplier</span></div>
+    <svg id="mindmap" role="img" aria-label="Carte"><g id="mm-viewport"></g></svg>
+    <aside class="map-panel" id="mm-panel" hidden></aside>
+    <p class="map-legend muted"><span><span class="dot conf-verified"></span>Prouvée par le code et un test</span> <span><span class="dot conf-read"></span>Lue dans le code, pas testée</span> <span><span class="dot conf-inferred"></span>Déduite des noms ou de la configuration</span> <span><span class="dot conf-conflicting"></span>Preuves contradictoires</span></p>
+  </div>
+</section>
+<section class="view" id="view-dashboard" hidden>
+  <div class="kpis"><div class="kpi"><b>1 / 2</b><span>domaines extraits</span></div><div class="kpi"><b>3</b><span>règles de gestion</span></div><div class="kpi"><b>33 %</b><span>prouvées par un test</span></div><div class="kpi"><b>1</b><span>points à valider</span></div></div>
+  <h2 class="small">Règles par domaine</h2>
+  <div class="bars"><div class="bar-row" data-domain="PAY"><a href="#PAY">Paiements</a><span class="bar"><span class="seg conf-verified" style="width:33%" title="Prouvée par le code et un test · 1"></span><span class="seg conf-read" style="width:33%" title="Lue dans le code, pas testée · 1"></span><span class="seg conf-inferred" style="width:33%" title="Déduite des noms ou de la configuration · 1"></span></span><span class="muted">3</span></div><div class="bar-row" data-domain="ORD"><a href="#ORD">Commandes</a><span class="bar empty"></span><span class="muted">pas encore extrait</span></div></div>
+  <p class="map-legend muted"><span><span class="dot conf-verified"></span>Prouvée par le code et un test</span> <span><span class="dot conf-read"></span>Lue dans le code, pas testée</span> <span><span class="dot conf-inferred"></span>Déduite des noms ou de la configuration</span> <span><span class="dot conf-conflicting"></span>Preuves contradictoires</span></p>
+  <div class="dash-cols">
+    <div><h2 class="small">Changements récents</h2><ul class="plain"><li><span class="tag tag-new">nouvelle</span> <a href="#PAY-R019">PAY-R019</a> · Un remboursement de plus de 500 € demande un administrateur</li><li><span class="tag tag-new">nouvelle</span> <a href="#PAY-R012">PAY-R012</a> · Remboursement possible jusqu&#39;à 14 jours après la livraison</li></ul></div>
+    <div><h2 class="small">À valider</h2><ul class="plain"><li><span class="label">Question ouverte</span> <a href="#PAY-R012">PAY-R012</a> · Les jours fériés comptent-ils dans les 14 jours ? Aujourd&#39;hui, oui.</li></ul></div>
+  </div>
+</section>
+<footer class="footer muted"><p>Généré par rulebook 0.1.0 depuis le commit 1170599. 1 domaine(s) extrait(s) sur 2.</p></footer>
 </main>
-<script id="rulebook-labels" type="application/json">{"shown":"{n} affichées","noMatch":"Aucune règle ne correspond à ces filtres."}</script>
+<script id="rulebook-labels" type="application/json">{"shown":"{n} affichées","noMatch":"Aucune règle ne correspond à ces filtres.","conf":{"verified":"Prouvée par le code et un test","read":"Lue dans le code, pas testée","inferred":"Déduite des noms ou de la configuration","conflicting":"Preuves contradictoires"},"tag":{"new":"nouvelle","changed":"modifiée","retired":"retirée"},"change":{"created":"créée","changed":"modifiée","retired":"retirée","reanchored":"réancrée"},"otherRules":"Autres règles de gestion","edgeCases":"Cas particuliers","history":"Historique","toValidate":"À valider","policy":"Règle métier","notExtracted":"pas encore extrait","openInDocument":"Ouvrir dans le document","close":"Fermer"}</script>
+<script id="rulebook-data" type="application/json">{"name":"rulebook","domains":[{"code":"PAY","title":"Paiements","description":"Comment la boutique encaisse, rembourse et protège le client en cas de litige.","extracted":true,"policies":[{"id":"PAY-P03","title":"Droit de rétractation","statement":"Un client doit pouvoir renoncer à un achat dans un délai donné après l'avoir reçu.","rules":["PAY-R012","PAY-R019"]}],"otherRules":["PAY-R020"]},{"code":"ORD","title":"Commandes","description":"Du panier à la livraison.","extracted":false,"policies":[],"otherRules":[]}],"rules":{"PAY-R012":{"title":"Remboursement possible jusqu'à 14 jours après la livraison","rule":"Un remboursement ne peut être demandé que si la commande a été livrée il y a 14 jours ou moins.","context":"Le délai part de la livraison, pas de la commande. C'est la façon dont le produit applique le droit de rétractation.","confidence":"verified","category":"timing","status":"changed","tag":"new","evidence":[{"label":"OrderPolicy.php:9","href":"../../../app/Policies/OrderPolicy.php"},{"label":"RefundTest.php:3","href":"../../../tests/RefundTest.php"}],"edgeCases":[{"id":"PAY-R012.E1","text":"Étant donné une commande jamais livrée, quand le client demande un remboursement, alors la demande est refusée.","confidence":"read"},{"id":"PAY-R012.E2","text":"Étant donné une livraison il y a exactement 14 jours, quand le client demande un remboursement, alors la demande est acceptée.","confidence":"verified"}],"history":[{"date":"2026-10-14","change":"changed","note":"délai passé de 30 à 14 jours"},{"date":"2026-10-02","change":"created","note":null}],"openQuestions":"Les jours fériés comptent-ils dans les 14 jours ? Aujourd'hui, oui."},"PAY-R019":{"title":"Un remboursement de plus de 500 € demande un administrateur","rule":"Un remboursement de plus de 500 € doit être approuvé par un administrateur avant d'être versé.","context":"Protège la boutique contre les remboursements importants faits par erreur depuis le support.","confidence":"read","category":"authorization","status":"active","tag":"new","evidence":[{"label":"RefundService.php:6","href":"../../../app/Services/RefundService.php"}],"edgeCases":[],"history":[{"date":"2026-10-15","change":"created","note":null}],"openQuestions":""},"PAY-R020":{"title":"Le remboursement revient sur le moyen de paiement d'origine","rule":"Un remboursement est toujours renvoyé sur la carte utilisée pour la commande.","context":"Déduit du nom de la méthode de paiement ; aucun chemin d'exécution lu de bout en bout.","confidence":"inferred","category":"integration","status":"active","tag":null,"evidence":[],"edgeCases":[],"history":[],"openQuestions":""}}}</script>
 <script>
+// Horizontal tidy tree: depth on the x axis, leaves stacked on the y axis, each parent centred
+// on its visible children. A closed node is laid out as a leaf. Plain script (no export): it is
+// inlined in the HTML and evaluated by the tests.
+function tidyLayout(root, opts) {
+  const col = (opts && opts.colWidth) || 240;
+  const row = (opts && opts.rowHeight) || 34;
+  const placed = [];
+  let next = 0;
+  function visit(node, depth, parent) {
+    const kids = node.open && node.children ? node.children : [];
+    const entry = { node: node, depth: depth, parent: parent, x: depth * col, y: 0 };
+    placed.push(entry);
+    if (!kids.length) {
+      entry.y = next * row;
+      next += 1;
+      return entry;
+    }
+    const children = kids.map(function (child) { return visit(child, depth + 1, entry); });
+    entry.y = (children[0].y + children[children.length - 1].y) / 2;
+    return entry;
+  }
+  visit(root, 0, null);
+  return { nodes: placed, height: Math.max(next, 1) * row };
+}
+
 (() => {
   const labels = JSON.parse(document.getElementById('rulebook-labels').textContent);
   const root = document.documentElement;
@@ -177,6 +288,29 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
     root.dataset.theme = dark ? 'light' : 'dark';
     try { localStorage.setItem('rulebook-theme', root.dataset.theme); } catch { /* ignore */ }
   });
+
+  // --- views: document, map, dashboard (the document stays the default and the no-JS view)
+  root.classList.add('js');
+  const tabs = [...document.querySelectorAll('.views [data-view]')];
+  function show(name) {
+    for (const t of tabs) t.setAttribute('aria-selected', String(t.dataset.view === name));
+    root.dataset.view = name;
+    for (const v of document.querySelectorAll('section.view')) v.hidden = v.id !== `view-${name}`;
+    document.dispatchEvent(new CustomEvent('rulebook:view', { detail: name }));
+    try { sessionStorage.setItem('rulebook-view', name); } catch { /* ignore */ }
+  }
+  for (const t of tabs) t.addEventListener('click', () => show(t.dataset.view));
+  // a link to a card (#PAY-R012) always lands in the document view
+  document.addEventListener('click', (ev) => {
+    const a = ev.target.closest('a[href^="#"]');
+    if (!a) return;
+    const target = document.getElementById(a.getAttribute('href').slice(1));
+    if (target && target.closest('#view-document')) { show('document'); requestAnimationFrame(() => target.scrollIntoView()); }
+  });
+  let initial = 'document';
+  try { initial = sessionStorage.getItem('rulebook-view') || 'document'; } catch { /* ignore */ }
+  if (location.hash && document.getElementById(location.hash.slice(1))?.closest('#view-document')) initial = 'document';
+  show(tabs.some((t) => t.dataset.view === initial) ? initial : 'document');
 
   const q = document.getElementById('q');
   const kind = document.getElementById('f-kind');
@@ -214,6 +348,177 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
     noMatch.hidden = !filtering || count > 0 || policies.some((p) => !p.hidden);
   }
   for (const el of [q, kind, confidence, category, status]) el.addEventListener('input', apply);
+})();
+
+// Interactive map: horizontal tree project → domains → policies → rules → edge cases.
+// Pan by dragging, zoom with the wheel or the buttons, click a node to open it, click a rule to
+// read its card. The shared search and filters highlight matching rules and open their path.
+(() => {
+  const svg = document.getElementById('mindmap');
+  if (!svg) return;
+  const NS = svg.namespaceURI;
+  const data = JSON.parse(document.getElementById('rulebook-data').textContent);
+  const L = JSON.parse(document.getElementById('rulebook-labels').textContent);
+  const viewport = document.getElementById('mm-viewport');
+  const panel = document.getElementById('mm-panel');
+  const frame = svg.closest('.map-frame');
+  const COL = 250;
+  const ROW = 32;
+  const view = { x: 40, y: 40, k: 1 };
+
+  const short = (s, n) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
+  const ruleNode = (id) => {
+    const r = data.rules[id];
+    return {
+      id, kind: 'rule', label: `${id} · ${short(r.title, 34)}`, rule: r, open: false,
+      children: r.edgeCases.map((e) => ({ id: e.id, kind: 'edge', label: short(e.text, 46), edge: e, children: [] })),
+    };
+  };
+  const root = {
+    id: '__root', kind: 'root', label: data.name, open: true,
+    children: data.domains.map((d) => ({
+      id: d.code, kind: 'domain', label: `${d.code} · ${d.title}`, extracted: d.extracted, open: true,
+      children: [
+        ...d.policies.map((p) => ({ id: p.id, kind: 'policy', label: short(p.title, 34), policy: p, open: false, children: p.rules.map(ruleNode) })),
+        ...(d.otherRules.length ? [{ id: `${d.code}-other`, kind: 'policy', label: L.otherRules, open: false, children: d.otherRules.map(ruleNode) }] : []),
+      ],
+    })),
+  };
+
+  // --- filters shared with the document view
+  const field = (id) => document.getElementById(id);
+  function matches(node) {
+    if (node.kind !== 'rule') return false;
+    const r = node.rule;
+    const q = (field('q')?.value || '').trim().toLowerCase();
+    const text = `${node.id} ${r.title} ${r.rule} ${r.context}`.toLowerCase();
+    return (!q || q.split(/\s+/).every((t) => text.includes(t)))
+      && (!field('f-confidence')?.value || r.confidence === field('f-confidence').value)
+      && (!field('f-category')?.value || r.category === field('f-category').value)
+      && (!field('f-status')?.value || r.status === field('f-status').value);
+  }
+  const filtering = () => ['q', 'f-confidence', 'f-category', 'f-status'].some((id) => (field(id)?.value || '').trim());
+  function markMatches(node) {
+    let any = matches(node);
+    for (const child of node.children || []) any = markMatches(child) || any;
+    node.hit = any;
+    if (filtering() && any && node.kind !== 'rule') node.open = true;
+    return any;
+  }
+
+  // --- drawing
+  const el = (name, attrs, parent) => {
+    const e = document.createElementNS(NS, name);
+    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+    if (parent) parent.appendChild(e);
+    return e;
+  };
+  function nodeClass(n) {
+    const parts = ['mm-node', `mm-${n.kind}`];
+    if (n.kind === 'domain' && !n.extracted) parts.push('mm-empty');
+    if (n.rule?.tag) parts.push(`mm-tag-${n.rule.tag}`);
+    if (filtering()) parts.push(n.hit ? 'mm-hit' : 'mm-dim');
+    return parts.join(' ');
+  }
+  function draw() {
+    markMatches(root);
+    const { nodes } = tidyLayout(root, { colWidth: COL, rowHeight: ROW });
+    viewport.textContent = '';
+    const links = el('g', { class: 'mm-links' }, viewport);
+    for (const p of nodes) {
+      if (!p.parent) continue;
+      const x1 = p.parent.x + 12; const y1 = p.parent.y; const x2 = p.x; const y2 = p.y; const mx = (x1 + x2) / 2;
+      el('path', { d: `M${x1} ${y1} C${mx} ${y1},${mx} ${y2},${x2} ${y2}`, class: filtering() && !p.node.hit ? 'mm-dim' : '' }, links);
+    }
+    for (const p of nodes) {
+      const n = p.node;
+      const g = el('g', { class: nodeClass(n), transform: `translate(${p.x},${p.y})`, tabindex: '0', role: 'button' }, viewport);
+      const conf = n.rule?.confidence || n.edge?.confidence;
+      el('circle', { r: n.kind === 'edge' ? 3.5 : 5.5, class: conf ? `conf-${conf}` : 'mm-dot' }, g);
+      const t = el('text', { x: 12, y: 4 }, g);
+      const more = n.children?.length && !n.open ? ` ▸ ${n.children.length}` : '';
+      t.textContent = n.kind === 'domain' && !n.extracted ? `${n.label} · ${L.notExtracted}` : `${n.label}${more}`;
+      g.addEventListener('click', (ev) => { ev.stopPropagation(); activate(n); });
+      g.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); activate(n); } });
+    }
+    apply();
+  }
+  function activate(n) {
+    if (n.kind === 'rule') showRule(n);
+    if (n.children?.length) { n.open = !n.open; draw(); }
+  }
+
+  // --- side panel with the rule card
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const code = (s) => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>');
+  function showRule(n) {
+    const r = n.rule;
+    panel.innerHTML = `<button type="button" class="mm-close" aria-label="${esc(L.close)}">×</button>
+      <p class="muted">${esc(n.id)}${r.category ? ` · ${esc(r.category)}` : ''}${r.tag ? ` · <span class="tag tag-${esc(r.tag)}">${esc(L.tag[r.tag])}</span>` : ''}</p>
+      <h3>${code(r.title)}</h3>
+      ${r.rule ? `<p class="statement">${code(r.rule)}</p>` : ''}
+      ${r.context ? `<p class="context">${code(r.context)}</p>` : ''}
+      <p class="evidence"><span class="dot conf-${esc(r.confidence)}"></span>${esc(L.conf[r.confidence] || r.confidence)}${r.evidence.length ? ` · ${r.evidence.map((e) => `<a href="${esc(e.href)}">${esc(e.label)}</a>`).join(' · ')}` : ''}</p>
+      ${r.edgeCases.length ? `<p class="label">${esc(L.edgeCases)}</p><ul>${r.edgeCases.map((e) => `<li>${code(e.text)}</li>`).join('')}</ul>` : ''}
+      ${r.openQuestions ? `<aside class="question"><strong>${esc(L.toValidate)}</strong> ${code(r.openQuestions)}</aside>` : ''}
+      ${r.history.length ? `<p class="label">${esc(L.history)}</p><ul>${r.history.map((h) => `<li>${esc(h.date)} · ${esc(L.change[h.change] || h.change)}${h.note ? ` · ${code(h.note)}` : ''}</li>`).join('')}</ul>` : ''}
+      <p><a href="#${esc(n.id)}" data-open-document>${esc(L.openInDocument)} →</a></p>`;
+    panel.hidden = false;
+    frame.classList.add('with-panel');
+    panel.querySelector('.mm-close').addEventListener('click', () => { panel.hidden = true; frame.classList.remove('with-panel'); });
+  }
+
+  // --- pan and zoom
+  const apply = () => viewport.setAttribute('transform', `translate(${view.x},${view.y}) scale(${view.k})`);
+  function zoom(factor, cx, cy) {
+    const k = Math.min(3, Math.max(0.2, view.k * factor));
+    view.x = cx - ((cx - view.x) * k) / view.k;
+    view.y = cy - ((cy - view.y) * k) / view.k;
+    view.k = k;
+    apply();
+  }
+  function fit() {
+    const box = viewport.getBBox();
+    const w = svg.clientWidth || 800; const h = svg.clientHeight || 500;
+    const k = Math.min(1, Math.max(0.2, Math.min((w - 40) / (box.width || 1), (h - 40) / (box.height || 1))));
+    view.k = k; view.x = (w - box.width * k) / 2 - box.x * k; view.y = (h - box.height * k) / 2 - box.y * k;
+    apply();
+  }
+  svg.addEventListener('wheel', (ev) => {
+    ev.preventDefault();
+    const rect = svg.getBoundingClientRect();
+    zoom(ev.deltaY < 0 ? 1.12 : 1 / 1.12, ev.clientX - rect.left, ev.clientY - rect.top);
+  }, { passive: false });
+  let drag = null;
+  svg.addEventListener('pointerdown', (ev) => {
+    if (ev.target.closest('.mm-node')) return;
+    drag = { x: ev.clientX, y: ev.clientY, vx: view.x, vy: view.y };
+    svg.setPointerCapture(ev.pointerId);
+    svg.classList.add('dragging');
+  });
+  svg.addEventListener('pointermove', (ev) => {
+    if (!drag) return;
+    view.x = drag.vx + ev.clientX - drag.x;
+    view.y = drag.vy + ev.clientY - drag.y;
+    apply();
+  });
+  const stop = () => { drag = null; svg.classList.remove('dragging'); };
+  svg.addEventListener('pointerup', stop);
+  svg.addEventListener('pointercancel', stop);
+  document.querySelectorAll('[data-zoom]').forEach((b) => b.addEventListener('click', () => {
+    const w = svg.clientWidth / 2; const h = svg.clientHeight / 2;
+    if (b.dataset.zoom === 'in') zoom(1.25, w, h);
+    else if (b.dataset.zoom === 'out') zoom(0.8, w, h);
+    else fit();
+  }));
+
+  for (const id of ['q', 'f-confidence', 'f-category', 'f-status']) field(id)?.addEventListener('input', draw);
+  let fitted = false;
+  document.addEventListener('rulebook:view', (ev) => {
+    if (ev.detail !== 'map') return;
+    draw();
+    if (!fitted) { fit(); fitted = true; }
+  });
 })();
 
 </script>

@@ -8,6 +8,29 @@
     try { localStorage.setItem('rulebook-theme', root.dataset.theme); } catch { /* ignore */ }
   });
 
+  // --- views: document, map, dashboard (the document stays the default and the no-JS view)
+  root.classList.add('js');
+  const tabs = [...document.querySelectorAll('.views [data-view]')];
+  function show(name) {
+    for (const t of tabs) t.setAttribute('aria-selected', String(t.dataset.view === name));
+    root.dataset.view = name;
+    for (const v of document.querySelectorAll('section.view')) v.hidden = v.id !== `view-${name}`;
+    document.dispatchEvent(new CustomEvent('rulebook:view', { detail: name }));
+    try { sessionStorage.setItem('rulebook-view', name); } catch { /* ignore */ }
+  }
+  for (const t of tabs) t.addEventListener('click', () => show(t.dataset.view));
+  // a link to a card (#PAY-R012) always lands in the document view
+  document.addEventListener('click', (ev) => {
+    const a = ev.target.closest('a[href^="#"]');
+    if (!a) return;
+    const target = document.getElementById(a.getAttribute('href').slice(1));
+    if (target && target.closest('#view-document')) { show('document'); requestAnimationFrame(() => target.scrollIntoView()); }
+  });
+  let initial = 'document';
+  try { initial = sessionStorage.getItem('rulebook-view') || 'document'; } catch { /* ignore */ }
+  if (location.hash && document.getElementById(location.hash.slice(1))?.closest('#view-document')) initial = 'document';
+  show(tabs.some((t) => t.dataset.view === initial) ? initial : 'document');
+
   const q = document.getElementById('q');
   const kind = document.getElementById('f-kind');
   const confidence = document.getElementById('f-confidence');
