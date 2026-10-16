@@ -3,6 +3,7 @@ import { loadProject } from './project.js';
 import { headSha } from './git.js';
 import { loadCards, buildIndex, writeIndex } from './index/build.js';
 import { checkProject } from './check/run.js';
+import { runHook } from './hook/run.js';
 
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 
@@ -67,13 +68,15 @@ function runCheck(io, opts) {
 
 export async function run(argv, io) {
   const [cmd, ...rest] = argv;
-  const opts = parseOptions(rest);
+  const positional = cmd === 'hook' ? rest.slice(0, 2) : [];
+  const opts = parseOptions(cmd === 'hook' ? rest.slice(2) : rest);
   if (cmd === '--version' || cmd === '-v') {
     io.stdout.write(`${pkg.version}\n`);
     return 0;
   }
   if (cmd === 'index') return runIndex(io, opts);
   if (cmd === 'check') return runCheck(io, opts);
-  io.stderr.write(`rulebook: unknown command "${cmd ?? ''}". Commands: index, check\n`);
+  if (cmd === 'hook') return runHook(io, positional[0] ?? '', positional[1] ?? '', opts);
+  io.stderr.write(`rulebook: unknown command "${cmd ?? ''}". Commands: index, check, hook, init, doctor, update\n`);
   return 1;
 }
