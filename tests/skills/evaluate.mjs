@@ -34,17 +34,20 @@ if (kind === 'map') {
 }
 if (kind === 'extract') {
   const s = score(rb, expected, ws);
+  const ruleCards = cards().filter((c) => c.kind === 'rule');
+  check('at least one rule card parsed', ruleCards.length > 0, String(ruleCards.length));
+  const some = (ok) => ruleCards.length > 0 && ok;
   check('recall >= 0.85', s.recall >= 0.85, `${s.recall} missing ${s.missing}`);
   check('precision >= 0.8', s.precision >= 0.8, `${s.precision} extra ${s.extra}`);
   check('citations valid', s.citationValidity === 1, s.unresolved.join('; '));
   const idx = cli('index', '--strict');
   check('rulebook index --strict exits 0', idx.code === 0, idx.out.trim().split('\n').slice(-3).join(' | '));
   check('no parse warnings', s.parseWarnings === 0, String(s.parseWarnings));
-  check('every policy has Nature', s.policyChecks.withNature === s.policyChecks.total, JSON.stringify(s.policyChecks));
-  check('every policy has a rule', s.policyChecks.withRules === s.policyChecks.total);
-  check('no technical choice as policy', s.policyChecks.technicalAsPolicy === 0);
-  for (const [k, v] of Object.entries(s.traps)) check(`trap ${k}`, v === 'pass');
-  check('every card audited', cards().filter((c) => c.kind === 'rule').every((c) => c.meta.audit), '');
+  check('every policy has Nature', s.policyChecks.total > 0 && s.policyChecks.withNature === s.policyChecks.total, JSON.stringify(s.policyChecks));
+  check('every policy has a rule', s.policyChecks.total > 0 && s.policyChecks.withRules === s.policyChecks.total);
+  check('no technical choice as policy', some(s.policyChecks.technicalAsPolicy === 0));
+  for (const [k, v] of Object.entries(s.traps)) check(`trap ${k}`, some(v === 'pass'));
+  check('every card audited', some(ruleCards.every((c) => c.meta.audit)));
   check('no source file changed', changedOutside().length === 0, changedOutside().join(','));
 }
 if (kind === 'edge') {
