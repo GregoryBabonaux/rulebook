@@ -1,0 +1,6 @@
+{
+  "formatVersion": 1,
+  "language": "fr",
+  "repoUrl": null,
+  "hotspots": ["app/Policies/**", "app/Services/**"]
+}

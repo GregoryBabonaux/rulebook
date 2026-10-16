@@ -50,7 +50,7 @@ test('the since block lists history after the baseline', () => {
     items: [{ type: 'changed', id: 'PAY-R012', title: 'Refund allowed up to 14 days after delivery', date: '2026-10-14', note: 'window 30 → 14 days' }],
   });
   assert.deepEqual(base({ sinceFrom: null }).since, { from: null, items: [] });
-  assert.equal(base({ sinceFrom: '2026-09-01' }).since.items.map((i) => i.type).join(), 'changed,new');
+
 });
 
 test('toValidate gathers open questions, conflicts, failed audits and pending inbox lines', () => {
@@ -65,4 +65,10 @@ test('toValidate gathers open questions, conflicts, failed audits and pending in
 
 test('project metadata', () => {
   assert.deepEqual(base().project, { name: 'shop', commit: 'a1b2c3d', builtAt: '2026-10-16', version: '0.1.0', language: 'en', repoUrl: null });
+});
+
+test('the since block shows each rule once, with its latest change', () => {
+  const items = base({ sinceFrom: '2026-09-01' }).since.items;
+  // created after the baseline, so it is new to a reader of the previous version
+  assert.deepEqual(items.map((i) => [i.id, i.type, i.date]), [['PAY-R012', 'new', '2026-10-02']]);
 });

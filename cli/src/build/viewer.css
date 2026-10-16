@@ -76,7 +76,12 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
 .to-validate li { margin: 0.35rem 0; }
 .footer { margin-top: 3rem; font-size: 0.85rem; }
 [hidden] { display: none !important; }
-@media (max-width: 30rem) { .page { padding-top: 1.5rem; } h1 { font-size: 1.6rem; } .statement { font-size: 1.05rem; } }
+[id] { scroll-margin-top: 5.5rem; }
+@media (max-width: 30rem) {
+  .page { padding-top: 1.5rem; } h1 { font-size: 1.6rem; } .statement { font-size: 1.05rem; }
+  .controls { position: static; }
+  [id] { scroll-margin-top: 1rem; }
+}
 @media print {
   .controls, .theme { display: none; }
   body { background: #fff; color: #000; font-size: 11pt; }

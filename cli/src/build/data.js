@@ -1,14 +1,18 @@
 const CHANGE_TYPE = { created: 'new', changed: 'changed', retired: 'retired' };
 
+// One item per card: retired beats new (created after the baseline) beats changed;
+// a new rule shows its creation, otherwise the latest event in the window.
 function sinceItems(cards, from) {
   if (!from) return [];
   const items = [];
   for (const card of cards) {
-    for (const h of card.history) {
-      if (h.date > from && CHANGE_TYPE[h.change]) {
-        items.push({ type: CHANGE_TYPE[h.change], id: card.id, title: card.title, date: h.date, note: h.note });
-      }
-    }
+    const events = card.history.filter((h) => h.date > from && CHANGE_TYPE[h.change]);
+    if (!events.length) continue;
+    const latest = events.reduce((a, b) => (b.date > a.date ? b : a));
+    const has = (change) => events.some((h) => h.change === change);
+    const type = has('retired') ? 'retired' : has('created') ? 'new' : 'changed';
+    const shown = type === 'new' ? events.find((h) => h.change === 'created') : latest;
+    items.push({ type, id: card.id, title: card.title, date: shown.date, note: shown.note });
   }
   return items.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 }
