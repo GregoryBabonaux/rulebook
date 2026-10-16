@@ -47,7 +47,7 @@ if (kind === 'extract') {
   check('every policy has a rule', s.policyChecks.total > 0 && s.policyChecks.withRules === s.policyChecks.total);
   check('no technical choice as policy', some(s.policyChecks.technicalAsPolicy === 0));
   for (const [k, v] of Object.entries(s.traps)) check(`trap ${k}`, some(v === 'pass'));
-  check('every card audited', some(ruleCards.every((c) => c.meta.audit)));
+  check('every card audited', some(ruleCards.every((c) => /^(passed|failed: .+)$/.test(c.meta.audit ?? ''))));
   check('no source file changed', changedOutside().length === 0, changedOutside().join(','));
 }
 if (kind === 'edge') {
@@ -72,7 +72,7 @@ if (kind === 'sync') {
   check('refund history has a changed line', refund?.history.some((h) => h.change === 'changed'));
   const pwd = all.find((c) => c.id === 'ACC-R001');
   check('password rule kept, not retired', pwd && pwd.meta.status !== 'retired' && /12/.test(pwd.sections.rule ?? ''));
-  check('password rule re-anchored', pwd?.evidence.some((e) => e.symbol === 'validatePassword' || e.start > 0));
+  check('password rule re-anchored', pwd?.evidence.some((e) => e.symbol === 'validatePassword') || pwd?.history.some((h) => h.change === 'reanchored'));
   const gift = all.find((c) => /gift/i.test(`${c.title} ${c.sections.rule}`));
   check('gift card rule added as candidate', gift && gift.meta.status === 'candidate', gift?.id);
   const idx = cli('index', '--strict');

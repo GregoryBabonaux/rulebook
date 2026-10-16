@@ -20,10 +20,13 @@ Written by `rulebook check` and the agent hooks:
 
 - Types: `modified?` (the evidence of a rule changed), `removed?` (its code is gone),
   `new?` (rule-bearing code with no card yet; the rule column is `—`).
-- `- [ ]` pending. `- [x]` means **dismissed** ("not a rule", "nothing to do"): the CLI will not
-  raise that detection again.
-- When you have processed an entry, **delete its line**. Do not tick it, or a later change
-  to the same rule in the same file will stay silent.
+- `- [ ]` pending.
+- `- [x]` means **dismissed**: the CLI will not raise that detection again. Tick **only `new?`
+  entries** a human called "not a rule" (their key includes the code, so a different new rule in
+  the same file is still raised).
+- `modified?` and `removed?` entries are **always deleted** once processed — even "nothing to do"
+  ones (re-anchor the card instead). Their key is the rule and the file, so a tick would silence
+  every later change to that rule in that file.
 
 ## Card format
 `card-template.md` is the contract the CLI parses. A card that does not follow it produces

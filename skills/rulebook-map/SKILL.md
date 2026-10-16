@@ -10,6 +10,8 @@ Produce the map that every later level hangs on: a few business domains, each wi
 a one-line description and the places in the code where its rules live. Nothing else.
 **The map is validated by a human before anything is written.**
 
+**CLI.** `rulebook …` below means the rulebook CLI: `rulebook`, or `npx --yes rulebook-cli@latest`. Without Node, use the manual column of `references/cli.md`.
+
 ## When not to use
 - `rulebook/index.md` already exists → extend it only if the user asks; otherwise use `rulebook-extract`.
 - The user wants rules or edge cases → `rulebook-extract`, `rulebook-edge-cases`.

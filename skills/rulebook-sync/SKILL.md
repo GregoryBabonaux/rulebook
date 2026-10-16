@@ -1,6 +1,6 @@
 ---
 name: rulebook-sync
-description: Use when rulebook/inbox.md has pending detections, when a hook or `rulebook check` reports that a rule "may have changed", "may have been removed" or "possible new rule", or when asked to sync, realign or update the rulebook after code changes.
+description: Use when rulebook/inbox.md has pending detections ("traiter l'inbox", "mettre à jour les règles"), when a hook or `rulebook check` reports that a rule "may have changed", "may have been removed" or "possible new rule", or when asked to sync, realign or update the rulebook after code changes.
 ---
 
 # rulebook-sync — keep the reference true after the code moved
@@ -9,6 +9,8 @@ description: Use when rulebook/inbox.md has pending detections, when a hook or `
 The CLI detects; you judge. Each inbox entry says *where* the code moved. Decide *what it
 means* for the rule, propose it, and apply it only after the human validates.
 **Never rewrite a card silently.**
+
+**CLI.** `rulebook …` below means the rulebook CLI: `rulebook`, or `npx --yes rulebook-cli@latest`. Without Node, use the manual column of `references/cli.md`.
 
 ## Steps
 1. **Collect.** Run `rulebook check` (fallback: read `rulebook/inbox.md`). Work on the
@@ -28,18 +30,22 @@ means* for the rule, propose it, and apply it only after the human validates.
 3. **Checkpoint — stop here.** Show one line per entry: classification, before → after.
    Ask the user to validate, correct or dismiss. Apply nothing before the answer.
 4. **Apply**, in the formats of `references/card-template.md`:
-   - `<sha>` below is always the short sha of HEAD (`git rev-parse --short HEAD`), even when
-     the change is not committed yet — the CLI only accepts a hex sha there.
+   - `<sha>` below is the short sha of HEAD (`git rev-parse --short HEAD`) — the CLI only
+     accepts a hex sha. For uncommitted changes it is the commit the change is based on; say
+     "uncommitted" in the history note.
    - **changed:** rewrite `Rule.` (the statement readers see), set `Status: changed`, add
      `- <today> · <sha> · changed · <old> → <new>` to `History`.
    - **unchanged:** fix evidence lines and symbol; add `- <today> · <sha> · reanchored`.
    - **removed:** `Status: retired`; add `- <today> · <sha> · retired · <why>`.
-   - **new:** full card with `Status: candidate`, `Confidence` honest, `History` `created`.
+   - **new:** full card with `Status: candidate`, `Confidence` honest, no `Audit` yet (it is
+     audited when a human promotes it), `History` `created`.
    - Set `Verified at: <sha> (<today>)` on every card you touched.
-5. **Clean the inbox:** **delete the line** of every entry you processed. Tick `- [x]` only the
-   entries the user dismissed as "not a rule" — a tick tells the CLI never to raise it again.
+5. **Clean the inbox:** **delete the line** of every entry you processed, including every
+   `modified?`/`removed?` entry. Tick `- [x]` only **`new?`** entries the user dismissed as
+   "not a rule" — a tick tells the CLI never to raise it again.
 6. **Verify:** `rulebook index --strict` (no unresolved evidence, no warnings), then
-   `rulebook check` must add nothing. Report what changed, card by card.
+   `rulebook check` must add nothing (without the CLI: re-open every cited line and compare
+   with `git diff`). Report what changed, card by card.
 
 ## Boundaries
 Write only under `rulebook/`. Never edit source or tests, never commit unless asked.
