@@ -1,0 +1,11 @@
+{
+  "name": "rulebook-cli",
+  "version": "0.1.0",
+  "description": "Keeps a living reference of a codebase's business rules: evidence index and change detection.",
+  "type": "module",
+  "bin": { "rulebook": "bin/rulebook.js" },
+  "files": ["bin", "src"],
+  "engines": { "node": ">=20" },
+  "scripts": { "test": "node --test \"test/**/*.test.js\"" },
+  "license": "MIT"
+}
