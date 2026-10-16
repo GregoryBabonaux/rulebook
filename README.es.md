@@ -158,6 +158,7 @@ npx rulebook-cli@latest doctor
 
 ```
 rulebook index      # reconstruye el índice de pruebas, informa de problemas
+rulebook scan       # lista los puntos de decisión que ninguna ficha cubre todavía
 rulebook check      # detecta cambios de reglas, escribe la bandeja de entrada
 rulebook build      # genera rulebook/rulebook.html
 rulebook doctor     # comprueba la instalación
@@ -177,7 +178,7 @@ El agente nunca escribe `rulebook.html`. Solo `rulebook build` lo genera, a part
 
 **¿Qué idiomas?** Las skills están escritas en inglés. La referencia se redacta en el idioma de tu proyecto (`rulebook/config.json` → `language`). Las etiquetas del documento HTML existen en inglés y francés.
 
-**¿Cómo sé si una regla es correcta?** Cada regla cita las líneas que la deciden y lleva un nivel de confianza: *probada por el código y un test*, *leída en el código*, *deducida* o *contradictoria*. Una auditoría a ciegas la verifica: una segunda pasada que solo ve la ficha y el código citado. `rulebook index --strict` falla cuando una cita ya no existe.
+**¿Cómo sé si una regla es correcta?** Cada regla cita las líneas que la deciden y lleva un nivel de confianza: *probada por el código y un test*, *leída en el código*, *deducida* o *contradictoria*. Una auditoría a ciegas la verifica: una segunda pasada que solo ve la ficha y el código citado. `rulebook index --strict` falla cuando una cita ya no existe. También falla cuando un símbolo citado no está en sus líneas, y señala los métodos que solo llaman los tests. Para encontrar las reglas que nadie escribió, `rulebook scan` lista los puntos de decisión del código (rechazos, condiciones sobre valores fijos, permisos, límites, cambios de estado) que ninguna ficha cubre, y el documento muestra esa cobertura por dominio.
 
 **¿Cómo se prueba?** Con una aplicación de prueba llena de trampas (un comentario que miente, código muerto, una decisión técnica disfrazada de regla) y un evaluador. Cada skill se ejecutó primero *sin* la skill para observar los fallos, y después se escribió para corregirlos. Consulta [`tests/skills/runs/`](https://github.com/GregoryBabonaux/rulebook/tree/main/tests/skills/runs).
 

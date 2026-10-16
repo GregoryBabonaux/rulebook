@@ -23,6 +23,13 @@ invisible (0 cards). Also skim `references/vocabulary.md`, `policy-vs-rule.md`, 
 One file per domain: `rulebook/<CODE>-<slug>.md`, starting with `# <CODE> · <Title>`.
 
 ## Steps
+0. **Inventory.** Run `rulebook scan --domain <CODE> --format md`: the decision points of the
+   domain's code, found by line patterns. It is your checklist, not the truth — it misses
+   decisions spread over several lines and lists lines that are not rules. If the domain is
+   large (more than about 80 points to review or 3,000 lines), split the reading between
+   parallel readers when you can start sub-agents: one sub-area each, its list of points,
+   and the instruction to return each decision with its exact lines, the tests that assert
+   it, dead code and open gaps. You write the cards.
 1. **Read from the entry points** of the domain (routes, commands, jobs, exported functions)
    down to the code that decides. Note each decision: a check that refuses, a calculation,
    a state change, a permission, a limit, a constraint.
@@ -34,11 +41,15 @@ One file per domain: `rulebook/<CODE>-<slug>.md`, starting with `# <CODE> · <Ti
 3. **Group into policies.** Rules that share a *why* true outside the software go under a
    `## <CODE>-P<nn> · <Title>` policy with a mandatory `Nature`. Technical choices (rounding,
    retries…) and rules with no clear why go under `## Other operating rules`.
-4. **Coverage sweep.** Go through the domain's hotspots (`config.json`), validators, guards,
-   enums and state tables, DB constraints, scheduled jobs and config values. Every decision
-   point must end up in a card or in your report as "not a rule" with a reason.
+4. **Coverage sweep.** Every point of the inventory ends up covered by a card (its evidence,
+   parameters or an edge case cite the line) or listed in `rulebook/not-rules.md` with a
+   reason (`references/cli.md`). Then go through what line patterns miss: enums and state
+   tables, DB constraints, scheduled jobs, rules decided in views or templates.
 5. **Write the domain files** directly in `rulebook/` (the audit needs them; no drafts folder),
-   with `Verified at` and `History` as above.
+   with `Verified at` and `History` as above, and a `**Scope.**` paragraph under the domain
+   title: what you read, and what you did not. Run `rulebook index`: a method it reports as
+   referenced only by tests, or never, is probably dead — check, and remove its card if so.
+   Run `rulebook scan --domain <CODE>` again until no point is left to review.
 6. **Blind audit.** If you can start a sub-agent, give it only the card files and the
    repository, and ask it to check each card: do the cited lines exist and do they support the
    statement as written? Otherwise, do it yourself as a separate pass, reading only the cards
@@ -55,6 +66,11 @@ One file per domain: `rulebook/<CODE>-<slug>.md`, starting with `# <CODE> · <Ti
 9. **Apply the corrections** the user asks for, then run `rulebook index --strict` and
    `rulebook build` again.
 
+**Tests as runtime evidence.** You may run the tests a card cites to confirm `verified`, only
+when they cannot touch a real database: they use an in-memory or dedicated test database, and
+nothing in the project's instructions forbids it. Otherwise read them; never run anything
+that resets or seeds a developer's database.
+
 ## Boundaries
 Write only under `rulebook/`. Never change source code or tests. Next free IDs only (`ids.md`).
 - Always end with `rulebook build`, so the document matches the cards. Never edit the HTML yourself (`references/cli.md`).
@@ -69,3 +85,5 @@ Write only under `rulebook/`. Never change source code or tests. Next free IDs o
 | Evidence pointing at the caller | Cite the lines that decide |
 | No `Audit:` line | Every rule card gets one from step 6 |
 | Asking for validation before building | Build the HTML first (step 7), then offer corrections |
+| Points left "to review" in the scan | A card or a `not-rules.md` line for each |
+| A card for a method only tests call | Dead code: no card, say it in the report |

@@ -6,7 +6,8 @@ manual fallback for environments without Node.
 
 | When | Run | Without the CLI |
 |---|---|---|
-| After writing or editing cards | `rulebook index` — rebuilds `rulebook/.index.json`, reports parse warnings and unresolved evidence. Fix every warning. | Re-open each cited file and check that the lines exist and say what the card claims. |
+| Before reading a domain, and after writing its cards | `rulebook scan --domain <CODE> --format md` — the decision points of the domain's code that no card covers yet, identical lines grouped. `rulebook scan` alone prints the coverage of every domain and writes `rulebook/.scan.json`, which the HTML shows. | `grep` the domain's folders for refusals, conditions on fixed values, permissions, validation rules, state changes and constants. |
+| After writing or editing cards | `rulebook index` — rebuilds `rulebook/.index.json`; reports parse warnings, unresolved evidence, a cited symbol absent from its lines, a test cited outside a test file, and methods referenced only by tests or never (**possible dead code**). Fix every warning; `--strict` fails on all but the dead-code hints. | Re-open each cited file and check that the lines exist and say what the card claims. |
 | To see what changed in the code | `rulebook check` (worktree), `rulebook check --since <sha>` | `git diff` and compare against the evidence lines of each card. |
 | To publish | `rulebook build` → `rulebook/rulebook.html` | Leave the Markdown as the deliverable; say the HTML could not be built. |
 | To check the installation | `rulebook doctor --quiet` | — |
@@ -32,6 +33,24 @@ Written by `rulebook check` and the agent hooks:
 - `modified?` and `removed?` entries are **always deleted** once processed — even "nothing to do"
   ones (re-anchor the card instead). Their key is the rule and the file, so a tick would silence
   every later change to that rule in that file.
+
+## Not rules — `rulebook/not-rules.md`
+A decision point the scan found that is not a business rule (a technical guard, a geometry
+constant, the same check repeated) is dismissed with its key and a reason:
+
+```
+# Not rules
+- 3f9a1b2c4d5e · app/Services/Geo.php:157 · Earth radius for the distance formula, geometry
+```
+
+The key survives line moves. Write a reason a reviewer can check; a point that applies an
+existing rule says which one (`applies JEU-R033`).
+
+## Reachability hints
+`rulebook index` reports a cited method that only tests reference, or that nothing
+references. It matches names, so two methods with the same name mask each other, and code
+called by a framework convention may look unused. Before giving such code a card, check it
+is really called; dead code gets **no card** and is mentioned in your report.
 
 ## Card format
 `card-template.md` is the contract the CLI parses. A card that does not follow it produces

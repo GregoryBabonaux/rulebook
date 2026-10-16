@@ -158,6 +158,7 @@ npx rulebook-cli@latest doctor
 
 ```
 rulebook index      # reconstruit l'index des preuves, signale les problèmes
+rulebook scan       # liste les points de décision qu'aucune fiche ne couvre encore
 rulebook check      # détecte les changements de règles, écrit la boîte de réception
 rulebook build      # produit rulebook/rulebook.html
 rulebook doctor     # vérifie l'installation
@@ -177,7 +178,7 @@ L'agent n'écrit jamais `rulebook.html`. Seul `rulebook build` le produit, à pa
 
 **Quelles langues ?** Les skills sont écrites en anglais. Le référentiel est rédigé dans la langue de votre projet (`rulebook/config.json` → `language`). Les libellés du document HTML existent en anglais et en français.
 
-**Comment savoir si une règle est juste ?** Chaque règle cite les lignes qui la décident et porte un niveau de confiance : *prouvée par le code et un test*, *lue dans le code*, *déduite* ou *contradictoire*. Un audit à l'aveugle la vérifie : une seconde passe qui ne voit que la fiche et le code cité. `rulebook index --strict` échoue quand une citation n'existe plus.
+**Comment savoir si une règle est juste ?** Chaque règle cite les lignes qui la décident et porte un niveau de confiance : *prouvée par le code et un test*, *lue dans le code*, *déduite* ou *contradictoire*. Un audit à l'aveugle la vérifie : une seconde passe qui ne voit que la fiche et le code cité. `rulebook index --strict` échoue quand une citation n'existe plus. Il échoue aussi quand un symbole cité n'est pas dans ses lignes, et il signale les méthodes que seuls les tests appellent. Pour attraper les règles que personne n'a écrites, `rulebook scan` liste les points de décision du code (refus, conditions sur des valeurs fixes, droits, limites, changements d'état) qu'aucune fiche ne couvre, et le document affiche cette couverture par domaine.
 
 **Comment est-ce testé ?** Avec une application de test pleine de pièges (un commentaire menteur, du code mort, un choix technique déguisé en règle) et un correcteur automatique. Chaque skill a d'abord été lancée *sans* la skill pour observer les échecs, puis écrite pour les corriger. Voir [`tests/skills/runs/`](https://github.com/GregoryBabonaux/rulebook/tree/main/tests/skills/runs).
 

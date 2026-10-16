@@ -10,6 +10,8 @@ closed vocabularies, which always use the English codes below.
 # PAY · Payments
 One paragraph describing the domain.
 
+**Scope.** Read: `app/Policies/OrderPolicy.php`, `app/Services/Payment*`. Not read: the admin refund screen.
+
 ## PAY-P03 · Right of withdrawal
 - **Kind:** policy · **Nature:** consumer law (withdrawal right)
 **Statement.** A customer may withdraw from a purchase within a legal period.
@@ -57,6 +59,8 @@ One paragraph describing the domain.
 - **STK** · Stock — Inventory and reservations.
   - **Covers**: …
 ```
+
+The `Code` detail lists the domain's files as backticked paths or globs (`app/Pay/`, `app/Services/{Refund,Charge}Service.php`, `config/shop.php`): `rulebook scan` uses it to attribute decision points to domains.
 
 One line per domain: `- **CODE** · Title — one-sentence description`, followed by indented
 details `  - **Label**: text`. The map must be worth reading on its own, before any rule is

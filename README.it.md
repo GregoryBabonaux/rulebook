@@ -158,6 +158,7 @@ npx rulebook-cli@latest doctor
 
 ```
 rulebook index      # ricostruisce l'indice delle prove, segnala i problemi
+rulebook scan       # elenca i punti di decisione che nessuna scheda copre ancora
 rulebook check      # rileva le modifiche alle regole, scrive la casella di posta
 rulebook build      # genera rulebook/rulebook.html
 rulebook doctor     # verifica l'installazione
@@ -177,7 +178,7 @@ L'agente non scrive mai `rulebook.html`. Solo `rulebook build` lo genera, da un 
 
 **Quali lingue?** Le skill sono scritte in inglese. Il riferimento viene redatto nella lingua del tuo progetto (`rulebook/config.json` → `language`). Le etichette del documento HTML esistono in inglese e francese.
 
-**Come so se una regola è giusta?** Ogni regola cita le righe che la decidono e ha un livello di affidabilità: *provata dal codice e da un test*, *letta nel codice*, *dedotta* o *contraddittoria*. Un audit alla cieca la verifica: un secondo passaggio che vede solo la scheda e il codice citato. `rulebook index --strict` fallisce quando una citazione non esiste più.
+**Come so se una regola è giusta?** Ogni regola cita le righe che la decidono e ha un livello di affidabilità: *provata dal codice e da un test*, *letta nel codice*, *dedotta* o *contraddittoria*. Un audit alla cieca la verifica: un secondo passaggio che vede solo la scheda e il codice citato. `rulebook index --strict` fallisce quando una citazione non esiste più. Fallisce anche quando un simbolo citato non è nelle sue righe, e segnala i metodi che solo i test chiamano. Per scovare le regole che nessuno ha scritto, `rulebook scan` elenca i punti di decisione del codice (rifiuti, condizioni su valori fissi, permessi, limiti, cambi di stato) che nessuna scheda copre, e il documento mostra questa copertura per dominio.
 
 **Come viene testato?** Con un'applicazione di prova piena di trappole (un commento che mente, codice morto, una scelta tecnica travestita da regola) e un valutatore. Ogni skill è stata prima eseguita *senza* la skill per osservare gli errori, poi scritta per correggerli. Vedi [`tests/skills/runs/`](https://github.com/GregoryBabonaux/rulebook/tree/main/tests/skills/runs).
 

@@ -158,6 +158,7 @@ npx rulebook-cli@latest doctor
 
 ```
 rulebook index      # rebuild the evidence index, report problems
+rulebook scan       # list the decision points no card covers yet
 rulebook check      # detect rule changes, write the inbox
 rulebook build      # render rulebook/rulebook.html
 rulebook doctor     # check the installation
@@ -177,7 +178,7 @@ The agent never writes `rulebook.html`. Only `rulebook build` renders it, from a
 
 **Which languages?** The skills are written in English. The reference is written in your project's language (`rulebook/config.json` → `language`). The labels of the HTML document exist in English and French.
 
-**How do I know a rule is right?** Each rule cites the lines that decide it and carries a confidence level: *proven by code and a test*, *read in the code*, *inferred*, or *contradictory*. A blind audit checks it: a second pass that sees only the card and the cited code. `rulebook index --strict` fails when a citation no longer exists.
+**How do I know a rule is right?** Each rule cites the lines that decide it and carries a confidence level: *proven by code and a test*, *read in the code*, *inferred*, or *contradictory*. A blind audit checks it: a second pass that sees only the card and the cited code. `rulebook index --strict` fails when a citation no longer exists. It also fails when a cited symbol is not in its lines, and it flags methods that only tests call. To catch rules nobody wrote down, `rulebook scan` lists the decision points of the code (refusals, conditions on fixed values, permissions, limits, state changes) that no card covers, and the document shows that coverage per domain.
 
 **How is it tested?** With a fixture app full of traps (a lying comment, dead code, a technical choice disguised as a rule) and a scorer. Each skill was first run *without* the skill to observe the failures, then written to fix them. See [`tests/skills/runs/`](https://github.com/GregoryBabonaux/rulebook/tree/main/tests/skills/runs).
 

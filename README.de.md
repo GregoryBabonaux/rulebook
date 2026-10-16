@@ -158,6 +158,7 @@ npx rulebook-cli@latest doctor
 
 ```
 rulebook index      # Beleg-Index neu aufbauen, Probleme melden
+rulebook scan       # Entscheidungspunkte auflisten, die noch keine Karte abdeckt
 rulebook check      # Regeländerungen erkennen, den Posteingang schreiben
 rulebook build      # rulebook/rulebook.html erzeugen
 rulebook doctor     # die Installation prüfen
@@ -177,7 +178,7 @@ Der Agent schreibt `rulebook.html` nie selbst. Nur `rulebook build` erzeugt die 
 
 **Welche Sprachen?** Die Skills sind auf Englisch geschrieben. Die Referenz wird in der Sprache Ihres Projekts verfasst (`rulebook/config.json` → `language`). Die Beschriftungen des HTML-Dokuments gibt es auf Englisch und Französisch.
 
-**Woher weiß ich, dass eine Regel stimmt?** Jede Regel nennt die Zeilen, die sie entscheiden, und trägt eine Vertrauensstufe: *durch Code und Test belegt*, *im Code gelesen*, *abgeleitet* oder *widersprüchlich*. Ein Blind-Audit prüft sie: ein zweiter Durchgang, der nur die Karte und den zitierten Code sieht. `rulebook index --strict` schlägt fehl, wenn ein Zitat nicht mehr existiert.
+**Woher weiß ich, dass eine Regel stimmt?** Jede Regel nennt die Zeilen, die sie entscheiden, und trägt eine Vertrauensstufe: *durch Code und Test belegt*, *im Code gelesen*, *abgeleitet* oder *widersprüchlich*. Ein Blind-Audit prüft sie: ein zweiter Durchgang, der nur die Karte und den zitierten Code sieht. `rulebook index --strict` schlägt fehl, wenn ein Zitat nicht mehr existiert. Er schlägt auch fehl, wenn ein zitiertes Symbol nicht in seinen Zeilen steht, und meldet Methoden, die nur Tests aufrufen. Um Regeln zu finden, die niemand aufgeschrieben hat, listet `rulebook scan` die Entscheidungspunkte des Codes (Ablehnungen, Bedingungen auf feste Werte, Berechtigungen, Limits, Zustandswechsel), die keine Karte abdeckt, und das Dokument zeigt diese Abdeckung pro Domäne.
 
 **Wie wird es getestet?** Mit einer Test-App voller Fallen (ein lügender Kommentar, toter Code, eine als Regel getarnte technische Entscheidung) und einem Bewertungsskript. Jede Skill wurde zuerst *ohne* die Skill ausgeführt, um die Fehler zu beobachten, und dann so geschrieben, dass sie diese behebt. Siehe [`tests/skills/runs/`](https://github.com/GregoryBabonaux/rulebook/tree/main/tests/skills/runs).
 

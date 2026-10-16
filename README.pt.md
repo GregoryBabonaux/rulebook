@@ -158,6 +158,7 @@ O `doctor` assinala hooks de uma versão anterior e um `rulebook.html` gerado po
 
 ```
 rulebook index      # reconstrói o índice de provas, reporta problemas
+rulebook scan       # lista os pontos de decisão que nenhuma ficha cobre ainda
 rulebook check      # deteta alterações de regras, escreve a caixa de entrada
 rulebook build      # gera rulebook/rulebook.html
 rulebook doctor     # verifica a instalação
@@ -177,7 +178,7 @@ O agente nunca escreve o `rulebook.html`. Só o `rulebook build` o gera, a parti
 
 **Que línguas?** As skills estão escritas em inglês. A referência é redigida na língua do seu projeto (`rulebook/config.json` → `language`). Os rótulos do documento HTML existem em inglês e francês.
 
-**Como sei se uma regra está certa?** Cada regra cita as linhas que a decidem e tem um nível de confiança: *comprovada pelo código e por um teste*, *lida no código*, *deduzida* ou *contraditória*. Uma auditoria às cegas verifica-a: uma segunda passagem que só vê a ficha e o código citado. `rulebook index --strict` falha quando uma citação deixa de existir.
+**Como sei se uma regra está certa?** Cada regra cita as linhas que a decidem e tem um nível de confiança: *comprovada pelo código e por um teste*, *lida no código*, *deduzida* ou *contraditória*. Uma auditoria às cegas verifica-a: uma segunda passagem que só vê a ficha e o código citado. `rulebook index --strict` falha quando uma citação deixa de existir. Também falha quando um símbolo citado não está nas suas linhas, e assinala os métodos que só os testes chamam. Para apanhar as regras que ninguém escreveu, `rulebook scan` lista os pontos de decisão do código (recusas, condições sobre valores fixos, permissões, limites, mudanças de estado) que nenhuma ficha cobre, e o documento mostra essa cobertura por domínio.
 
 **Como é testado?** Com uma aplicação de teste cheia de armadilhas (um comentário que mente, código morto, uma escolha técnica disfarçada de regra) e um avaliador. Cada skill foi primeiro executada *sem* a skill para observar as falhas, e depois escrita para as corrigir. Veja [`tests/skills/runs/`](https://github.com/GregoryBabonaux/rulebook/tree/main/tests/skills/runs).
 
