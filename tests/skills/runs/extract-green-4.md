@@ -74,3 +74,21 @@ only tests call, two contradictory password minimums, a rule decided in a templa
 - A name-based check "the cited test mentions the rule's class or method" was tried and
   dropped: 12 hints on v2, only 2 of them among the 10 cards the audit failed for a test.
 - v3 is installed in Cluengo after fixing its 6 audit failures.
+
+### JEU, fourth run (one card per decision, readers in the foreground)
+
+| | v1 | v2 | v3 | v4 |
+|---|---|---|---|---|
+| Cards | 43 | 78 | 37 | 62 |
+| Enforcement lines per card | — | 1.7 | 2.2 | 1.7 |
+| v1 rules found again | — | 46 / 48 | 46 / 48 | 47 / 48 |
+| First audit failures | 49 % | 22 % | 16 % | 18 % (11 / 62) |
+| — statement wrong or too broad | ~5 | 8 | 2 | 0 (1 context claim) |
+| — wrong test cited, or a test that does not assert | ~8 | 9 | 1 | 6 |
+| — edge-case value copied wrong | — | — | 4 | 4 |
+| not-rules.md sample wrong | — | 1 / 25 | 0 / 30 | 0 / 30 |
+
+- v4 keeps v2's level of detail with v3's reliability on statements, and covers all 37 v3 rules.
+- What remains is citations: a test from the neighbouring case, or an edge case whose value
+  differs from the test it cites. The two auditors of v4 disagree in severity (10 / 31 and
+  1 / 31): audit variance is of the same order as the differences between v3 and v4.
