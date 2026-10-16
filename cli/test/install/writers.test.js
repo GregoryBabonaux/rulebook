@@ -41,15 +41,15 @@ test('mergeNestedHooks keeps unrelated keys and hooks, then replaces ours on re-
 });
 
 test('mergeFlatHooks adds version, appends, then replaces ours', () => {
-  const entry1 = { command: 'r hook cursor post-edit --stamp 0.1.0' };
-  const entry2 = { command: 'r hook cursor post-edit --stamp 0.2.0' };
+  const entry1 = { command: 'rulebook hook cursor post-edit --stamp 0.1.0' };
+  const entry2 = { command: 'rulebook hook cursor post-edit --stamp 0.2.0' };
   const user = { version: 1, hooks: { postToolUse: [{ command: './fmt.sh' }] } };
   const once = mergeFlatHooks(user, 'postToolUse', entry1, ours('cursor', 'post-edit'));
   assert.deepEqual(once.hooks.postToolUse, [{ command: './fmt.sh' }, entry1]);
   const twice = mergeFlatHooks(once, 'postToolUse', entry2, ours('cursor', 'post-edit'));
   assert.deepEqual(twice.hooks.postToolUse, [{ command: './fmt.sh' }, entry2]);
-  const copilot = mergeFlatHooks({}, 'postToolUse', { type: 'command', bash: 'r hook copilot post-edit', powershell: 'r hook copilot post-edit' }, ours('copilot', 'post-edit'));
+  const copilot = mergeFlatHooks({}, 'postToolUse', { type: 'command', bash: 'rulebook hook copilot post-edit', powershell: 'rulebook hook copilot post-edit' }, ours('copilot', 'post-edit'));
   assert.equal(copilot.version, 1);
-  const again = mergeFlatHooks(copilot, 'postToolUse', { type: 'command', bash: 'r hook copilot post-edit --stamp 2', powershell: 'x' }, ours('copilot', 'post-edit'));
+  const again = mergeFlatHooks(copilot, 'postToolUse', { type: 'command', bash: 'rulebook hook copilot post-edit --stamp 2', powershell: 'x' }, ours('copilot', 'post-edit'));
   assert.equal(again.hooks.postToolUse.length, 1);
 });
