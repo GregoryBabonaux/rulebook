@@ -141,7 +141,7 @@
   function fit() {
     const box = viewport.getBBox();
     const w = svg.clientWidth || 800; const h = svg.clientHeight || 500;
-    const k = Math.min(1, Math.max(0.2, Math.min((w - 40) / (box.width || 1), (h - 40) / (box.height || 1))));
+    const k = Math.min(1, Math.max(0.6, Math.min((w - 40) / (box.width || 1), (h - 40) / (box.height || 1))));
     view.k = k; view.x = (w - box.width * k) / 2 - box.x * k; view.y = (h - box.height * k) / 2 - box.y * k;
     apply();
   }

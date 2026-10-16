@@ -138,3 +138,8 @@ test('the map data carries domain details', () => {
   const map = JSON.parse(renderHtml(model).match(/<script id="rulebook-data" type="application\/json">(.*?)<\/script>/s)[1]);
   assert.deepEqual(map.domains.find((d) => d.code === 'STK').details, [{ label: 'Couvre', text: 'réservations' }]);
 });
+
+test('without JavaScript, a notice says where the map and dashboard are', () => {
+  assert.match(renderHtml(data({ language: 'fr' })), /<noscript><p class="noscript">[^<]*Carte[^<]*Tableau de bord[^<]*navigateur/);
+  assert.match(renderHtml(data()), /<noscript><p class="noscript">[^<]*Map[^<]*Dashboard[^<]*browser/);
+});
