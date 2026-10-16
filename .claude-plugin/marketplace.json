@@ -1,0 +1,12 @@
+{
+  "name": "rulebook",
+  "owner": { "name": "Grégory Babonaux" },
+  "plugins": [
+    {
+      "name": "rulebook",
+      "source": "./",
+      "description": "Business-rule extraction skills and a companion that flags rule changes while you code.",
+      "version": "0.1.0"
+    }
+  ]
+}
