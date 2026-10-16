@@ -1,7 +1,7 @@
-export function fakeIo(cwd) {
+export function fakeIo(cwd, extra = {}) {
   const out = [];
   const err = [];
-  return {
+  const io = {
     cwd,
     stdout: { write: (s) => out.push(s) },
     stderr: { write: (s) => err.push(s) },
@@ -9,4 +9,5 @@ export function fakeIo(cwd) {
     get out() { return out.join(''); },
     get err() { return err.join(''); },
   };
+  return Object.assign(io, extra);
 }
