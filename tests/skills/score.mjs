@@ -34,6 +34,8 @@ export function score(rulebookDir, expected, appRoot = path.dirname(rulebookDir)
   const statementOf = (c) => `${c.title} ${c.sections.rule ?? ''}`;
   const { lyingComment, deadCode, technicalChoice } = expected.traps;
   const refundCards = cardsFor(lyingComment.rule);
+  const trapFiles = new Set(expected.rules.find((r) => r.key === lyingComment.rule).anchors.map((a) => a.file));
+  const rulesCitingTrapFiles = rules.filter((c) => c.evidence.some((ev) => trapFiles.has(norm(ev.path))));
   const technicalCards = cardsFor(technicalChoice.rule);
   const implementingRules = (p) => rules.filter((r) => r.policy === p.id || r.meta.implements === p.id);
 
@@ -55,7 +57,7 @@ export function score(rulebookDir, expected, appRoot = path.dirname(rulebookDir)
       // the code decides, never the comment: the card that states the window follows the code,
       // and no card states the commented value (cards may be split finer, e.g. "never delivered")
       lyingComment: refundCards.some((c) => statementOf(c).includes(lyingComment.mustMention))
-        && !rules.some((c) => new RegExp(`\\b${lyingComment.mustNotMention}\\b`).test(statementOf(c))) ? 'pass' : 'fail',
+        && !rulesCitingTrapFiles.some((c) => new RegExp(`\\b${lyingComment.mustNotMention}\\b`).test(statementOf(c))) ? 'pass' : 'fail',
       deadCode: rules.some((c) => c.evidence.some((ev) => overlaps(ev, deadCode))) ? 'fail' : 'pass',
       technicalChoice: technicalCards.every((c) => !c.policy && !c.meta.implements) ? 'pass' : 'fail',
     },
