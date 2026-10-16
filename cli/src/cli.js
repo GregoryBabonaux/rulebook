@@ -1,7 +1,11 @@
-import { readFileSync } from 'node:fs';
+import fs, { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { loadProject } from './project.js';
-import { headSha } from './git.js';
-import { loadCards, buildIndex, writeIndex } from './index/build.js';
+import { git, headSha } from './git.js';
+import { loadCards, buildIndex, writeIndex, readIndex } from './index/build.js';
+import { getDiff } from './git/diff.js';
+import { detect } from './check/detect.js';
+import { appendDetections, formatNotice } from './inbox/inbox.js';
 
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 
@@ -34,6 +38,30 @@ function runIndex(io, opts) {
   return unresolved.length && opts.strict ? 1 : 0;
 }
 
+function runCheck(io, opts) {
+  try {
+    const project = loadProject(io.cwd, opts.dir);
+    if (!project) return 0;
+    const index = readIndex(project.dir);
+    const diffs = getDiff(project.root, opts.scope);
+    const readFile = opts.scope.kind === 'staged'
+      ? (p) => git(project.root, ['show', `:${p}`])
+      : (p) => { try { return fs.readFileSync(path.join(project.root, p), 'utf8'); } catch { return null; } };
+    const detections = detect({ index, diffs, readFile, hotspots: project.config.hotspots, rulebookDir: project.dirName });
+    const inboxRel = `${project.dirName}/inbox.md`;
+    const added = appendDetections(path.join(project.dir, 'inbox.md'), detections, io.now ? io.now() : new Date());
+    if (opts.format === 'json') {
+      io.stdout.write(`${JSON.stringify({ detections, added: added.map((d) => d.key) })}\n`);
+    } else {
+      for (const d of added) io.stdout.write(`${formatNotice(d, inboxRel)}\n`);
+    }
+    return opts.strict && detections.length ? 1 : 0;
+  } catch (err) {
+    io.stderr.write(`rulebook: check skipped (${err.message})\n`);
+    return opts.strict ? 2 : 0;
+  }
+}
+
 export async function run(argv, io) {
   const [cmd, ...rest] = argv;
   const opts = parseOptions(rest);
@@ -42,6 +70,7 @@ export async function run(argv, io) {
     return 0;
   }
   if (cmd === 'index') return runIndex(io, opts);
+  if (cmd === 'check') return runCheck(io, opts);
   io.stderr.write(`rulebook: unknown command "${cmd ?? ''}". Commands: index, check\n`);
   return 1;
 }
