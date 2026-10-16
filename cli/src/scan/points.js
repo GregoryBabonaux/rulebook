@@ -23,14 +23,26 @@ const FAMILIES = [
     // a comparison with a number ("=>" and "->" are not comparisons)
     /(<=|>=|===|!==|==|!=|<(?![<=])|(?<![=\->])>(?![>=]))\s*-?\d+(\.\d+)?\b/,
     /-?\b\d+(\.\d+)?\s*(<=|>=|===|!==|==|!=|<(?![<=])|(?<![=\->])>(?![>=]))\s*[$\w(]/,
-    // a condition on a quoted value
+    // a comparison with a named constant or a configuration value
+    /(<=|>=|===|!==|==|!=|<(?![<=])|(?<![=\->])>(?![>=]))\s*(config\b|Config::|settings\b|(self|static|this)(::|\.|->)\$?[A-Z][A-Z0-9_]{2,}|[A-Z][A-Z0-9_]{2,}\b)/,
+    // a condition on a quoted value, or on true / false
     /\b(if|elseif|elif|else if|while|unless|when|case)\b.*(===|!==|==|!=|\bin_array\(|\bin\s*\[)\s*['"]/,
+    /\b(if|elseif|elif|else if|while|unless|when)\b.*(===|!==|==|!=)\s*(true|false|True|False)\b/,
+  ]],
+  ['calculation', [
+    // bounds, rounding, and multiplying by a fixed rate
+    /\bMath\.(min|max|round|floor|ceil)\(|(?<![\w$.>:])(min|max|round|floor|ceil)\(/,
+    /[*/]\s*-?\d*\.\d+\b/,
   ]],
   ['state', [
     /\b(status|state|phase|stage)\b['"]?\s*(=>|=(?!=)|:(?!:))\s*\S/,
     /\b(transitionTo|markAs\w+)\s*\(/,
+    // a row of a transition table: a state mapped to the states it may go to
+    /^\s*['"]?\w+['"]?\s*(:|=>)\s*\[\s*['"]\w+['"]/,
   ]],
   ['constant', [
+    // a named table of values (transitions, limits)
+    /^\s*(?:(?:public|private|protected|static|final|export|readonly)\s+)*(?:const|let|var)?\s*[A-Z][A-Z0-9_]{2,}\s*=\s*[{[]\s*$/,
     /^\s*(?:(?:public|private|protected|static|final|export|readonly)\s+)*(?:const|let|var|final\s+\w+|static\s+final\s+\w+)?\s*[A-Z][A-Z0-9_]{2,}\s*(?::\s*[\w<>[\]]+\s*)?=\s*-?\d/,
     /\bdefine\(\s*['"][A-Z][A-Z0-9_]+['"]\s*,\s*-?\d/,
   ]],

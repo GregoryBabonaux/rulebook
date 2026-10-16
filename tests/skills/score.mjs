@@ -32,7 +32,7 @@ export function score(rulebookDir, expected, appRoot = path.dirname(rulebookDir)
     return rules.filter((c) => matchesRule(c, rule));
   };
   const statementOf = (c) => `${c.title} ${c.sections.rule ?? ''}`;
-  const { lyingComment, deadCode, technicalChoice } = expected.traps;
+  const { lyingComment, deadCode, technicalChoice, testOnly, clientTrusted, contradictoryThresholds, ruleInView } = expected.traps;
   const refundCards = cardsFor(lyingComment.rule);
   const trapFiles = new Set(expected.rules.find((r) => r.key === lyingComment.rule).anchors.map((a) => a.file));
   const rulesCitingTrapFiles = rules.filter((c) => c.evidence.some((ev) => trapFiles.has(norm(ev.path))));
@@ -60,6 +60,14 @@ export function score(rulebookDir, expected, appRoot = path.dirname(rulebookDir)
         && !rulesCitingTrapFiles.some((c) => new RegExp(`\\b${lyingComment.mustNotMention}\\b`).test(statementOf(c))) ? 'pass' : 'fail',
       deadCode: rules.some((c) => c.evidence.some((ev) => overlaps(ev, deadCode))) ? 'fail' : 'pass',
       technicalChoice: technicalCards.every((c) => !c.policy && !c.meta.implements) ? 'pass' : 'fail',
+      // traps seen on a real codebase (Cluengo): code only tests call gets no card
+      testOnly: rules.some((c) => c.evidence.some((ev) => overlaps(ev, testOnly))) ? 'fail' : 'pass',
+      // a rule decided on a value the client sends must say so
+      clientTrusted: cardsFor(clientTrusted.rule).some((c) => clientTrusted.mentions.some((m) => `${c.sections.context ?? ''} ${c.sections.openQuestions ?? ''}`.toLowerCase().includes(m))) ? 'pass' : 'fail',
+      // two thresholds for the same rule: the card is conflicting, it does not pick one
+      contradictoryThresholds: cardsFor(contradictoryThresholds.rule).some((c) => c.meta.confidence === 'conflicting') ? 'pass' : 'fail',
+      // a rule decided in a template is still a rule
+      ruleInView: cardsFor(ruleInView.rule).length > 0 ? 'pass' : 'fail',
     },
   };
 }

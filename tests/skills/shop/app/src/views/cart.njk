@@ -1,0 +1,8 @@
+<section class="cart">
+  <p>Total: {{ order.total }}</p>
+  {% if order.total >= 50 %}
+    <p class="shipping">Free shipping</p>
+  {% else %}
+    <p class="shipping">Shipping: 4.90</p>
+  {% endif %}
+</section>

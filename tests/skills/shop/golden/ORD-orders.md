@@ -70,3 +70,27 @@ How orders move from payment to delivery, and when they can be cancelled or refu
 
 **Evidence.**
 - schema — db/schema.sql:11
+
+### ORD-R006 · Staff get 20% off
+- **Kind:** rule · **Category:** calculation
+- **Status:** active · **Confidence:** read · **Audit:** passed
+
+**Rule.** A staff member's order total is reduced by 20%.
+
+**Context.** The discount is granted on a flag the client sends in the request body: nothing on the server checks that the buyer is staff.
+
+**Evidence.**
+- enforcement — src/orders/checkout.js:2-7 `applyStaffDiscount`
+
+**Open questions.** Should the server check the staff status instead of trusting the request?
+
+### ORD-R007 · Free shipping from 50
+- **Kind:** rule · **Category:** derivation
+- **Status:** active · **Confidence:** read · **Audit:** passed
+
+**Rule.** Shipping is free for an order of 50 or more; otherwise it costs 4.90.
+
+**Context.** Decided in the cart template, not in the order code.
+
+**Evidence.**
+- enforcement — src/views/cart.njk:3-7

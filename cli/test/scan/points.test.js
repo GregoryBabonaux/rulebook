@@ -64,3 +64,23 @@ test('imports and event names are not decision points', () => {
   }
   assert.equal(classifyLine("            'reviewComment' => ['nullable', 'string', 'max:5000'],", 'app/X.php'), 'validation');
 });
+
+test('comparisons with constants or configuration, calculations, booleans and state tables are found', () => {
+  const cases = [
+    ['  return (now - order.deliveredAt) / DAY <= config.REFUND_WINDOW_DAYS;', 'condition'],
+    ['  const lockedUntil = failed >= MAX_ATTEMPTS ? now + LOCK_MINUTES : null;', 'condition'],
+    ['        if ($attempts > self::MAX_ATTEMPTS) {', 'condition'],
+    ['  if (request.body.isStaff === true) {', 'condition'],
+    ['  const rate = Math.min(coupon.rate, config.MAX_DISCOUNT);', 'calculation'],
+    ['  return Math.round(amount * 100) / 100;', 'calculation'],
+    ['    return { ...order, total: order.total * 0.8 };', 'calculation'],
+    ['        $fee = max($amount * 0.02, 1);', 'calculation'],
+    ["  pending: ['paid', 'cancelled'],", 'state'],
+    ["        'paid' => ['shipped', 'cancelled'],", 'state'],
+    ['const TRANSITIONS = {', 'constant'],
+  ];
+  for (const [line, kind] of cases) assert.equal(classifyLine(line, 'src/X.js'), kind, line);
+  for (const line of ['  if (value !== null) {', '  const items = [];', '  const total = a + b;']) {
+    assert.equal(classifyLine(line, 'src/X.js'), null, line);
+  }
+});

@@ -49,6 +49,12 @@ if (kind === 'extract') {
   check('every policy has a rule', s.policyChecks.total > 0 && s.policyChecks.withRules === s.policyChecks.total);
   check('no technical choice as policy', some(s.policyChecks.technicalAsPolicy === 0));
   for (const [k, v] of Object.entries(s.traps)) check(`trap ${k}`, some(v === 'pass'));
+  const scan = cli('scan', '--format', 'json');
+  let scanned = null;
+  try { scanned = JSON.parse(scan.out); } catch { /* reported below */ }
+  const left = (scanned?.points ?? []).filter((p) => p.status === 'review');
+  check('every decision point accounted for (scan)', scanned && left.length === 0, left.map((p) => `${p.path}:${p.line}`).join(', '));
+  check('domains carry a Scope paragraph', cards().length > 0 && domainFiles(rb).every((f) => parseDomainFile(read(path.join(rb, f)), f).domain?.scope), '');
   check('every card audited', some(ruleCards.every((c) => /^(passed|failed: .+)$/.test(c.meta.audit ?? ''))));
   check('no source file changed', changedOutside().length === 0, changedOutside().join(','));
 }

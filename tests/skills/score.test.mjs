@@ -19,7 +19,7 @@ test('the golden rulebook scores perfectly', () => {
   assert.equal(s.citationValidity, 1);
   assert.equal(s.parseWarnings, 0);
   assert.deepEqual(s.policyChecks, { total: 5, withNature: 5, withRules: 5, technicalAsPolicy: 0 });
-  assert.deepEqual(s.traps, { lyingComment: 'pass', deadCode: 'pass', technicalChoice: 'pass' });
+  assert.deepEqual(s.traps, { lyingComment: 'pass', deadCode: 'pass', technicalChoice: 'pass', testOnly: 'pass', clientTrusted: 'pass', contradictoryThresholds: 'pass', ruleInView: 'pass' });
 });
 
 test('a degraded rulebook scores lower', () => {
@@ -37,4 +37,34 @@ test('a degraded rulebook scores lower', () => {
   assert.ok(s.citationValidity < 1);
   assert.equal(s.traps.lyingComment, 'fail');
   assert.equal(s.traps.deadCode, 'fail');
+});
+
+test('the Cluengo traps fail when a rulebook falls into them', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'rulebook-score-'));
+  for (const f of fs.readdirSync(GOLDEN)) fs.copyFileSync(path.join(GOLDEN, f), path.join(tmp, f));
+  const acc = path.join(tmp, 'ACC-accounts.md');
+  fs.writeFileSync(acc, fs.readFileSync(acc, 'utf8').replace('**Confidence:** conflicting', '**Confidence:** read'));
+  const ord = path.join(tmp, 'ORD-orders.md');
+  let text = fs.readFileSync(ord, 'utf8');
+  // the staff card loses the remark that the flag comes from the client; the view rule goes
+  text = text.split('\n').filter((l) => !l.startsWith('**Context.** The discount is granted') && !l.startsWith('**Open questions.** Should the server check the staff')).join('\n');
+  text = text.slice(0, text.indexOf('### ORD-R007'));
+  // and a card describes code that only tests call
+  text += [
+    '### ORD-R009 · Loyal customers ship free',
+    '- **Kind:** rule · **Category:** derivation',
+    '- **Status:** active · **Confidence:** verified',
+    '',
+    '**Rule.** Ten orders give free delivery.',
+    '',
+    '**Evidence.**',
+    '- enforcement — src/orders/loyalty.js:2-4 `hasFreeDelivery`',
+    '',
+  ].join('\n');
+  fs.writeFileSync(ord, text);
+  const s = score(tmp, expected, APP);
+  assert.equal(s.traps.testOnly, 'fail');
+  assert.equal(s.traps.clientTrusted, 'fail');
+  assert.equal(s.traps.contradictoryThresholds, 'fail');
+  assert.equal(s.traps.ruleInView, 'fail');
 });
