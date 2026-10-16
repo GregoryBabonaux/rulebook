@@ -24,7 +24,13 @@ export function parseOptions(args) {
 }
 
 function runIndex(io, opts) {
-  const project = loadProject(io.cwd, opts.dir);
+  let project;
+  try {
+    project = loadProject(io.cwd, opts.dir);
+  } catch (err) {
+    io.stderr.write(`rulebook: ${err.message}\n`);
+    return 1;
+  }
   if (!project) {
     io.stderr.write(`rulebook: no ${opts.dir}/ folder in this git repository\n`);
     return 1;

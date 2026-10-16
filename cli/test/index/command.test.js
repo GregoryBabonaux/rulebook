@@ -61,3 +61,19 @@ test('index fails clearly outside a git repository', async () => {
   assert.equal(await run(['index'], io), 1);
   assert.match(io.err, /no rulebook\/ folder/);
 });
+
+test('evidence pointing at a directory is unresolved, not a crash', async () => {
+  const files = baseFiles();
+  files['rulebook/PAY-payments.md'] = DOMAIN_MD.replace('tests/RefundTest.php:3-5', 'tests:3-5');
+  const io = fakeIo(makeRepo(files).dir);
+  assert.equal(await run(['index'], io), 0);
+  assert.match(io.err, /PAY-R012 evidence tests unresolved \(not a file\)/);
+});
+
+test('an invalid config.json is reported in one line, not a stack trace', async () => {
+  const files = baseFiles();
+  files['rulebook/config.json'] = '{ broken';
+  const io = fakeIo(makeRepo(files).dir);
+  assert.equal(await run(['index'], io), 1);
+  assert.match(io.err, /^rulebook: invalid rulebook\/config\.json \(/);
+});

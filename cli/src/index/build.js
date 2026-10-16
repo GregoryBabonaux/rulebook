@@ -26,6 +26,10 @@ export function buildIndex(root, cards, verifiedAt) {
         unresolved.push({ rule: card.id, path: ev.path, reason: 'file not found' });
         continue;
       }
+      if (!fs.statSync(abs).isFile()) {
+        unresolved.push({ rule: card.id, path: ev.path, reason: 'not a file' });
+        continue;
+      }
       const lines = splitLines(fs.readFileSync(abs, 'utf8'));
       if (ev.start < 1 || ev.end < ev.start || ev.end > lines.length) {
         unresolved.push({ rule: card.id, path: ev.path, reason: `lines ${ev.start}-${ev.end} out of range (file has ${lines.length})` });

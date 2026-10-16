@@ -10,9 +10,14 @@ export function loadProject(cwd, dirName = 'rulebook') {
   const dir = path.join(root, dirName);
   if (!fs.existsSync(dir)) return null;
   const cfgPath = path.join(dir, 'config.json');
-  const config = fs.existsSync(cfgPath)
-    ? { ...DEFAULT_CONFIG, ...JSON.parse(fs.readFileSync(cfgPath, 'utf8')) }
-    : { ...DEFAULT_CONFIG };
+  let config = { ...DEFAULT_CONFIG };
+  if (fs.existsSync(cfgPath)) {
+    try {
+      config = { ...config, ...JSON.parse(fs.readFileSync(cfgPath, 'utf8')) };
+    } catch (err) {
+      throw new Error(`invalid ${dirName}/config.json (${err.message})`);
+    }
+  }
   return { root, dir, dirName, config };
 }
 
