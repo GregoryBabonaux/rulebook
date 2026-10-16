@@ -25,5 +25,10 @@ Comments never count: the code is the only truth. A small line offset that still
 deciding code passes; a wrong value, a wrong condition, a test that does not assert the claim
 or lines that do not hold the decision fail.
 
-Answer one line per card: `<ID> — passed` or `<ID> — failed: <reason and the fix>`, then the
-list of failures and their count.
+Then check a sample of `rulebook/not-rules.md` for this domain: every 5th entry. Each reason
+must be true — "applique <ID>" only if that card's rule states what the line decides;
+another domain only if the line concerns it; technical only if it decides nothing a business
+reader cares about; dead code only if nothing calls it. An entry that hides a rule fails.
+
+Answer one line per card: `<ID> — passed` or `<ID> — failed: <reason and the fix>`, then one line per
+wrong `not-rules.md` entry, then the list of failures and their count.

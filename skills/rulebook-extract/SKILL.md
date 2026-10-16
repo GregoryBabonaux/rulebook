@@ -35,7 +35,8 @@ One file per domain: `rulebook/<CODE>-<slug>.md`, starting with `# <CODE> · <Ti
 1. **Read from the entry points** of the domain (routes, commands, jobs, exported functions)
    down to the code that decides. Note each decision: a check that refuses, a calculation,
    a state change, a permission, a limit, a constraint.
-2. **Draft operating-rule cards** (`### <CODE>-R<nnn> · <Title>`), one per decision:
+2. **Draft operating-rule cards** (`### <CODE>-R<nnn> · <Title>`), one per decision — never
+   several decisions merged into one card to save work:
    statement in plain words with the real values, category, confidence, exact evidence lines,
    `Verified at: <short HEAD sha> (<today>)` and a `History` line `created`.
    - A comment that contradicts the code: the card follows the **code**; mention the comment in `Context.`.
@@ -57,7 +58,9 @@ One file per domain: `rulebook/<CODE>-<slug>.md`, starting with `# <CODE> · <Ti
    reason (`references/cli.md`) — including the points "reached from the domain's code"
    (views, helpers, providers the domain uses outside its paths): a rule only this domain
    uses gets a card here; one that belongs to another domain is dismissed with
-   "relève du domaine XXX". Then go through what line patterns miss: enums and state
+   "relève du domaine XXX". `not-rules.md` is a list of decisions you read, one by one:
+   never generate it with a script or give reasons by file; "applique <ID>" only when that
+   card's rule states what the line decides. Then go through what line patterns miss: enums and state
    tables, DB constraints, scheduled jobs, rules decided in views or templates.
 5. **Write the domain files** directly in `rulebook/` (the audit needs them; no drafts folder),
    with `Verified at` and `History` as above, and a `**Scope.**` paragraph under the domain
@@ -102,4 +105,5 @@ Write only under `rulebook/`. Never change source code or tests. Next free IDs o
 | Points left "to review" in the scan | A card or a `not-rules.md` line for each |
 | A card for a method only tests call | Dead code: no card, say it in the report |
 | "Only" or "always" checked against one branch | Walk every branch, write the exceptions |
+| A scripted `not-rules.md` to reach 0 to review | Read each point; a hidden rule is a missed rule |
 | `verified` because a test runs the code | A test whose assertion checks this rule, quoted |
