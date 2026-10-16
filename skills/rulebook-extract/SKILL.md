@@ -37,16 +37,19 @@ One file per domain: `rulebook/<CODE>-<slug>.md`, starting with `# <CODE> · <Ti
 4. **Coverage sweep.** Go through the domain's hotspots (`config.json`), validators, guards,
    enums and state tables, DB constraints, scheduled jobs and config values. Every decision
    point must end up in a card or in your report as "not a rule" with a reason.
-5. **Blind audit.** If you can start a sub-agent, give it only the card files and the
+5. **Write the domain files** directly in `rulebook/` (the audit needs them; no drafts folder),
+   with `Verified at` and `History` as above.
+6. **Blind audit.** If you can start a sub-agent, give it only the card files and the
    repository, and ask it to check each card: do the cited lines exist and do they support the
    statement as written? Otherwise, do it yourself as a separate pass, reading only the cards
    and the cited lines — not your notes. **Wait for the audit result before going on**: if
    sub-agents run in the background, wait for it to finish; never stop or hand back with
    `Audit: pending`. Set `Audit: passed` or `failed: <reason>`; fix or downgrade (`inferred`)
    every failure.
-6. **Checkpoint — stop here.** Show the policies, the rule titles, every `conflicting` card and
-   every open question. Ask the user to validate. Write nothing before the answer.
-7. **Write the domain files** directly in `rulebook/` (no drafts folder left behind), then run `rulebook index --strict` and fix every warning and
+7. **Checkpoint — stop here.** Show the policies, the rule titles, every `conflicting` card,
+   every audit fix and every open question. Ask the user to validate. Change nothing more
+   before the answer.
+8. **Apply the answer**, then run `rulebook index --strict` and fix every warning and
    unresolved anchor until it exits 0 (fallback without the CLI: re-open every cited line).
 
 ## Boundaries
@@ -60,4 +63,4 @@ Write only under `rulebook/`. Never change source code or tests. Next free IDs o
 | A card for dead code | Report it, no card |
 | A policy for rounding or a technical limit | `## Other operating rules`, no policy |
 | Evidence pointing at the caller | Cite the lines that decide |
-| No `Audit:` line | Every rule card gets one from step 5 |
+| No `Audit:` line | Every rule card gets one from step 6 |

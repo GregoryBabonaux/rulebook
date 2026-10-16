@@ -19,7 +19,8 @@ Anything you deduced rather than read is phrased as such ("Probably…", "The co
 
 ## Evidence
 - Cite the code that **decides**, not the code that merely passes the value along.
-- Exact lines: `path:start-end`, plus the symbol when there is one.
+- Exact lines: `path:start-end`, plus the symbol when there is one — **one range and one symbol
+  per evidence line**; cite several places with several lines.
 - At most one excerpt line per evidence item, 5 lines in total per card. Point, don't copy.
 - Comments and names are never evidence on their own.
 
