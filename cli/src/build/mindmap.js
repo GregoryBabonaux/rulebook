@@ -177,7 +177,11 @@
     const box = viewport.getBBox();
     const w = svg.clientWidth || 800; const h = svg.clientHeight || 500;
     const k = Math.min(1, Math.max(0.6, Math.min((w - 40) / (box.width || 1), (h - 40) / (box.height || 1))));
-    view.k = k; view.x = (w - box.width * k) / 2 - box.x * k; view.y = (h - box.height * k) / 2 - box.y * k;
+    view.k = k;
+    // centre what fits; when the map is wider or taller even at the minimum zoom, keep the root
+    // side (left, top) in view rather than cutting both ends
+    view.x = box.width * k <= w - 40 ? (w - box.width * k) / 2 - box.x * k : 20 - box.x * k;
+    view.y = box.height * k <= h - 40 ? (h - box.height * k) / 2 - box.y * k : 20 - box.y * k;
     apply();
   }
   svg.addEventListener('wheel', (ev) => {

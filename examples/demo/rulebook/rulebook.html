@@ -248,7 +248,7 @@ circle.conf-inferred { fill: var(--grey); } circle.conf-conflicting { fill: var(
 </aside>
 <main class="page">
 <header class="hero">
-  <p class="hero-meta">2026-10-16 · acf1d3f</p>
+  <p class="hero-meta">2026-10-16 · f504337</p>
   <h1>Référentiel des règles</h1>
   <p class="lede">3 règles réparties en 2 domaines. Chaque règle dit ce que fait le produit, pourquoi, et où le vérifier dans le code.</p>
 </header>
@@ -316,7 +316,7 @@ circle.conf-inferred { fill: var(--grey); } circle.conf-conflicting { fill: var(
     <div><h2 class="small">À valider</h2><ul class="plain"><li><span class="label">Question ouverte</span> <a href="#PAY-R012">PAY-R012</a> · Les jours fériés comptent-ils dans les 14 jours ? Aujourd&#39;hui, oui.</li></ul></div>
   </div>
 </section>
-<footer class="footer muted"><p>Généré par rulebook 0.1.0 depuis le commit acf1d3f. 1 domaine(s) extrait(s) sur 2.</p></footer>
+<footer class="footer muted"><p>Généré par rulebook 0.1.0 depuis le commit f504337. 1 domaine(s) extrait(s) sur 2.</p></footer>
 </main>
 </div>
 <script id="rulebook-labels" type="application/json">{"shown":"{n} affichées","noMatch":"Aucune règle ne correspond à ces filtres.","conf":{"verified":"Prouvée par le code et un test","read":"Lue dans le code, pas testée","inferred":"Déduite des noms ou de la configuration","conflicting":"Preuves contradictoires"},"tag":{"new":"nouvelle","changed":"modifiée","retired":"retirée"},"change":{"created":"créée","changed":"modifiée","retired":"retirée","reanchored":"réancrée"},"otherRules":"Autres règles de gestion","edgeCases":"Cas particuliers","history":"Historique","toValidate":"À valider","policy":"Règle métier","notExtracted":"pas encore extrait","openInDocument":"Ouvrir dans le document","close":"Fermer"}</script>
@@ -614,7 +614,11 @@ function placeWithOffsets(placed, offsets) {
     const box = viewport.getBBox();
     const w = svg.clientWidth || 800; const h = svg.clientHeight || 500;
     const k = Math.min(1, Math.max(0.6, Math.min((w - 40) / (box.width || 1), (h - 40) / (box.height || 1))));
-    view.k = k; view.x = (w - box.width * k) / 2 - box.x * k; view.y = (h - box.height * k) / 2 - box.y * k;
+    view.k = k;
+    // centre what fits; when the map is wider or taller even at the minimum zoom, keep the root
+    // side (left, top) in view rather than cutting both ends
+    view.x = box.width * k <= w - 40 ? (w - box.width * k) / 2 - box.x * k : 20 - box.x * k;
+    view.y = box.height * k <= h - 40 ? (h - box.height * k) / 2 - box.y * k : 20 - box.y * k;
     apply();
   }
   svg.addEventListener('wheel', (ev) => {
