@@ -82,3 +82,26 @@ test('getDiff works in a repository with no commit yet', () => {
   repo.write('a.js', 'x\n');
   assert.deepEqual(getDiff(repo.dir, { kind: 'worktree' }).map((f) => f.path), ['a.js']);
 });
+
+test('paths with spaces (trailing tab) and C-quoted paths are cleaned', () => {
+  const text = 'diff --git a/my file.js b/my file.js\n--- a/my file.js\t\n+++ b/my file.js\t\n@@ -1 +1 @@\n-a\n+b\n'
+    + 'diff --git "a/q\\"x.js" "b/q\\"x.js"\n--- "a/q\\"x.js"\n+++ "b/q\\"x.js"\n@@ -1 +1 @@\n-a\n+b\n'
+    + 'diff --git "a/caf\\303\\251.js" "b/caf\\303\\251.js"\n--- "a/caf\\303\\251.js"\n+++ "b/caf\\303\\251.js"\n@@ -1 +1 @@\n-a\n+b\n';
+  assert.deepEqual(parseUnifiedDiff(text).map((f) => f.path), ['my file.js', 'q"x.js', 'café.js']);
+});
+
+test('a CRLF-only rewrite of a tracked file produces no hunks', () => {
+  const repo = makeRepo({ 'src/other.js': 'if (x) throw new Error();\nok();\n' });
+  repo.write('src/other.js', 'if (x) throw new Error();\r\nok();\r\n');
+  const files = getDiff(repo.dir, { kind: 'worktree' });
+  assert.deepEqual(files.flatMap((f) => f.hunks), []);
+});
+
+test('untracked nested repos, directories and binary files do not break getDiff', () => {
+  const repo = makeRepo({ 'a.js': 'one\n' });
+  repo.write('nested/inner.js', 'x\n');
+  repo.git('-C', 'nested', 'init', '-q');
+  repo.write('img.bin', 'throw\u0000\u0001');
+  repo.write('b.js', 'throw y;\n');
+  assert.deepEqual(getDiff(repo.dir, { kind: 'worktree' }).map((f) => f.path), ['b.js']);
+});
