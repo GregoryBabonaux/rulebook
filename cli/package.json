@@ -1,6 +1,6 @@
 {
   "name": "rulebook-cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Keeps a living reference of a codebase's business rules: evidence index and change detection.",
   "type": "module",
   "bin": {
