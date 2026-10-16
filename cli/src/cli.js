@@ -9,6 +9,7 @@ import { runDoctor } from './install/doctor.js';
 import { runUpdate } from './install/update.js';
 import { updateNotice } from './update/notice.js';
 import { runBuild } from './build/command.js';
+import { runSkills } from './install/skills.js';
 
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 export const VERSION = pkg.version;
@@ -18,7 +19,7 @@ const notice = (io) => updateNotice({ env: io.env, now: io.now ? io.now() : new 
 export function parseOptions(args) {
   const o = {
     scope: { kind: 'worktree' }, format: 'line', strict: false, dir: 'rulebook',
-    agents: null, yes: false, dryRun: false, bin: null, quiet: false, out: null,
+    agents: null, yes: false, dryRun: false, bin: null, quiet: false, out: null, target: null,
   };
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
@@ -34,6 +35,7 @@ export function parseOptions(args) {
     else if (a === '--bin') o.bin = args[++i] ?? null;
     else if (a === '--quiet') o.quiet = true;
     else if (a === '--out') o.out = args[++i] ?? null;
+    else if (a === '--target') o.target = args[++i] ?? null;
   }
   return o;
 }
@@ -90,11 +92,12 @@ export async function run(argv, io) {
   if (cmd === 'init') return runInit(io, opts, VERSION);
   if (cmd === 'doctor') return runDoctor(io, opts, VERSION);
   if (cmd === 'update') return runUpdate(io, opts, VERSION);
+  if (cmd === 'skills') return runSkills(io, opts, VERSION);
   if (cmd === 'hook') {
     // The update notice is for the human: only on turn-end events, never in the model's post-edit context.
     const extra = positional[1] === 'stop' ? () => { const n = notice(io); return n ? [n] : []; } : () => [];
     return runHook(io, positional[0] ?? '', positional[1] ?? '', opts, extra);
   }
-  io.stderr.write(`rulebook: unknown command "${cmd ?? ''}". Commands: index, check, build, hook, init, doctor, update\n`);
+  io.stderr.write(`rulebook: unknown command "${cmd ?? ''}". Commands: index, check, build, hook, init, doctor, update, skills\n`);
   return 1;
 }

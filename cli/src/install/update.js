@@ -3,6 +3,7 @@ import path from 'node:path';
 import { git } from '../git.js';
 import { ADAPTERS, defaultBin, PINNED_NPX_BIN } from './agents.js';
 import { planInit, applyChanges } from './init.js';
+import { refreshStampedSkills } from './skills.js';
 
 export function installedAgents(root) {
   return ADAPTERS.filter((a) => {
@@ -26,7 +27,9 @@ export function runUpdate(io, opts, version) {
   for (const w of warnings) io.stderr.write(`rulebook: ${w}\n`);
   applyChanges(root, changes);
   io.stdout.write(`rulebook: updated for ${agents.length ? agents.join(', ') : 'no agent (universal layers only)'} (${changes.length} file(s) changed)\n`);
-  io.stdout.write('rulebook: skills are updated by the channel you installed them from:\n');
+  const refreshed = refreshStampedSkills(io.env, version);
+  if (refreshed) io.stdout.write(`rulebook: refreshed ${refreshed} skill cop${refreshed === 1 ? 'y' : 'ies'} installed by rulebook skills\n`);
+  io.stdout.write('rulebook: skills installed by another channel are updated there:\n');
   io.stdout.write('  claude plugin update rulebook@<marketplace>   (Claude Code plugin)\n');
   io.stdout.write('  npx skills update                              (skills.sh)\n');
   return 0;
