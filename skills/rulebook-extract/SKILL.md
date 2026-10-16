@@ -39,22 +39,34 @@ One file per domain: `rulebook/<CODE>-<slug>.md`, starting with `# <CODE> · <Ti
    `Verified at: <short HEAD sha> (<today>)` and a `History` line `created`.
    - A comment that contradicts the code: the card follows the **code**; mention the comment in `Context.`.
    - Code that is never called (dead code): **no card**; report it.
+   - **Every branch.** Before writing "always", "never", "only", "every" or "any", walk each
+     branch of the deciding code (each type, status or enum case, the order of the checks) and
+     state the exceptions. Most wrong cards are statements broader than the code.
+   - **A test is evidence only if one of its assertions checks this rule's outcome.** Quote
+     that assertion as the evidence excerpt. A test that merely runs the code, or checks
+     another case, is not evidence: say `read`.
+   - **Client-held state.** When a server check relies on a value the client can change (a
+     form field, a request body, an unlocked component property, a state sent by the
+     browser), say so in `Context.` and add an open question.
 3. **Group into policies.** Rules that share a *why* true outside the software go under a
    `## <CODE>-P<nn> · <Title>` policy with a mandatory `Nature`. Technical choices (rounding,
    retries…) and rules with no clear why go under `## Other operating rules`.
 4. **Coverage sweep.** Every point of the inventory ends up covered by a card (its evidence,
    parameters or an edge case cite the line) or listed in `rulebook/not-rules.md` with a
-   reason (`references/cli.md`). Then go through what line patterns miss: enums and state
+   reason (`references/cli.md`) — including the points "reached from the domain's code"
+   (views, helpers, providers the domain uses outside its paths): a rule only this domain
+   uses gets a card here; one that belongs to another domain is dismissed with
+   "relève du domaine XXX". Then go through what line patterns miss: enums and state
    tables, DB constraints, scheduled jobs, rules decided in views or templates.
 5. **Write the domain files** directly in `rulebook/` (the audit needs them; no drafts folder),
    with `Verified at` and `History` as above, and a `**Scope.**` paragraph under the domain
    title: what you read, and what you did not. Run `rulebook index`: a method it reports as
    referenced only by tests, or never, is probably dead — check, and remove its card if so.
    Run `rulebook scan --domain <CODE>` again until no point is left to review.
-6. **Blind audit.** If you can start a sub-agent, give it only the card files and the
-   repository, and ask it to check each card: do the cited lines exist and do they support the
-   statement as written? Otherwise, do it yourself as a separate pass, reading only the cards
-   and the cited lines — not your notes. **Wait for the audit result before going on**: if
+6. **Blind audit.** If you can start a sub-agent, give it only the card files, the repository
+   and the checklist of `references/audit.md`, unchanged (split a large domain between two
+   auditors). Otherwise, do it yourself as a separate pass with that checklist, reading only
+   the cards and the cited lines — not your notes. **Wait for the audit result before going on**: if
    sub-agents run in the background, wait for it to finish; never stop or hand back with
    `Audit: pending`. Set `Audit: passed` or `failed: <reason>`; fix or downgrade (`inferred`)
    every failure.
@@ -88,3 +100,5 @@ Write only under `rulebook/`. Never change source code or tests. Next free IDs o
 | Asking for validation before building | Build the HTML first (step 7), then offer corrections |
 | Points left "to review" in the scan | A card or a `not-rules.md` line for each |
 | A card for a method only tests call | Dead code: no card, say it in the report |
+| "Only" or "always" checked against one branch | Walk every branch, write the exceptions |
+| `verified` because a test runs the code | A test whose assertion checks this rule, quoted |

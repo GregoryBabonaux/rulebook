@@ -23,6 +23,8 @@ Anything you deduced rather than read is phrased as such ("Probably…", "The co
   per evidence line**; cite several places with several lines.
 - At most one excerpt line per evidence item, 5 lines in total per card. Point, don't copy.
 - Comments and names are never evidence on their own.
+- A test is evidence only if one of its assertions checks the rule's outcome; its excerpt is
+  that assertion. A test that only runs the code is not evidence of the rule.
 
 ## Edge cases
 `Given <situation>, when <action>, then <outcome>.` — written in the reference's language:
