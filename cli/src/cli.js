@@ -7,9 +7,12 @@ import { runHook } from './hook/run.js';
 import { runInit } from './install/init.js';
 import { runDoctor } from './install/doctor.js';
 import { runUpdate } from './install/update.js';
+import { updateNotice } from './update/notice.js';
 
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 export const VERSION = pkg.version;
+
+const notice = (io) => updateNotice({ env: io.env, now: io.now ? io.now() : new Date(), current: VERSION });
 
 export function parseOptions(args) {
   const o = {
@@ -57,13 +60,14 @@ function runIndex(io, opts) {
 function runCheck(io, opts) {
   try {
     const result = checkProject(io.cwd, { scope: opts.scope, dir: opts.dir, now: io.now ? io.now() : new Date() });
-    if (!result) return 0;
     if (opts.format === 'json') {
-      io.stdout.write(`${JSON.stringify({ detections: result.detections, added: result.added.map((d) => d.key) })}\n`);
+      if (result) io.stdout.write(`${JSON.stringify({ detections: result.detections, added: result.added.map((d) => d.key) })}\n`);
     } else {
-      for (const line of result.notices) io.stdout.write(`${line}\n`);
+      for (const line of result?.notices ?? []) io.stdout.write(`${line}\n`);
+      const n = notice(io);
+      if (n) io.stdout.write(`${n}\n`);
     }
-    return opts.strict && result.detections.length ? 1 : 0;
+    return opts.strict && result?.detections.length ? 1 : 0;
   } catch (err) {
     io.stderr.write(`rulebook: check skipped (${err.message})\n`);
     return opts.strict ? 2 : 0;
@@ -83,7 +87,7 @@ export async function run(argv, io) {
   if (cmd === 'init') return runInit(io, opts, VERSION);
   if (cmd === 'doctor') return runDoctor(io, opts, VERSION);
   if (cmd === 'update') return runUpdate(io, opts, VERSION);
-  if (cmd === 'hook') return runHook(io, positional[0] ?? '', positional[1] ?? '', opts);
+  if (cmd === 'hook') return runHook(io, positional[0] ?? '', positional[1] ?? '', opts, () => { const n = notice(io); return n ? [n] : []; });
   io.stderr.write(`rulebook: unknown command "${cmd ?? ''}". Commands: index, check, hook, init, doctor, update\n`);
   return 1;
 }
