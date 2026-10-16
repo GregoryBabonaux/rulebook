@@ -5,7 +5,7 @@ import { headSha } from '../git.js';
 import { parseDomainFile } from '../parse/cards.js';
 import { parseIndexMd } from '../parse/indexmd.js';
 import { buildData } from './data.js';
-import { renderHtml } from './render.js';
+import { renderHtml, isHttpUrl } from './render.js';
 
 const pad = (n) => String(n).padStart(2, '0');
 export const localDate = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -30,7 +30,19 @@ export function runBuild(io, opts, version) {
   const next = nextPublished(published, today);
   const sinceFrom = opts.scope.kind === 'since' ? opts.scope.sha : next.previous;
 
-  const files = domainFiles(project.dir).map((f) => parseDomainFile(readText(path.join(project.dir, f)), `${project.dirName}/${f}`));
+  const files = domainFiles(project.dir).map((f) => {
+    const parsed = parseDomainFile(readText(path.join(project.dir, f)), `${project.dirName}/${f}`);
+    if (!parsed.domain) {
+      // keep the cards visible: fall back to the code and slug from the file name
+      const [, code, slug] = f.match(/^([A-Z]{3})-(.+)\.md$/);
+      parsed.domain = { code, title: slug.replace(/[-_]+/g, ' '), description: '' };
+      io.stderr.write(`rulebook: ${project.dirName}/${f} has no "# CODE · Title" header\n`);
+    }
+    return parsed;
+  });
+  if (project.config.repoUrl && !isHttpUrl(project.config.repoUrl)) {
+    io.stderr.write('rulebook: repoUrl must start with http:// or https:// — evidence links stay relative\n');
+  }
   const data = buildData({
     name: path.basename(project.root),
     commit: headSha(project.root),
@@ -45,8 +57,9 @@ export function runBuild(io, opts, version) {
 
   const outRel = opts.out ?? `${project.dirName}/rulebook.html`;
   const outAbs = path.resolve(project.root, outRel);
+  const evidenceBase = path.relative(path.dirname(outAbs), project.root).replace(/\\/g, '/') || '.';
   fs.mkdirSync(path.dirname(outAbs), { recursive: true });
-  fs.writeFileSync(outAbs, renderHtml(data));
+  fs.writeFileSync(outAbs, renderHtml(data, { evidenceBase }));
   fs.writeFileSync(publishedPath, `${JSON.stringify(next)}\n`);
   io.stdout.write(`rulebook: built ${outRel.replace(/\\/g, '/')} (${data.counts.rules} rules, ${data.counts.domains} domains)\n`);
   return 0;

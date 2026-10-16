@@ -75,6 +75,7 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
 .to-validate ul { padding-left: 1.1rem; }
 .to-validate li { margin: 0.35rem 0; }
 .footer { margin-top: 3rem; font-size: 0.85rem; }
+.pending { margin: 0.6rem 0 0; font-size: 0.9rem; }
 [hidden] { display: none !important; }
 [id] { scroll-margin-top: 5.5rem; }
 @media (max-width: 30rem) {
@@ -83,6 +84,11 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
   [id] { scroll-margin-top: 1rem; }
 }
 @media print {
+  :root, :root[data-theme="dark"], :root:not([data-theme="light"]) {
+    --bg: #fff; --surface: #f3f1ec; --text: #000; --muted: #444; --faint: #666; --line: #ccc;
+    --accent: #000; --tag-new-bg: #fff; --tag-new: #000; --tag-changed-bg: #fff; --tag-changed: #000;
+    --tag-retired-bg: #fff; --tag-retired: #444; --question: #999; color-scheme: light;
+  }
   .controls, .theme { display: none; }
   body { background: #fff; color: #000; font-size: 11pt; }
   .page { max-width: none; padding: 0; }

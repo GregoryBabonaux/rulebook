@@ -6,7 +6,8 @@ function sinceItems(cards, from) {
   if (!from) return [];
   const items = [];
   for (const card of cards) {
-    const events = card.history.filter((h) => h.date > from && CHANGE_TYPE[h.change]);
+    // >= : an event on the baseline day may postdate that day's build; better shown twice than lost
+    const events = card.history.filter((h) => h.date >= from && CHANGE_TYPE[h.change]);
     if (!events.length) continue;
     const latest = events.reduce((a, b) => (b.date > a.date ? b : a));
     const has = (change) => events.some((h) => h.change === change);
@@ -36,6 +37,10 @@ export function buildData({ name, commit, today, version, config, domainsMap, do
   for (const file of domainFiles) {
     if (!file.domain) continue;
     const known = byCode.get(file.domain.code);
+    if (known?.file) {
+      known.file = { domain: known.file.domain, cards: [...known.file.cards, ...file.cards] };
+      continue;
+    }
     byCode.set(file.domain.code, {
       code: file.domain.code,
       title: known?.title ?? file.domain.title,

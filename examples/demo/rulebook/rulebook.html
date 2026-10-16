@@ -82,6 +82,7 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
 .to-validate ul { padding-left: 1.1rem; }
 .to-validate li { margin: 0.35rem 0; }
 .footer { margin-top: 3rem; font-size: 0.85rem; }
+.pending { margin: 0.6rem 0 0; font-size: 0.9rem; }
 [hidden] { display: none !important; }
 [id] { scroll-margin-top: 5.5rem; }
 @media (max-width: 30rem) {
@@ -90,6 +91,11 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
   [id] { scroll-margin-top: 1rem; }
 }
 @media print {
+  :root, :root[data-theme="dark"], :root:not([data-theme="light"]) {
+    --bg: #fff; --surface: #f3f1ec; --text: #000; --muted: #444; --faint: #666; --line: #ccc;
+    --accent: #000; --tag-new-bg: #fff; --tag-new: #000; --tag-changed-bg: #fff; --tag-changed: #000;
+    --tag-retired-bg: #fff; --tag-retired: #444; --question: #999; color-scheme: light;
+  }
   .controls, .theme { display: none; }
   body { background: #fff; color: #000; font-size: 11pt; }
   .page { max-width: none; padding: 0; }
@@ -103,22 +109,26 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
 <body>
 <main class="page">
 <header class="masthead">
-  <p class="muted">rulebook · 2026-10-16 · 5be8c12</p>
+  <p class="muted">rulebook · 2026-10-16 · a365123</p>
   <div class="title-row"><h1>Référentiel des règles</h1><button type="button" id="theme" class="theme" aria-label="Changer de thème">◐</button></div>
   <p class="lede">3 règles réparties en 2 domaines. Chaque règle dit ce que fait le produit, pourquoi, et où le vérifier dans le code.</p>
 </header>
-<section class="since" id="since"><h2 class="small">Depuis la version du 2026-09-01</h2><ul><li><span class="tag tag-new">nouvelle</span> <a href="#PAY-R019">PAY-R019</a> · Un remboursement de plus de 500 € demande un administrateur</li><li><span class="tag tag-new">nouvelle</span> <a href="#PAY-R012">PAY-R012</a> · Remboursement possible jusqu&#39;à 14 jours après la livraison</li></ul></section>
+<section class="since" id="since"><h2 class="small">Depuis la version du 2026-09-01</h2><ul><li><span class="tag tag-new">nouvelle</span> <a href="#PAY-R019">PAY-R019</a> · Un remboursement de plus de 500 € demande un administrateur</li><li><span class="tag tag-new">nouvelle</span> <a href="#PAY-R012">PAY-R012</a> · Remboursement possible jusqu&#39;à 14 jours après la livraison</li></ul><p class="pending"><a href="#to-validate">1 point à valider</a></p></section>
 <nav class="toc" id="toc"><h2 class="small">Sommaire</h2><ol><li class=""><a href="#PAY">Paiements</a> <span class="muted">· 3 règles</span></li><li class="muted"><a href="#ORD">Commandes</a> <span class="muted">· pas encore extrait</span></li></ol></nav>
 <div class="controls" role="search">
   <input type="search" id="q" placeholder="Rechercher une règle" aria-label="Rechercher une règle">
   <select id="f-kind" aria-label="Règles métier et de gestion"><option value="">Règles métier et de gestion</option><option value="policy">Règles métier</option><option value="rule">Règles de gestion</option></select>
   <select id="f-confidence" aria-label="Toute confiance"><option value="">Toute confiance</option><option value="verified">Prouvée par le code et un test</option><option value="read">Lue dans le code, pas testée</option><option value="inferred">Déduite des noms ou de la configuration</option><option value="conflicting">Preuves contradictoires</option></select>
+  <select id="f-category" aria-label="Toute catégorie"><option value="">Toute catégorie</option><option value="validation">Validation</option><option value="calculation">Calcul</option><option value="authorization">Autorisation</option><option value="state-transition">Changement d&#39;état</option><option value="derivation">Dérivation</option><option value="data-constraint">Contrainte de données</option><option value="timing">Délais</option><option value="integration">Intégration</option></select>
+  <select id="f-status" aria-label="Tout statut"><option value="">Tout statut</option><option value="candidate">Candidate</option><option value="active">Active</option><option value="changed">Modifiée</option><option value="retired">Retirée</option></select>
   <span class="muted" id="shown" aria-live="polite"></span>
 </div>
 <p class="muted no-match" id="no-match" hidden>Aucune règle ne correspond à ces filtres.</p>
 <section class="domain" id="PAY"><h2>1. Paiements</h2><p class="lede">Comment la boutique encaisse, rembourse et protège le client en cas de litige.</p><section class="policy" id="PAY-P03" data-kind="policy" data-search="pay-p03 droit de rétractation un client doit pouvoir renoncer à un achat dans un délai donné après l&#39;avoir reçu.">
   <h3>1.1 Droit de rétractation</h3>
   <p class="policy-statement"><span class="label">Règle métier</span> Un client doit pouvoir renoncer à un achat dans un délai donné après l&#39;avoir reçu.</p>
+  
+  
   <article class="rule" id="PAY-R012" data-kind="rule" data-category="timing" data-confidence="verified" data-status="changed" data-search="pay-r012 remboursement possible jusqu&#39;à 14 jours après la livraison un remboursement ne peut être demandé que si la commande a été livrée il y a 14 jours ou moins. le délai part de la livraison, pas de la commande. c&#39;est la façon dont le produit applique le droit de rétractation. étant donné une commande jamais livrée, quand le client demande un remboursement, alors la demande est refusée. étant donné une livraison il y a exactement 14 jours, quand le client demande un remboursement, alors la demande est acceptée.">
   <div class="rule-head"><a class="rid" href="#PAY-R012">PAY-R012</a><span class="tag tag-new">nouvelle le 2026-10-02</span></div>
   <h4 class="rule-title">Remboursement possible jusqu&#39;à 14 jours après la livraison</h4>
@@ -126,8 +136,8 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
   <p class="context">Le délai part de la livraison, pas de la commande. C&#39;est la façon dont le produit applique le droit de rétractation.</p>
   <p class="meta"><span class="label">Paramètres</span> <code>14</code> jours, en dur dans la policy.</p>
   <div class="cases"><span class="label">Cas particuliers</span><ul><li id="PAY-R012.E1">Étant donné une commande jamais livrée, quand le client demande un remboursement, alors la demande est refusée.</li><li id="PAY-R012.E2">Étant donné une livraison il y a exactement 14 jours, quand le client demande un remboursement, alors la demande est acceptée.</li></ul></div>
-  <p class="evidence"><span class="dot conf-verified" aria-hidden="true"></span>Prouvée par le code et un test · <a href="../app/Policies/OrderPolicy.php">OrderPolicy.php:9</a> · <a href="../tests/RefundTest.php">RefundTest.php:3</a></p>
-  <details class="history"><summary>Historique</summary><ul><li>2026-10-14 · changed · délai passé de 30 à 14 jours</li><li>2026-10-02 · created</li></ul></details>
+  <p class="evidence"><span class="dot conf-verified" aria-hidden="true"></span>Prouvée par le code et un test · <a href="../../../app/Policies/OrderPolicy.php">OrderPolicy.php:9</a> · <a href="../../../tests/RefundTest.php">RefundTest.php:3</a></p>
+  <details class="history"><summary>Historique</summary><ul><li>2026-10-14 · modifiée · délai passé de 30 à 14 jours</li><li>2026-10-02 · créée</li></ul></details>
   <aside class="question"><strong>À valider</strong> Les jours fériés comptent-ils dans les 14 jours ? Aujourd&#39;hui, oui.</aside>
 </article>
 <article class="rule" id="PAY-R019" data-kind="rule" data-category="authorization" data-confidence="read" data-status="active" data-search="pay-r019 un remboursement de plus de 500 € demande un administrateur un remboursement de plus de 500 € doit être approuvé par un administrateur avant d&#39;être versé. protège la boutique contre les remboursements importants faits par erreur depuis le support.">
@@ -137,8 +147,8 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
   <p class="context">Protège la boutique contre les remboursements importants faits par erreur depuis le support.</p>
   
   
-  <p class="evidence"><span class="dot conf-read" aria-hidden="true"></span>Lue dans le code, pas testée · <a href="../app/Services/RefundService.php">RefundService.php:6</a></p>
-  <details class="history"><summary>Historique</summary><ul><li>2026-10-15 · created</li></ul></details>
+  <p class="evidence"><span class="dot conf-read" aria-hidden="true"></span>Lue dans le code, pas testée · <a href="../../../app/Services/RefundService.php">RefundService.php:6</a></p>
+  <details class="history"><summary>Historique</summary><ul><li>2026-10-15 · créée</li></ul></details>
   
 </article>
 </section><section class="policy" data-kind="policy"><h3>1.2 Autres règles de gestion</h3><article class="rule" id="PAY-R020" data-kind="rule" data-category="integration" data-confidence="inferred" data-status="active" data-search="pay-r020 le remboursement revient sur le moyen de paiement d&#39;origine un remboursement est toujours renvoyé sur la carte utilisée pour la commande. déduit du nom de la méthode de paiement ; aucun chemin d&#39;exécution lu de bout en bout.">
@@ -154,7 +164,7 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
 </article></section></section>
 <section class="domain is-empty" id="ORD"><h2>2. Commandes</h2><p class="lede">Du panier à la livraison.</p><p class="muted">pas encore extrait</p></section>
 <section class="to-validate" id="to-validate"><h2>À valider</h2><ul><li><span class="label">Question ouverte</span> <a href="#PAY-R012">PAY-R012</a> · Les jours fériés comptent-ils dans les 14 jours ? Aujourd&#39;hui, oui.</li></ul></section>
-<footer class="footer muted"><p>Généré par rulebook 0.1.0 depuis le commit 5be8c12. 1 domaine(s) extrait(s) sur 2.</p></footer>
+<footer class="footer muted"><p>Généré par rulebook 0.1.0 depuis le commit a365123. 1 domaine(s) extrait(s) sur 2.</p></footer>
 </main>
 <script id="rulebook-labels" type="application/json">{"shown":"{n} affichées","noMatch":"Aucune règle ne correspond à ces filtres."}</script>
 <script>
@@ -171,6 +181,8 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
   const q = document.getElementById('q');
   const kind = document.getElementById('f-kind');
   const confidence = document.getElementById('f-confidence');
+  const category = document.getElementById('f-category');
+  const status = document.getElementById('f-status');
   const shown = document.getElementById('shown');
   const noMatch = document.getElementById('no-match');
   const rules = [...document.querySelectorAll('article.rule')];
@@ -185,21 +197,23 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
       const policy = r.closest('section.policy');
       const ok = kind.value !== 'policy'
         && (!confidence.value || r.dataset.confidence === confidence.value)
+        && (!category.value || r.dataset.category === category.value)
+        && (!status.value || r.dataset.status === status.value)
         && (matches(r) || (policy && matches(policy)));
       r.hidden = !ok;
       if (ok) count++;
     }
     for (const p of policies) {
       const anyRule = [...p.querySelectorAll('article.rule')].some((r) => !r.hidden);
-      const selfMatch = kind.value !== 'rule' && !confidence.value && p.dataset.search && matches(p);
+      const selfMatch = kind.value !== 'rule' && !confidence.value && !category.value && !status.value && p.dataset.search && matches(p);
       p.hidden = !(anyRule || selfMatch);
     }
-    for (const d of domains) d.hidden = ![...d.querySelectorAll('section.policy')].some((p) => !p.hidden);
-    const filtering = terms.length || kind.value || confidence.value;
+    const filtering = terms.length || kind.value || confidence.value || category.value || status.value;
+    for (const d of domains) d.hidden = Boolean(filtering) && ![...d.querySelectorAll('section.policy')].some((p) => !p.hidden);
     shown.textContent = filtering ? labels.shown.replace('{n}', count) : '';
     noMatch.hidden = !filtering || count > 0 || policies.some((p) => !p.hidden);
   }
-  for (const el of [q, kind, confidence]) el.addEventListener('input', apply);
+  for (const el of [q, kind, confidence, category, status]) el.addEventListener('input', apply);
 })();
 
 </script>

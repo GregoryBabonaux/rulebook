@@ -60,3 +60,30 @@ test('self-contained: no external resources', () => {
   assert.ok(urls.every((u) => u.startsWith('https://github.com/o/r/blob/')), urls.join(', '));
   assert.doesNotMatch(html, /<link |<img |@import|src="http/);
 });
+
+test('a javascript: repoUrl never becomes a link target', () => {
+  assert.equal(evidenceHref('javascript:alert(1)', 'abc', { path: 'a.php', start: 1, end: 1 }), '../a.php');
+  assert.equal(evidenceHref('https://github.com/o/r.git', 'abc', { path: 'a.php', start: 1, end: 1 }), 'https://github.com/o/r/blob/abc/a.php#L1');
+  assert.equal(evidenceHref(null, 'abc', { path: 'a.php', start: 1, end: 1 }, '../..'), '../../a.php');
+});
+
+test('policy context and open questions are rendered', () => {
+  const md = DOMAIN_MD.replace('**Statement.** A customer may withdraw from a purchase within a legal period.', '**Statement.** A customer may withdraw from a purchase within a legal period.\n\n**Context.** POLICY CONTEXT TEXT\n\n**Open questions.** POLICY QUESTION TEXT');
+  const html = renderHtml(data({}, md));
+  const policy = html.slice(html.indexOf('id="PAY-P03"'), html.indexOf('id="PAY-R012"'));
+  assert.match(policy, /POLICY CONTEXT TEXT/);
+  assert.match(policy, /POLICY QUESTION TEXT/);
+});
+
+test('category and status filters, and the pending count in the since block', () => {
+  const html = renderHtml(data());
+  assert.match(html, /<select id="f-category"[^>]*>.*<option value="timing">/s);
+  assert.match(html, /<select id="f-status"[^>]*>.*<option value="active">/s);
+  assert.match(html.slice(html.indexOf('id="since"'), html.indexOf('id="toc"')), /<a href="#to-validate">1 item awaiting validation<\/a>/);
+});
+
+test('history changes are localised', () => {
+  const html = renderHtml(data({ language: 'fr' }));
+  assert.match(html, /2026-10-14 · modifiée · window 30 → 14 days/);
+  assert.match(html, /2026-10-02 · créée/);
+});

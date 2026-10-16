@@ -11,12 +11,16 @@ export function inline(s) {
   return escapeHtml(s).replace(/`([^`]+)`/g, '<code>$1</code>');
 }
 
-export function evidenceHref(repoUrl, commit, ev) {
-  if (!repoUrl) return `../${ev.path}`;
-  const base = repoUrl.replace(/\/+$/, '');
-  const blob = /gitlab/i.test(base) ? '/-/blob/' : '/blob/';
+export const isHttpUrl = (url) => typeof url === 'string' && /^https?:\/\//i.test(url);
+
+// Links go to the hosting platform at the exact lines, or, without a usable
+// repoUrl, relative to the document (`base` = path from the document to the repo root).
+export function evidenceHref(repoUrl, commit, ev, base = '..') {
+  if (!isHttpUrl(repoUrl)) return `${base}/${ev.path}`;
+  const root = repoUrl.replace(/\/+$/, '').replace(/\.git$/, '');
+  const blob = /gitlab/i.test(root) ? '/-/blob/' : '/blob/';
   const lines = ev.end > ev.start ? `#L${ev.start}-L${ev.end}` : `#L${ev.start}`;
-  return `${base}${blob}${commit}/${ev.path}${lines}`;
+  return `${root}${blob}${commit}/${ev.path}${lines}`;
 }
 
 function tagFor(card, since, L) {
@@ -30,7 +34,7 @@ function renderRule(card, data, L) {
   const conf = card.meta.confidence ?? 'inferred';
   const evidence = card.evidence.map((ev) => {
     const file = ev.path.split('/').pop();
-    return `<a href="${escapeHtml(evidenceHref(data.project.repoUrl, data.project.commit, ev))}">${escapeHtml(`${file}:${ev.start}`)}</a>`;
+    return `<a href="${escapeHtml(evidenceHref(data.project.repoUrl, data.project.commit, ev, data.evidenceBase))}">${escapeHtml(`${file}:${ev.start}`)}</a>`;
   }).join(' · ');
   const search = [card.id, card.title, card.sections.rule, card.sections.context, ...card.edgeCases.map((e) => e.text)].join(' ').toLowerCase();
   return `<article class="rule${tag?.type === 'retired' ? ' is-retired' : ''}" id="${escapeHtml(card.id)}" data-kind="rule" data-category="${escapeHtml(card.meta.category ?? '')}" data-confidence="${escapeHtml(conf)}" data-status="${escapeHtml(card.meta.status)}" data-search="${escapeHtml(search)}">
@@ -41,7 +45,7 @@ function renderRule(card, data, L) {
   ${card.sections.parameters ? `<p class="meta"><span class="label">${escapeHtml(L.parameters)}</span> ${inline(card.sections.parameters)}</p>` : ''}
   ${card.edgeCases.length ? `<div class="cases"><span class="label">${escapeHtml(L.edgeCases)}</span><ul>${card.edgeCases.map((e) => `<li id="${escapeHtml(e.id)}">${inline(e.text)}</li>`).join('')}</ul></div>` : ''}
   <p class="evidence"><span class="dot conf-${escapeHtml(conf)}" aria-hidden="true"></span>${escapeHtml(L.conf[conf] ?? conf)}${evidence ? ` · ${evidence}` : ''}</p>
-  ${card.history.length ? `<details class="history"><summary>${escapeHtml(L.history)}</summary><ul>${card.history.map((h) => `<li>${escapeHtml(h.date)} · ${escapeHtml(h.change)}${h.note ? ` · ${inline(h.note)}` : ''}</li>`).join('')}</ul></details>` : ''}
+  ${card.history.length ? `<details class="history"><summary>${escapeHtml(L.history)}</summary><ul>${card.history.map((h) => `<li>${escapeHtml(h.date)} · ${escapeHtml(L.change[h.change] ?? h.change)}${h.note ? ` · ${inline(h.note)}` : ''}</li>`).join('')}</ul></details>` : ''}
   ${card.sections.openQuestions ? `<aside class="question"><strong>${escapeHtml(L.toValidate)}</strong> ${inline(card.sections.openQuestions)}</aside>` : ''}
 </article>`;
 }
@@ -54,6 +58,8 @@ function renderDomain(domain, index, data, L) {
   const policies = domain.policies.map((p, i) => `<section class="policy" id="${escapeHtml(p.card.id)}" data-kind="policy" data-search="${escapeHtml([p.card.id, p.card.title, p.card.sections.statement].join(' ').toLowerCase())}">
   <h3>${n}.${i + 1} ${inline(p.card.title)}</h3>
   ${p.card.sections.statement ? `<p class="policy-statement"><span class="label">${escapeHtml(L.policy)}</span> ${inline(p.card.sections.statement)}</p>` : ''}
+  ${p.card.sections.context ? `<p class="context">${inline(p.card.sections.context)}</p>` : ''}
+  ${p.card.sections.openQuestions ? `<aside class="question"><strong>${escapeHtml(L.toValidate)}</strong> ${inline(p.card.sections.openQuestions)}</aside>` : ''}
   ${p.rules.map((r) => renderRule(r, data, L)).join('\n')}
 </section>`).join('\n');
   const others = domain.otherRules.length
@@ -62,14 +68,16 @@ function renderDomain(domain, index, data, L) {
   return `<section class="domain" id="${escapeHtml(domain.code)}"><h2>${n}. ${inline(domain.title)}</h2>${domain.description ? `<p class="lede">${inline(domain.description)}</p>` : ''}${policies}${others}</section>`;
 }
 
-export function renderHtml(data) {
+export function renderHtml(model, { evidenceBase = '..' } = {}) {
+  const data = { ...model, evidenceBase };
   const L = t(data.project.language);
   const lang = data.project.language === 'fr' ? 'fr' : 'en';
   const ruleCount = (d) => d.policies.reduce((n, p) => n + p.rules.length, 0) + d.otherRules.length;
+  const pending = data.toValidate.length ? `<p class="pending"><a href="#to-validate">${escapeHtml(L.pending(data.toValidate.length))}</a></p>` : '';
   const since = data.since.from
     ? `<section class="since" id="since"><h2 class="small">${escapeHtml(L.since(data.since.from))}</h2>${data.since.items.length
-      ? `<ul>${data.since.items.map((i) => `<li><span class="tag tag-${i.type}">${escapeHtml(L.tag[i.type])}</span> <a href="#${escapeHtml(i.id)}">${escapeHtml(i.id)}</a> · ${inline(i.title)}${i.note ? ` — ${inline(i.note)}` : ''}</li>`).join('')}</ul>` : ''}</section>`
-    : `<section class="since" id="since"><p class="muted">${escapeHtml(L.firstVersion)}</p></section>`;
+      ? `<ul>${data.since.items.map((i) => `<li><span class="tag tag-${i.type}">${escapeHtml(L.tag[i.type])}</span> <a href="#${escapeHtml(i.id)}">${escapeHtml(i.id)}</a> · ${inline(i.title)}${i.note ? ` — ${inline(i.note)}` : ''}</li>`).join('')}</ul>` : ''}${pending}</section>`
+    : `<section class="since" id="since"><p class="muted">${escapeHtml(L.firstVersion)}</p>${pending}</section>`;
   const toc = `<nav class="toc" id="toc"><h2 class="small">${escapeHtml(L.toc)}</h2><ol>${data.domains.map((d) => `<li class="${d.extracted ? '' : 'muted'}"><a href="#${escapeHtml(d.code)}">${inline(d.title)}</a> <span class="muted">· ${escapeHtml(d.extracted ? L.rulesCount(ruleCount(d)) : L.notExtracted)}</span></li>`).join('')}</ol></nav>`;
   const toValidate = `<section class="to-validate" id="to-validate"><h2>${escapeHtml(L.toValidate)}</h2>${data.toValidate.length
     ? `<ul>${data.toValidate.map((v) => `<li><span class="label">${escapeHtml(L.item[v.type])}</span> ${v.id ? `<a href="#${escapeHtml(v.id)}">${escapeHtml(v.id)}</a> · ` : ''}${inline(v.text)}</li>`).join('')}</ul>`
@@ -78,6 +86,8 @@ export function renderHtml(data) {
   <input type="search" id="q" placeholder="${escapeHtml(L.search)}" aria-label="${escapeHtml(L.search)}">
   <select id="f-kind" aria-label="${escapeHtml(L.anyKind)}"><option value="">${escapeHtml(L.anyKind)}</option><option value="policy">${escapeHtml(L.kindPolicy)}</option><option value="rule">${escapeHtml(L.kindRule)}</option></select>
   <select id="f-confidence" aria-label="${escapeHtml(L.anyConfidence)}"><option value="">${escapeHtml(L.anyConfidence)}</option>${Object.entries(L.conf).map(([k, v]) => `<option value="${k}">${escapeHtml(v)}</option>`).join('')}</select>
+  <select id="f-category" aria-label="${escapeHtml(L.anyCategory)}"><option value="">${escapeHtml(L.anyCategory)}</option>${Object.entries(L.category).map(([k, v]) => `<option value="${k}">${escapeHtml(v)}</option>`).join('')}</select>
+  <select id="f-status" aria-label="${escapeHtml(L.anyStatus)}"><option value="">${escapeHtml(L.anyStatus)}</option>${Object.entries(L.status).map(([k, v]) => `<option value="${k}">${escapeHtml(v)}</option>`).join('')}</select>
   <span class="muted" id="shown" aria-live="polite"></span>
 </div>`;
   const labels = { shown: L.shown('{n}'), noMatch: L.noMatch };

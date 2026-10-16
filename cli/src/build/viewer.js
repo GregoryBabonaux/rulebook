@@ -11,6 +11,8 @@
   const q = document.getElementById('q');
   const kind = document.getElementById('f-kind');
   const confidence = document.getElementById('f-confidence');
+  const category = document.getElementById('f-category');
+  const status = document.getElementById('f-status');
   const shown = document.getElementById('shown');
   const noMatch = document.getElementById('no-match');
   const rules = [...document.querySelectorAll('article.rule')];
@@ -25,19 +27,21 @@
       const policy = r.closest('section.policy');
       const ok = kind.value !== 'policy'
         && (!confidence.value || r.dataset.confidence === confidence.value)
+        && (!category.value || r.dataset.category === category.value)
+        && (!status.value || r.dataset.status === status.value)
         && (matches(r) || (policy && matches(policy)));
       r.hidden = !ok;
       if (ok) count++;
     }
     for (const p of policies) {
       const anyRule = [...p.querySelectorAll('article.rule')].some((r) => !r.hidden);
-      const selfMatch = kind.value !== 'rule' && !confidence.value && p.dataset.search && matches(p);
+      const selfMatch = kind.value !== 'rule' && !confidence.value && !category.value && !status.value && p.dataset.search && matches(p);
       p.hidden = !(anyRule || selfMatch);
     }
-    for (const d of domains) d.hidden = ![...d.querySelectorAll('section.policy')].some((p) => !p.hidden);
-    const filtering = terms.length || kind.value || confidence.value;
+    const filtering = terms.length || kind.value || confidence.value || category.value || status.value;
+    for (const d of domains) d.hidden = Boolean(filtering) && ![...d.querySelectorAll('section.policy')].some((p) => !p.hidden);
     shown.textContent = filtering ? labels.shown.replace('{n}', count) : '';
     noMatch.hidden = !filtering || count > 0 || policies.some((p) => !p.hidden);
   }
-  for (const el of [q, kind, confidence]) el.addEventListener('input', apply);
+  for (const el of [q, kind, confidence, category, status]) el.addEventListener('input', apply);
 })();

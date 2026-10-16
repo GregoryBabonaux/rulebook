@@ -55,3 +55,23 @@ test('build fails clearly without a rulebook folder', async () => {
   assert.equal(await run(['build'], io), 1);
   assert.match(io.err, /no rulebook\/ folder/);
 });
+
+test('a domain file without a header still shows its rules, with a warning', async () => {
+  const repo = makeRepo({ 'rulebook/config.json': '{}', 'rulebook/PAY-payments.md': '### PAY-R001 · Lonely\n**Rule.** A rule without a domain header.\n' });
+  const io = fakeIo(repo.dir);
+  await run(['build'], io);
+  const html = fs.readFileSync(path.join(repo.dir, 'rulebook/rulebook.html'), 'utf8');
+  assert.match(html, /id="PAY-R001"/);
+  assert.match(io.err, /rulebook\/PAY-payments\.md has no "# CODE · Title" header/);
+});
+
+test('evidence links follow the output location; a non-http repoUrl is refused', async () => {
+  const files = baseFiles();
+  const repo = makeRepo(Object.fromEntries(Object.entries(files).map(([k, v]) => [k.replace(/^rulebook\//, 'docs/rulebook/'), k.endsWith('config.json') ? JSON.stringify({ repoUrl: 'javascript:alert(1)' }) : v])));
+  const io = fakeIo(repo.dir);
+  await run(['build', '--dir', 'docs/rulebook'], io);
+  const html = fs.readFileSync(path.join(repo.dir, 'docs/rulebook/rulebook.html'), 'utf8');
+  assert.match(html, /<a href="\.\.\/\.\.\/app\/Policies\/OrderPolicy\.php">/);
+  assert.doesNotMatch(html, /javascript:/);
+  assert.match(io.err, /repoUrl must start with http:\/\/ or https:\/\//);
+});

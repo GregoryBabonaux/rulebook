@@ -72,3 +72,14 @@ test('the since block shows each rule once, with its latest change', () => {
   // created after the baseline, so it is new to a reader of the previous version
   assert.deepEqual(items.map((i) => [i.id, i.type, i.date]), [['PAY-R012', 'new', '2026-10-02']]);
 });
+
+test('an event dated on the baseline day is still reported', () => {
+  assert.deepEqual(base({ sinceFrom: '2026-10-14' }).since.items.map((i) => i.id), ['PAY-R012']);
+});
+
+test('two domain files with the same code are merged, not overwritten', () => {
+  const extra = parseDomainFile('# PAY · Payments\n### PAY-R099 · Extra\n**Rule.** Extra rule.\n');
+  const d = base({ domainFiles: [parseDomainFile(DOMAIN_MD), extra] });
+  assert.equal(d.domains.length, 2);
+  assert.deepEqual(d.domains[0].otherRules.map((r) => r.id), ['PAY-R020', 'PAY-R099']);
+});
