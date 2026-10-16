@@ -11,6 +11,7 @@ import { runUpdate } from './install/update.js';
 import { updateNotice } from './update/notice.js';
 import { runBuild } from './build/command.js';
 import { runSkills } from './install/skills.js';
+import { runScan } from './scan/run.js';
 
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 export const VERSION = pkg.version;
@@ -20,7 +21,7 @@ const notice = (io) => updateNotice({ env: io.env, now: io.now ? io.now() : new 
 export function parseOptions(args) {
   const o = {
     scope: { kind: 'worktree' }, format: 'line', strict: false, dir: 'rulebook',
-    agents: null, yes: false, dryRun: false, bin: null, quiet: false, out: null, target: null, via: null,
+    agents: null, yes: false, dryRun: false, bin: null, quiet: false, out: null, target: null, via: null, domain: null,
   };
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
@@ -38,6 +39,7 @@ export function parseOptions(args) {
     else if (a === '--out') o.out = args[++i] ?? null;
     else if (a === '--target') o.target = args[++i] ?? null;
     else if (a === '--via') o.via = args[++i] ?? null;
+    else if (a === '--domain') o.domain = args[++i] ?? null;
   }
   return o;
 }
@@ -99,6 +101,7 @@ export async function run(argv, io) {
 Usage: rulebook <command> [options]
 
   index    rebuild rulebook/.index.json from the cards; report parse warnings and unresolved evidence [--strict]
+  scan     list the decision points of the hotspots and their coverage by cards [--domain <CODE>] [--format md|json]
   check    match code changes against the index and write rulebook/inbox.md [--staged | --since <sha>] [--format json] [--strict]
   build    render rulebook/rulebook.html [--since <YYYY-MM-DD>] [--out <path>]
   hook     answer an agent hook: rulebook hook <agent> <post-edit|stop>
@@ -113,6 +116,7 @@ Common option: --dir <folder> (default: rulebook)
   }
   if (cmd === 'index') return runIndex(io, opts);
   if (cmd === 'check') return runCheck(io, opts);
+  if (cmd === 'scan') return runScan(io, opts);
   if (cmd === 'build') return runBuild(io, opts, VERSION);
   if (cmd === 'init') return runInit(io, opts, VERSION);
   if (cmd === 'doctor') return runDoctor(io, opts, VERSION);
@@ -123,6 +127,6 @@ Common option: --dir <folder> (default: rulebook)
     const extra = positional[1] === 'stop' ? () => { const n = notice(io); return n ? [n] : []; } : () => [];
     return runHook(io, positional[0] ?? '', positional[1] ?? '', opts, extra);
   }
-  io.stderr.write(`rulebook: unknown command "${cmd ?? ''}". Commands: index, check, build, hook, init, doctor, update, skills\n`);
+  io.stderr.write(`rulebook: unknown command "${cmd ?? ''}". Commands: index, scan, check, build, hook, init, doctor, update, skills\n`);
   return 1;
 }
