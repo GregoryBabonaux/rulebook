@@ -48,7 +48,11 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
 .controls input, .controls select { font: inherit; font-size: 0.9rem; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 0.35rem 0.6rem; }
 .controls input { flex: 1 1 12rem; min-width: 0; }
 .domain { padding-top: 2.5rem; margin-top: 1rem; border-top: 1px solid var(--line); }
-.domain.is-empty h2 { color: var(--muted); }
+.domain.is-empty h2 { color: var(--text); }
+.details { display: grid; grid-template-columns: max-content 1fr; gap: 0.35rem 1rem; margin: 0.5rem 0 1rem; font-size: 0.95rem; }
+.details dt { color: var(--muted); font-weight: 500; }
+.details dd { margin: 0; }
+@media (max-width: 30rem) { .details { grid-template-columns: 1fr; } .details dd { margin-bottom: 0.4rem; } }
 .policy-statement { font-family: var(--serif); font-size: 1.05rem; color: var(--muted); margin: 0 0 0.5rem; }
 .rule { padding: 1.1rem 0; border-bottom: 1px solid var(--line); }
 .rule:last-child { border-bottom: 0; }

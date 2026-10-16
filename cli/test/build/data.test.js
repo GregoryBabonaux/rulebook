@@ -24,8 +24,8 @@ const base = (over = {}) => buildData({
 
 test('parseIndexMd reads domain lines', () => {
   assert.deepEqual(parseIndexMd(INDEX), [
-    { code: 'PAY', title: 'Payments', description: 'How the shop takes and refunds money.' },
-    { code: 'STK', title: 'Stock', description: 'Inventory and reservations.' },
+    { code: 'PAY', title: 'Payments', description: 'How the shop takes and refunds money.', details: [] },
+    { code: 'STK', title: 'Stock', description: 'Inventory and reservations.', details: [] },
   ]);
 });
 
@@ -82,4 +82,22 @@ test('two domain files with the same code are merged, not overwritten', () => {
   const d = base({ domainFiles: [parseDomainFile(DOMAIN_MD), extra] });
   assert.equal(d.domains.length, 2);
   assert.deepEqual(d.domains[0].otherRules.map((r) => r.id), ['PAY-R020', 'PAY-R099']);
+});
+
+test('parseIndexMd keeps the details listed under each domain', () => {
+  const md = `- **PAR** · Parcours — Créer un parcours.
+  - **Couvre** : énigmes, indices.
+  - **Code** : \`app/Services/PuzzleReviewService.php\`
+- **JEU** · Partie — Jouer.
+`;
+  assert.deepEqual(parseIndexMd(md), [
+    { code: 'PAR', title: 'Parcours', description: 'Créer un parcours.', details: [{ label: 'Couvre', text: 'énigmes, indices.' }, { label: 'Code', text: '`app/Services/PuzzleReviewService.php`' }] },
+    { code: 'JEU', title: 'Partie', description: 'Jouer.', details: [] },
+  ]);
+});
+
+test('domain details reach the view model', () => {
+  const d = base({ domainsMap: [{ code: 'STK', title: 'Stock', description: 'x', details: [{ label: 'Couvre', text: 'réservations' }] }] });
+  assert.deepEqual(d.domains.find((x) => x.code === 'STK').details, [{ label: 'Couvre', text: 'réservations' }]);
+  assert.deepEqual(d.domains.find((x) => x.code === 'PAY').details, []);
 });

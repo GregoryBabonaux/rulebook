@@ -50,10 +50,14 @@ function renderRule(card, data, L) {
 </article>`;
 }
 
+const renderDetails = (details) => (details?.length
+  ? `<dl class="details">${details.map((d) => `<dt>${inline(d.label)}</dt><dd>${inline(d.text)}</dd>`).join('')}</dl>`
+  : '');
+
 function renderDomain(domain, index, data, L) {
   const n = index + 1;
   if (!domain.extracted) {
-    return `<section class="domain is-empty" id="${escapeHtml(domain.code)}"><h2>${n}. ${inline(domain.title)}</h2><p class="lede">${inline(domain.description)}</p><p class="muted">${escapeHtml(L.notExtracted)}</p></section>`;
+    return `<section class="domain is-empty" id="${escapeHtml(domain.code)}"><h2>${n}. ${inline(domain.title)}</h2><p class="lede">${inline(domain.description)}</p>${renderDetails(domain.details)}<p class="muted">${escapeHtml(L.notExtracted)}</p></section>`;
   }
   const policies = domain.policies.map((p, i) => `<section class="policy" id="${escapeHtml(p.card.id)}" data-kind="policy" data-search="${escapeHtml([p.card.id, p.card.title, p.card.sections.statement].join(' ').toLowerCase())}">
   <h3>${n}.${i + 1} ${inline(p.card.title)}</h3>
@@ -65,7 +69,7 @@ function renderDomain(domain, index, data, L) {
   const others = domain.otherRules.length
     ? `<section class="policy" data-kind="policy"><h3>${n}.${domain.policies.length + 1} ${escapeHtml(L.otherRules)}</h3>${domain.otherRules.map((r) => renderRule(r, data, L)).join('\n')}</section>`
     : '';
-  return `<section class="domain" id="${escapeHtml(domain.code)}"><h2>${n}. ${inline(domain.title)}</h2>${domain.description ? `<p class="lede">${inline(domain.description)}</p>` : ''}${policies}${others}</section>`;
+  return `<section class="domain" id="${escapeHtml(domain.code)}"><h2>${n}. ${inline(domain.title)}</h2>${domain.description ? `<p class="lede">${inline(domain.description)}</p>` : ''}${renderDetails(domain.details)}${policies}${others}</section>`;
 }
 
 export function renderHtml(model, { evidenceBase = '..' } = {}) {

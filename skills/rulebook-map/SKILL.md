@@ -30,17 +30,23 @@ a one-line description and the places in the code where its rules live. Nothing 
 4. **Checkpoint — stop here.** Show the proposal as a table and ask the user to rename,
    merge, split or drop domains and to confirm the hotspots. Write nothing before the answer.
 5. **Write**, exactly in the formats of `references/card-template.md`:
-   - `rulebook/index.md` — one line per domain: `- **ORD** · Orders — One sentence.`
+   - `rulebook/index.md` — one line per domain, `- **ORD** · Orders — One sentence.`, then
+     indented details: what it **covers**, its key **concepts**, where its **code** lives, and
+     what to **check** (traps, hardcoded values, dead code you noticed). The map must be worth
+     reading on its own: it is the first thing people see.
    - `rulebook/config.json` — `{ "formatVersion": 1, "language": "<lang>", "repoUrl": <https URL or null>, "hotspots": [<globs>] }`.
      Hotspots are never empty: list the folders and files where the domains' rules live.
-6. **Report** the two files and suggest the next step: `rulebook-extract` on a domain.
+6. **Build the document:** `rulebook build` → `rulebook/rulebook.html`. The HTML is the
+   deliverable people open and share; give its path first, then the files, and suggest the
+   next step: `rulebook-extract` on a domain.
 
 ## Boundaries
-- Write only `rulebook/index.md` and `rulebook/config.json`.
+- Write only under `rulebook/`: `index.md`, `config.json`, and the built `rulebook.html` (with
+  its `.published.json`).
 - Do not run `rulebook init` and do not create `AGENTS.md`, hooks or other files. If the
   companion is not installed, *mention* `rulebook init` as an option in your report.
-- Do not write rule cards. Rules you noticed while surveying (and traps such as a comment
-  that contradicts the code, or dead code) go in your report as notes for extraction.
+- Do not write rule cards. Rules and traps you noticed while surveying (a comment that
+  contradicts the code, dead code, hardcoded thresholds) go in the domain's **check** detail.
 
 ## Common mistakes
 | Mistake | Instead |
@@ -49,3 +55,5 @@ a one-line description and the places in the code where its rules live. Nothing 
 | One domain per technical folder or per sub-feature | Business capabilities; merge sub-features |
 | Writing files, then asking | Ask at step 4, write at step 5 |
 | `hotspots: []` | Globs for every domain's rule-bearing code |
+| A bare list of domain names | Details under each domain; the map is read on its own |
+| Stopping at the Markdown | `rulebook build`: the HTML is the deliverable |

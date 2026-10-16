@@ -87,3 +87,11 @@ test('history changes are localised', () => {
   assert.match(html, /2026-10-14 · modifiée · window 30 → 14 days/);
   assert.match(html, /2026-10-02 · créée/);
 });
+
+test('domain details are rendered, for extracted and not-yet-extracted domains', () => {
+  const model = data();
+  model.domains.find((d) => d.code === 'STK').details = [{ label: 'Couvre', text: 'les `réservations`' }];
+  const html = renderHtml(model);
+  const stk = html.slice(html.indexOf('id="STK"'), html.indexOf('id="to-validate"'));
+  assert.match(stk, /<dt>Couvre<\/dt><dd>les <code>réservations<\/code><\/dd>/);
+});

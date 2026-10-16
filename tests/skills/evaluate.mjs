@@ -25,6 +25,8 @@ const check = (name, ok, detail = '') => results.push({ name, ok: Boolean(ok), d
 if (kind === 'map') {
   const domains = parseIndexMd(read(path.join(rb, 'index.md')));
   check('index.md lists 3-4 domains', domains.length >= 3 && domains.length <= 4, domains.map((d) => d.code).join(','));
+  check('every domain has details', domains.length > 0 && domains.every((d) => d.details.length >= 2), domains.map((d) => `${d.code}:${d.details.length}`).join(','));
+  check('rulebook.html built', fs.existsSync(path.join(rb, 'rulebook.html')));
   let cfg = {};
   try { cfg = JSON.parse(read(path.join(rb, 'config.json'))); } catch { /* reported below */ }
   check('config.json formatVersion 1', cfg.formatVersion === 1);
