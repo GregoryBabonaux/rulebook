@@ -7,6 +7,9 @@ export const RULE_PATTERNS = [
   /\bCHECK\s*\(|\bUNIQUE\b|->unique\(|unique\s*=\s*True/,
 ];
 
+// Never code that carries business rules: docs, agent and tool folders, dependencies, lockfiles.
+export const IGNORED_PATH = /(^|\/)(\.git|\.claude|\.agents|\.github|\.cursor|\.codex|\.gemini|\.vibe|\.kiro|\.opencode|\.devin|\.windsurf|\.husky|node_modules|vendor|dist|build|coverage)\/|\.(md|mdx|markdown|txt|rst|adoc|lock)$|(^|\/)[\w.-]*-lock\.(json|yaml)$/i;
+
 export const TEST_PATH = /(^|\/)(tests?|specs?|__tests__)\/|\.(test|spec)\.[a-z]+$|_test\.(go|py)$|Test\.php$/;
 
 const COMMENT = /^(\/\/|#|\*|\/\*|--)/;

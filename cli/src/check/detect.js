@@ -1,6 +1,6 @@
 import { splitLines, findRange, hashText, normalizeLines } from '../index/hash.js';
 import { matchesAny } from './globs.js';
-import { isRuleBearing, TEST_PATH } from './patterns.js';
+import { isRuleBearing, TEST_PATH, IGNORED_PATH } from './patterns.js';
 
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -33,8 +33,8 @@ export function detect({ index, diffs, readFile, hotspots = [], rulebookDir = 'r
       detections.push({ type, rule: a.rule, path: f.path, lines: a.lines, key: keyOf(type, a.rule, f.path) });
     }
 
-    if (!lines || TEST_PATH.test(f.path)) continue;
     const hot = matchesAny(f.path, hotspots);
+    if (!lines || TEST_PATH.test(f.path) || (IGNORED_PATH.test(f.path) && !hot)) continue;
     for (const h of f.hunks) {
       if (!h.added.length) continue;
       const bearing = hot ? h.added.filter((l) => l.trim() !== '') : h.added.filter(isRuleBearing);
