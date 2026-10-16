@@ -90,3 +90,14 @@ test('two anchors of the same rule in one file give one detection', () => {
   const d = detect({ index: { ...index, anchors: [anchor, twin] }, diffs: modified([hunk(12, ['x'], ['y'])]), readFile: reader(POLICY_SRC.replace('<= 14', '<= 7')) });
   assert.equal(d.filter((x) => x.rule === 'PAY-R012').length, 1);
 });
+
+test('documentation, agent folders and lockfiles never produce new?', () => {
+  const paths = ['.claude/skills/x/references/cli.md', '.agents/skills/y/SKILL.md', '.github/hooks/rulebook.json', 'docs/guide.md', 'AGENTS.md', 'skills-lock.json', 'node_modules/a/index.js', 'vendor/b/c.php', 'README.txt'];
+  const diffs = paths.map((p) => ({ path: p, oldPath: p, status: 'added', hunks: [hunk(1, ['throw new X(); // required'])] }));
+  assert.deepEqual(detect({ index, diffs, readFile: () => 'throw new X();\n', hotspots: ['src/**'] }), []);
+});
+
+test('an explicit hotspot still wins over the default ignore list', () => {
+  const diffs = [{ path: 'docs/rules.md', oldPath: 'docs/rules.md', status: 'added', hunks: [hunk(1, ['A refund is refused after 14 days.'])] }];
+  assert.equal(detect({ index, diffs, readFile: () => 'x\n', hotspots: ['docs/**'] }).length, 1);
+});
