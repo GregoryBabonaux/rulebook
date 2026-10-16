@@ -192,6 +192,7 @@ ${asset('viewer.css')}
   <p class="lede">${escapeHtml(L.intro(data.counts.rules, data.counts.domains))}</p>
 </header>
 ${views}
+<noscript><p class="noscript">${escapeHtml(L.noScript)}</p></noscript>
 ${controls}
 <section class="view" id="view-document">
 ${since}

@@ -109,6 +109,7 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
 }
 
 /* --- views */
+.noscript { background: var(--surface); border-radius: 10px; padding: 0.7rem 1rem; font-size: 0.92rem; color: var(--muted); }
 [data-view="map"] .controls, [data-view="dashboard"] .controls { position: static; }
 [data-view="dashboard"] .controls { display: none; }
 .views { display: none; gap: 0.25rem; border-bottom: 1px solid var(--line); margin: 0 0 0.5rem; }
@@ -130,9 +131,11 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
 .mm-node:focus { outline: none; }
 .mm-node:focus-visible text, .mm-node:hover text { text-decoration: underline; }
 .mm-dot { fill: var(--faint); }
+circle.conf-verified { fill: var(--green); } circle.conf-read { fill: var(--accent); }
+circle.conf-inferred { fill: var(--faint); } circle.conf-conflicting { fill: var(--red); }
+.mm-policy .mm-dot { fill: var(--muted); }
 .mm-root text { font-size: 15px; font-weight: 600; }
 .mm-domain text { font-weight: 600; }
-.mm-policy .mm-dot { fill: var(--accent); }
 .mm-empty text { fill: var(--muted); }
 .mm-edge text { font-size: 12px; fill: var(--muted); }
 .mm-tag-new text, .mm-tag-changed text { font-weight: 600; }
@@ -173,7 +176,7 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
 <body>
 <main class="page">
 <header class="masthead">
-  <p class="muted">rulebook · 2026-10-16 · f6d0f00</p>
+  <p class="muted">rulebook · 2026-10-16 · 533ee91</p>
   <div class="title-row"><h1>Référentiel des règles</h1><button type="button" id="theme" class="theme" aria-label="Changer de thème">◐</button></div>
   <p class="lede">3 règles réparties en 2 domaines. Chaque règle dit ce que fait le produit, pourquoi, et où le vérifier dans le code.</p>
 </header>
@@ -182,6 +185,7 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
   <button type="button" role="tab" data-view="map" aria-selected="false">Carte</button>
   <button type="button" role="tab" data-view="dashboard" aria-selected="false">Tableau de bord</button>
 </nav>
+<noscript><p class="noscript">La Carte interactive et le Tableau de bord demandent JavaScript : ouvrez ce fichier dans un navigateur (Chrome, Edge, Firefox, Safari).</p></noscript>
 <div class="controls" role="search">
   <input type="search" id="q" placeholder="Rechercher une règle" aria-label="Rechercher une règle">
   <select id="f-kind" aria-label="Règles métier et de gestion"><option value="">Règles métier et de gestion</option><option value="policy">Règles métier</option><option value="rule">Règles de gestion</option></select>
@@ -253,7 +257,7 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
     <div><h2 class="small">À valider</h2><ul class="plain"><li><span class="label">Question ouverte</span> <a href="#PAY-R012">PAY-R012</a> · Les jours fériés comptent-ils dans les 14 jours ? Aujourd&#39;hui, oui.</li></ul></div>
   </div>
 </section>
-<footer class="footer muted"><p>Généré par rulebook 0.1.0 depuis le commit f6d0f00. 1 domaine(s) extrait(s) sur 2.</p></footer>
+<footer class="footer muted"><p>Généré par rulebook 0.1.0 depuis le commit 533ee91. 1 domaine(s) extrait(s) sur 2.</p></footer>
 </main>
 <script id="rulebook-labels" type="application/json">{"shown":"{n} affichées","noMatch":"Aucune règle ne correspond à ces filtres.","conf":{"verified":"Prouvée par le code et un test","read":"Lue dans le code, pas testée","inferred":"Déduite des noms ou de la configuration","conflicting":"Preuves contradictoires"},"tag":{"new":"nouvelle","changed":"modifiée","retired":"retirée"},"change":{"created":"créée","changed":"modifiée","retired":"retirée","reanchored":"réancrée"},"otherRules":"Autres règles de gestion","edgeCases":"Cas particuliers","history":"Historique","toValidate":"À valider","policy":"Règle métier","notExtracted":"pas encore extrait","openInDocument":"Ouvrir dans le document","close":"Fermer"}</script>
 <script id="rulebook-data" type="application/json">{"name":"rulebook","domains":[{"code":"PAY","title":"Paiements","description":"Comment la boutique encaisse, rembourse et protège le client en cas de litige.","extracted":true,"details":[],"policies":[{"id":"PAY-P03","title":"Droit de rétractation","statement":"Un client doit pouvoir renoncer à un achat dans un délai donné après l'avoir reçu.","rules":["PAY-R012","PAY-R019"]}],"otherRules":["PAY-R020"]},{"code":"ORD","title":"Commandes","description":"Du panier à la livraison.","extracted":false,"details":[],"policies":[],"otherRules":[]}],"rules":{"PAY-R012":{"title":"Remboursement possible jusqu'à 14 jours après la livraison","rule":"Un remboursement ne peut être demandé que si la commande a été livrée il y a 14 jours ou moins.","context":"Le délai part de la livraison, pas de la commande. C'est la façon dont le produit applique le droit de rétractation.","confidence":"verified","category":"timing","status":"changed","tag":"new","evidence":[{"label":"OrderPolicy.php:9","href":"../../../app/Policies/OrderPolicy.php"},{"label":"RefundTest.php:3","href":"../../../tests/RefundTest.php"}],"edgeCases":[{"id":"PAY-R012.E1","text":"Étant donné une commande jamais livrée, quand le client demande un remboursement, alors la demande est refusée.","confidence":"read"},{"id":"PAY-R012.E2","text":"Étant donné une livraison il y a exactement 14 jours, quand le client demande un remboursement, alors la demande est acceptée.","confidence":"verified"}],"history":[{"date":"2026-10-14","change":"changed","note":"délai passé de 30 à 14 jours"},{"date":"2026-10-02","change":"created","note":null}],"openQuestions":"Les jours fériés comptent-ils dans les 14 jours ? Aujourd'hui, oui."},"PAY-R019":{"title":"Un remboursement de plus de 500 € demande un administrateur","rule":"Un remboursement de plus de 500 € doit être approuvé par un administrateur avant d'être versé.","context":"Protège la boutique contre les remboursements importants faits par erreur depuis le support.","confidence":"read","category":"authorization","status":"active","tag":"new","evidence":[{"label":"RefundService.php:6","href":"../../../app/Services/RefundService.php"}],"edgeCases":[],"history":[{"date":"2026-10-15","change":"created","note":null}],"openQuestions":""},"PAY-R020":{"title":"Le remboursement revient sur le moyen de paiement d'origine","rule":"Un remboursement est toujours renvoyé sur la carte utilisée pour la commande.","context":"Déduit du nom de la méthode de paiement ; aucun chemin d'exécution lu de bout en bout.","confidence":"inferred","category":"integration","status":"active","tag":null,"evidence":[],"edgeCases":[],"history":[],"openQuestions":""}}}</script>
@@ -498,7 +502,7 @@ function tidyLayout(root, opts) {
   function fit() {
     const box = viewport.getBBox();
     const w = svg.clientWidth || 800; const h = svg.clientHeight || 500;
-    const k = Math.min(1, Math.max(0.2, Math.min((w - 40) / (box.width || 1), (h - 40) / (box.height || 1))));
+    const k = Math.min(1, Math.max(0.6, Math.min((w - 40) / (box.width || 1), (h - 40) / (box.height || 1))));
     view.k = k; view.x = (w - box.width * k) / 2 - box.x * k; view.y = (h - box.height * k) / 2 - box.y * k;
     apply();
   }

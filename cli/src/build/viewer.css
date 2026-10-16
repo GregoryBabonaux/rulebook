@@ -102,6 +102,7 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
 }
 
 /* --- views */
+.noscript { background: var(--surface); border-radius: 10px; padding: 0.7rem 1rem; font-size: 0.92rem; color: var(--muted); }
 [data-view="map"] .controls, [data-view="dashboard"] .controls { position: static; }
 [data-view="dashboard"] .controls { display: none; }
 .views { display: none; gap: 0.25rem; border-bottom: 1px solid var(--line); margin: 0 0 0.5rem; }
@@ -123,9 +124,11 @@ h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
 .mm-node:focus { outline: none; }
 .mm-node:focus-visible text, .mm-node:hover text { text-decoration: underline; }
 .mm-dot { fill: var(--faint); }
+circle.conf-verified { fill: var(--green); } circle.conf-read { fill: var(--accent); }
+circle.conf-inferred { fill: var(--faint); } circle.conf-conflicting { fill: var(--red); }
+.mm-policy .mm-dot { fill: var(--muted); }
 .mm-root text { font-size: 15px; font-weight: 600; }
 .mm-domain text { font-weight: 600; }
-.mm-policy .mm-dot { fill: var(--accent); }
 .mm-empty text { fill: var(--muted); }
 .mm-edge text { font-size: 12px; fill: var(--muted); }
 .mm-tag-new text, .mm-tag-changed text { font-weight: 600; }

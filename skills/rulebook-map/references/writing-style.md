@@ -25,8 +25,9 @@ Anything you deduced rather than read is phrased as such ("Probably…", "The co
 - Comments and names are never evidence on their own.
 
 ## Edge cases
-`Given <situation>, when <action>, then <outcome>.` One case per bullet, plain words,
-with its own confidence and a `path:line` reference when you have one.
+`Given <situation>, when <action>, then <outcome>.` — written in the reference's language:
+in French, `Étant donné <situation>, quand <action>, alors <résultat>.` One case per bullet, plain
+words, with its own confidence and a `path:line` reference when you have one.
 
 ## Open questions
 Anything a human must decide or confirm: ambiguous behaviour, contradictions,

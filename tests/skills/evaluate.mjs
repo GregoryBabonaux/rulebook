@@ -61,7 +61,7 @@ if (kind === 'edge') {
   check('lockout: expiry instant case', edges.some((e) => /lock/i.test(e.text) && /(exact|instant|moment|precisely)/i.test(e.text) && /(expir|until|ends|over)/i.test(e.text)));
   check('coupon: expiry instant case', (prc?.edgeCases ?? []).some((e) => /expir/i.test(e.text)));
   const allEdges = all.flatMap((c) => c.edgeCases);
-  check('Given/When/Then wording', allEdges.length > 0 && allEdges.every((e) => /given/i.test(e.text) && /when/i.test(e.text) && /then/i.test(e.text)));
+  check('Given/When/Then wording', allEdges.length > 0 && allEdges.every((e) => (/given/i.test(e.text) && /when/i.test(e.text) && /then/i.test(e.text)) || (/étant donn/i.test(e.text) && /quand/i.test(e.text) && /alors/i.test(e.text))));
   check('each case has a confidence', allEdges.every((e) => e.confidence));
   const idx = cli('index');
   check('no parse warnings', !/unknown|unreadable|unrecognised/.test(idx.out), idx.out.trim());
