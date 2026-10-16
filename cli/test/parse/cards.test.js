@@ -92,3 +92,40 @@ test('malformed lines produce warnings with line numbers, never throw', () => {
   assert.match(warnings[0].message, /unknown metadata label "Colour"/);
   assert.equal(warnings[0].file, 'rulebook/PAY-payments.md');
 });
+
+test('an unrecognised heading closes the current card instead of leaking into it', () => {
+  const md = `# PAY · Payments
+### PAY-R001 · First
+**Evidence.**
+- enforcement — a.js:1
+
+### Notes for later
+**Evidence.**
+- enforcement — b.js:2
+`;
+  const { cards, warnings } = parseDomainFile(md);
+  assert.deepEqual(cards[0].evidence.map((e) => e.path), ['a.js']);
+  assert.match(warnings[0].message, /unrecognised heading "### Notes for later"/);
+});
+
+test('dash separators in headings are accepted', () => {
+  const md = `# PAY — Payments
+## PAY-P01 – Withdrawal
+### PAY-R002 - Second
+`;
+  const { domain, cards } = parseDomainFile(md);
+  assert.equal(domain.code, 'PAY');
+  assert.deepEqual(cards.map((c) => [c.id, c.title]), [['PAY-P01', 'Withdrawal'], ['PAY-R002', 'Second']]);
+});
+
+test('section labels written with a colon are understood', () => {
+  const md = `# PAY · Paiements
+### PAY-R001 · Un
+**Preuves :**
+- enforcement — a.js:1
+**Contexte**: Un contexte.
+`;
+  const [card] = parseDomainFile(md).cards;
+  assert.deepEqual(card.evidence.map((e) => e.path), ['a.js']);
+  assert.equal(card.sections.context, 'Un contexte.');
+});

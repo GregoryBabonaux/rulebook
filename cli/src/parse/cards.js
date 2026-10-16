@@ -1,12 +1,14 @@
 import { labelToKey } from './labels.js';
 
-const H1 = /^#\s+([A-Z]{3})\s+·\s+(.+?)\s*$/;
-const H2_POLICY = /^##\s+([A-Z]{3}-P\d+)\s+·\s+(.+?)\s*$/;
+const H1 = /^#\s+([A-Z]{3})\s+[·—–-]\s+(.+?)\s*$/;
+const H2_POLICY = /^##\s+([A-Z]{3}-P\d+)\s+[·—–-]\s+(.+?)\s*$/;
 const H2_OTHER = /^##\s+\S/;
-const H3_RULE = /^###\s+([A-Z]{3}-R\d+)\s+·\s+(.+?)\s*$/;
+const H3_RULE = /^###\s+([A-Z]{3}-R\d+)\s+[·—–-]\s+(.+?)\s*$/;
+const ANY_HEADING = /^#{1,6}\s/;
 const META_LINE = /^-\s+\*\*[^*]+?:\*\*/;
 const META_SEGMENT = /^\*\*([^*]+?):\*\*\s*(.*)$/;
-const SECTION = /^\*\*([^*]+?)\.\*\*\s*(.*)$/;
+// "**Label.** text", also tolerated: "**Label:**", "**Label :**", "**Label**:", "**Label**."
+const SECTION = /^\*\*([^*]+?)\s*([.:])?\*\*\s*([.:])?\s*(.*)$/;
 const EVIDENCE = /^-\s+(enforcement|test|config|schema|doc)\s+[—–-]\s+(\S+?):(\d+)(?:-(\d+))?(?:\s+`([^`]+)`)?\s*$/;
 const EDGE = /^-\s+\*\*([A-Z]{3}-R\d+\.E\d+)\*\*\s+(.+)$/;
 const HISTORY = /^-\s+(\d{4}-\d{2}-\d{2})\s+·\s+([0-9a-f]{4,40})\s+·\s+(created|changed|retired|reanchored)(?:\s+·\s+(.*?))?\s*$/;
@@ -76,6 +78,12 @@ export function parseDomainFile(text, file = '') {
       section = null;
       return;
     }
+    if (ANY_HEADING.test(line)) {
+      warn(i, `unrecognised heading "${trimmed}"`);
+      card = null;
+      section = null;
+      return;
+    }
     if (!card) {
       if (section === 'domain' && trimmed) {
         result.domain.description += (result.domain.description ? ' ' : '') + trimmed;
@@ -96,11 +104,11 @@ export function parseDomainFile(text, file = '') {
       }
       return;
     }
-    if ((m = trimmed.match(SECTION))) {
+    if ((m = trimmed.match(SECTION)) && (m[2] || m[3])) {
       const key = labelToKey(m[1]);
       if (!key) { warn(i, `unknown section "${m[1]}"`); section = '__unknown'; return; }
       section = key;
-      if (!LIST_SECTIONS.has(key)) card.sections[key] = m[2].trim();
+      if (!LIST_SECTIONS.has(key)) card.sections[key] = m[4].trim();
       return;
     }
     if (section === 'evidence') {
