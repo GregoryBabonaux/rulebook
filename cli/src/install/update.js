@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { git } from '../git.js';
-import { ADAPTERS, DEFAULT_BIN } from './agents.js';
+import { ADAPTERS, defaultBin, PINNED_NPX_BIN } from './agents.js';
 import { planInit, applyChanges } from './init.js';
 
 export function installedAgents(root) {
@@ -19,7 +19,9 @@ export function runUpdate(io, opts, version) {
   const root = git(io.cwd, ['rev-parse', '--show-toplevel'])?.trim();
   if (!root) { io.stderr.write('rulebook: update must run inside a git repository\n'); return 1; }
   const agents = installedAgents(root);
-  const bin = opts.bin ?? storedBin(root) ?? DEFAULT_BIN;
+  const stored = storedBin(root);
+  // a bin pinned by a previous init is re-pinned to this version
+  const bin = opts.bin ?? (stored && !PINNED_NPX_BIN.test(stored) ? stored : defaultBin(version));
   const { changes, warnings } = planInit(root, { agents, bin, version });
   for (const w of warnings) io.stderr.write(`rulebook: ${w}\n`);
   applyChanges(root, changes);

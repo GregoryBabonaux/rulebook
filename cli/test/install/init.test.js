@@ -30,17 +30,17 @@ test('init --yes writes adapters, AGENTS.md, pre-commit and config; second run c
   const io = fakeIo(repo.dir);
   assert.equal(await run(['init', '--agents', 'claude,codex,gemini,copilot,cursor,vibe', '--bin', BIN, '--yes'], io), 0);
   const claude = JSON.parse(read(repo, '.claude/settings.json'));
-  assert.equal(claude.hooks.PostToolUse[0].hooks[0].command, `${BIN} hook claude post-edit --stamp ${VERSION}`);
-  assert.equal(claude.hooks.Stop[0].hooks[0].command, `${BIN} hook claude stop --stamp ${VERSION}`);
+  assert.equal(claude.hooks.PostToolUse[0].hooks[0].command, `${BIN} hook claude post-edit --stamp ${VERSION} || true`);
+  assert.equal(claude.hooks.Stop[0].hooks[0].command, `${BIN} hook claude stop --stamp ${VERSION} || true`);
   assert.equal(JSON.parse(read(repo, '.codex/hooks.json')).hooks.PostToolUse[0].matcher, 'apply_patch|Edit|Write');
   assert.equal(JSON.parse(read(repo, '.gemini/settings.json')).hooks.AfterTool[0].matcher, 'write_file|replace');
-  assert.equal(JSON.parse(read(repo, '.github/hooks/rulebook.json')).hooks.postToolUse[0].bash, `${BIN} hook copilot post-edit --stamp ${VERSION}`);
+  assert.equal(JSON.parse(read(repo, '.github/hooks/rulebook.json')).hooks.postToolUse[0].bash, `${BIN} hook copilot post-edit --stamp ${VERSION} || true`);
   assert.equal(JSON.parse(read(repo, '.cursor/hooks.json')).hooks.postToolUse[0].command, `${BIN} hook cursor post-edit --stamp ${VERSION}`);
   assert.match(read(repo, '.vibe/hooks.toml'), /event = "post_tool"\ncommand = "node \/opt\/rulebook\.js hook vibe post-edit --stamp/);
   const agentsMd = read(repo, 'AGENTS.md');
   assert.match(agentsMd, /^# Agents\n\nBe nice\.\n\n<!-- rulebook:start -->/);
   assert.match(agentsMd, new RegExp(`<!-- rulebook ${VERSION.replace(/\./g, '\\.')} -->`));
-  assert.equal(read(repo, 'AGENTS.md.rulebook.bak'), '# Agents\n\nBe nice.\n');
+  assert.equal(read(repo, '.git/rulebook-backup/AGENTS.md'), '# Agents\n\nBe nice.\n');
   const hook = read(repo, '.git/hooks/pre-commit');
   assert.match(hook, /^#!\/bin\/sh\n/);
   assert.match(hook, new RegExp(`${BIN} check --staged --stamp ${VERSION.replace(/\./g, '\\.')} \\|\\| true`));
@@ -60,7 +60,7 @@ test('init merges into existing settings without losing user keys', async () => 
   const merged = JSON.parse(read(repo, '.claude/settings.json'));
   assert.deepEqual(merged.permissions, user.permissions);
   assert.equal(merged.hooks.PostToolUse.length, 2);
-  assert.deepEqual(JSON.parse(read(repo, '.claude/settings.json.rulebook.bak')), user);
+  assert.deepEqual(JSON.parse(read(repo, '.git/rulebook-backup/.claude/settings.json')), user);
 });
 
 test('an unparseable JSON config is left untouched with a warning', async () => {
@@ -76,7 +76,7 @@ test('an existing pre-commit keeps its content and core.hooksPath is respected',
   repo.git('config', 'core.hooksPath', '.husky');
   await run(['init', '--bin', BIN, '--yes'], fakeIo(repo.dir));
   const hook = read(repo, '.husky/pre-commit');
-  assert.match(hook, /^#!\/bin\/sh\nnpx lint-staged\n\n# >>> rulebook/);
+  assert.match(hook, /^#!\/bin\/sh\n# >>> rulebook\n.*\n# <<< rulebook\nnpx lint-staged\n$/);
   assert.equal(exists(repo, '.git/hooks/pre-commit'), false);
 });
 
@@ -92,4 +92,75 @@ test('unknown and partial agents are reported', async () => {
   await run(['init', '--agents', 'kiro,foo', '--bin', BIN], io);
   assert.match(io.err, /kiro: partial support \(AGENTS\.md and pre-commit only\)/);
   assert.match(io.err, /unknown agent "foo"/);
+});
+
+test('a non-shell pre-commit is left untouched with a warning', async () => {
+  const repo = makeRepo({ 'a.txt': 'x' });
+  fs.writeFileSync(path.join(repo.dir, '.git/hooks/pre-commit'), '#!/usr/bin/env node\nconsole.log(1);\n');
+  const io = fakeIo(repo.dir);
+  await run(['init', '--bin', BIN, '--yes'], io);
+  assert.equal(read(repo, '.git/hooks/pre-commit'), '#!/usr/bin/env node\nconsole.log(1);\n');
+  assert.match(io.err, /pre-commit is not a shell script, left untouched/);
+});
+
+test('the pre-commit block goes right after the shebang, before an exit', async () => {
+  const repo = makeRepo({ 'a.txt': 'x' });
+  fs.writeFileSync(path.join(repo.dir, '.git/hooks/pre-commit'), '#!/bin/bash\nrun-linters\nexit 0\n');
+  await run(['init', '--bin', BIN, '--yes'], fakeIo(repo.dir));
+  assert.match(read(repo, '.git/hooks/pre-commit'), /^#!\/bin\/bash\n# >>> rulebook\n.*\n# <<< rulebook\nrun-linters\nexit 0\n$/);
+});
+
+test('a hooks path outside the repository is never written', async () => {
+  const repo = makeRepo({ 'a.txt': 'x' });
+  const outside = `../${path.basename(repo.dir)}-hooks`;
+  repo.git('config', 'core.hooksPath', outside);
+  const io = fakeIo(repo.dir);
+  await run(['init', '--bin', BIN, '--yes'], io);
+  assert.equal(fs.existsSync(path.join(repo.dir, outside, 'pre-commit')), false);
+  assert.match(io.err, /hooks path is outside the repository, pre-commit left untouched/);
+});
+
+test('husky v9 (.husky/_) writes the user-owned .husky/pre-commit', async () => {
+  const repo = makeRepo({ '.husky/pre-commit': 'npx lint-staged\n', '.husky/_/h': '' });
+  repo.git('config', 'core.hooksPath', '.husky/_');
+  await run(['init', '--bin', BIN, '--yes'], fakeIo(repo.dir));
+  assert.match(read(repo, '.husky/pre-commit'), /^npx lint-staged\n\n# >>> rulebook/);
+  assert.equal(exists(repo, '.husky/_/pre-commit'), false);
+});
+
+test('CRLF checkouts of generated files are not seen as changes, and keep CRLF', async () => {
+  const repo = makeRepo({ 'a.txt': 'x' });
+  await run(['init', '--agents', 'claude', '--bin', BIN, '--yes'], fakeIo(repo.dir));
+  for (const f of ['.claude/settings.json', 'AGENTS.md']) fs.writeFileSync(path.join(repo.dir, f), read(repo, f).replace(/\n/g, '\r\n'));
+  const io = fakeIo(repo.dir);
+  await run(['init', '--agents', 'claude', '--bin', BIN, '--yes'], io);
+  assert.match(io.out, /nothing to change/);
+  const { changes } = planInit(repo.dir, { agents: ['claude'], bin: 'other', version: '9.9.9' });
+  assert.match(changes.find((c) => c.path === 'AGENTS.md').after, /\r\n/);
+  assert.doesNotMatch(changes.find((c) => c.path === 'AGENTS.md').after, /[^\r]\n/);
+});
+
+test('a bin without the word rulebook is still recognised on re-run', async () => {
+  const repo = makeRepo({ 'a.txt': 'x' });
+  await run(['init', '--agents', 'claude', '--bin', 'rb', '--yes'], fakeIo(repo.dir));
+  await run(['init', '--agents', 'claude', '--bin', 'rb2', '--yes'], fakeIo(repo.dir));
+  assert.equal(JSON.parse(read(repo, '.claude/settings.json')).hooks.PostToolUse.length, 1);
+});
+
+test('backups go under .git, not next to tracked files', async () => {
+  const repo = makeRepo({ 'AGENTS.md': '# A\n' });
+  await run(['init', '--bin', BIN, '--yes'], fakeIo(repo.dir));
+  assert.equal(exists(repo, 'AGENTS.md.rulebook.bak'), false);
+  assert.equal(read(repo, '.git/rulebook-backup/AGENTS.md'), '# A\n');
+});
+
+test('the default bin is pinned to this version and guarded', async () => {
+  const repo = makeRepo({ 'a.txt': 'x' });
+  await run(['init', '--agents', 'claude,copilot', '--yes'], fakeIo(repo.dir));
+  const cmd = JSON.parse(read(repo, '.claude/settings.json')).hooks.PostToolUse[0].hooks[0].command;
+  assert.equal(cmd, `npx --yes rulebook-cli@${VERSION} hook claude post-edit --stamp ${VERSION} || true`);
+  const copilot = JSON.parse(read(repo, '.github/hooks/rulebook.json')).hooks.postToolUse[0];
+  assert.match(copilot.bash, /\|\| true$/);
+  assert.doesNotMatch(copilot.powershell, /\|\|/);
+  assert.equal(JSON.parse(read(repo, 'rulebook/config.json')).bin, `npx --yes rulebook-cli@${VERSION}`);
 });
