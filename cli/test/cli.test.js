@@ -15,3 +15,11 @@ test('unknown command fails with the command list', async () => {
   assert.match(io.err, /unknown command "frobnicate"/);
   assert.match(io.err, /index, check, build, hook, init, doctor, update/);
 });
+
+test('--help lists every command with a one-line description', async () => {
+  const io = fakeIo(process.cwd());
+  assert.equal(await run(['--help'], io), 0);
+  for (const cmd of ['index', 'check', 'build', 'hook', 'init', 'doctor', 'update', 'skills']) {
+    assert.match(io.out, new RegExp(`^  ${cmd} `, 'm'));
+  }
+});
