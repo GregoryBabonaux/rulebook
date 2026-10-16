@@ -86,6 +86,24 @@ export async function run(argv, io) {
     io.stdout.write(`${pkg.version}\n`);
     return 0;
   }
+  if (cmd === '--help' || cmd === '-h' || cmd === 'help') {
+    io.stdout.write(`rulebook ${pkg.version} — keeps a codebase's business rules in a living reference
+
+Usage: rulebook <command> [options]
+
+  index    rebuild rulebook/.index.json from the cards; report parse warnings and unresolved evidence [--strict]
+  check    match code changes against the index and write rulebook/inbox.md [--staged | --since <sha>] [--format json] [--strict]
+  build    render rulebook/rulebook.html [--since <YYYY-MM-DD>] [--out <path>]
+  hook     answer an agent hook: rulebook hook <agent> <post-edit|stop>
+  init     install the companion: agent hooks, AGENTS.md block, pre-commit [--agents a,b] [--bin <cmd>] [--yes]
+  doctor   check the installation and the reference [--quiet]
+  update   refresh hooks and skill copies installed by this CLI
+  skills   install the bundled skills into ~/.agents/skills and ~/.claude/skills [--target <dir>] [--yes]
+
+Common option: --dir <folder> (default: rulebook)
+`);
+    return 0;
+  }
   if (cmd === 'index') return runIndex(io, opts);
   if (cmd === 'check') return runCheck(io, opts);
   if (cmd === 'build') return runBuild(io, opts, VERSION);
