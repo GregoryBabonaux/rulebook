@@ -52,7 +52,10 @@ export function score(rulebookDir, expected, appRoot = path.dirname(rulebookDir)
       technicalAsPolicy: technicalCards.filter((c) => c.policy || c.meta.implements).length,
     },
     traps: {
-      lyingComment: refundCards.length && refundCards.every((c) => statementOf(c).includes(lyingComment.mustMention) && !new RegExp(`\\b${lyingComment.mustNotMention}\\b`).test(statementOf(c))) ? 'pass' : 'fail',
+      // the code decides, never the comment: the card that states the window follows the code,
+      // and no card states the commented value (cards may be split finer, e.g. "never delivered")
+      lyingComment: refundCards.some((c) => statementOf(c).includes(lyingComment.mustMention))
+        && !rules.some((c) => new RegExp(`\\b${lyingComment.mustNotMention}\\b`).test(statementOf(c))) ? 'pass' : 'fail',
       deadCode: rules.some((c) => c.evidence.some((ev) => overlaps(ev, deadCode))) ? 'fail' : 'pass',
       technicalChoice: technicalCards.every((c) => !c.policy && !c.meta.implements) ? 'pass' : 'fail',
     },
