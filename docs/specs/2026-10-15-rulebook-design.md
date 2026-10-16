@@ -364,7 +364,35 @@ The README explains:
 - installation per agent;
 - an example reference generated on a known open-source project (kept in `examples/`).
 
-### 8.1 Repository layout
+### 8.2 Updates
+
+None of the three channels updates on its own by default:
+- Claude Code: auto-update is off for third-party marketplaces.
+- skills.sh: updates run through `npx skills update`.
+- npm: updates are manual.
+
+Four parts can also drift apart: skills, CLI, project adapters and card format. The design closes both gaps:
+
+1. **One version for the whole pack.** Skills, CLI and adapter templates are released together, by an automated release that also bumps `.claude-plugin/plugin.json`. Claude Code ignores a push whose `version` is unchanged.
+2. **The CLI is the update hub (REA model).**
+   - The npm package bundles the skills.
+   - `rulebook update` refreshes the skill copies the CLI installed and re-runs `init` to refresh the project adapters. `init` is idempotent.
+   - Every generated file carries a `rulebook <version>` stamp so outdated ones can be detected.
+   - If skills were installed through the plugin marketplace or skills.sh, `update` leaves them alone and prints that channel's command (`claude plugin update rulebook@<marketplace>` / `npx skills update`).
+3. **Update notice, off the hot path.**
+   - At most once per 24 h, `rulebook check` starts a detached background lookup of the latest npm version, with a 2 s timeout and the result cached in the user cache directory.
+   - When a newer version is cached, `check` prints one extra line, at most once a day: `rulebook <x.y.z> available — npx rulebook-cli@latest update`.
+   - There is never a network call in the foreground of a hook.
+   - Disabled with `RULEBOOK_NO_UPDATE_CHECK=1`, and automatically in CI (`CI` env var set).
+4. **Compatibility contract.**
+   - `rulebook/config.json` carries `formatVersion` (starting at `1`).
+   - Each skill's first step runs `rulebook doctor --quiet` when the CLI is available. `doctor` reports skew between skills, CLI, adapters and format.
+   - A major format change ships with `rulebook migrate`.
+5. **Teams on Claude Code.** `init` can declare the marketplace and plugin in the project's `.claude/settings.json` (`extraKnownMarketplaces`, `enabledPlugins`) so teammates are offered the plugin. The README explains how to turn on auto-update for the marketplace.
+
+Implementation lands in plan 2 (`update`, notice, `doctor`, stamps) and plan 5 (single release, plugin version bump).
+
+### 8.3 Repository layout
 
 ```
 rulebook/
@@ -433,3 +461,4 @@ Not verified: whether `systemMessage` is displayed in an interactive session (he
 8. Living reference: statuses, per-rule history, a "since last version" block.
 9. Companion: one-line notice plus inbox, with batch validation and never a silent rewrite.
 10. Companion = deterministic CLI + per-agent project adapters + AGENTS.md + pre-commit + optional CI.
+11. Updates: one version for the whole pack, the CLI as the update hub, a once-a-day notice off the hot path, and a `formatVersion` compatibility contract (§8.2).
