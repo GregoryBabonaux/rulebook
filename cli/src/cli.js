@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { loadProject } from './project.js';
 import { headSha } from './git.js';
 import { loadCards, buildIndex, writeIndex } from './index/build.js';
+import { reachability } from './index/reach.js';
 import { checkProject } from './check/run.js';
 import { runHook } from './hook/run.js';
 import { runInit } from './install/init.js';
@@ -62,6 +63,7 @@ function runIndex(io, opts) {
     const range = m.lines[1] !== m.lines[0] ? `${m.lines[0]}-${m.lines[1]}` : `${m.lines[0]}`;
     io.stderr.write(`rulebook: ${m.rule} evidence ${m.path}:${range} — ${m.reason}\n`);
   }
+  for (const r of reachability(project.root, cards)) io.stderr.write(`rulebook: ${r.rule} "${r.name}" ${r.reason} — possible dead code\n`);
   io.stdout.write(`rulebook: indexed ${index.anchors.length} anchors from ${cards.length} cards\n`);
   return (unresolved.length || mismatches.length) && opts.strict ? 1 : 0;
 }
