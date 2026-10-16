@@ -55,12 +55,12 @@ Pick one way to get the skills, then (optionally) install the companion in your 
 
 **skills.sh** (any agent):
 ```bash
-npx skills add <owner>/rulebook
+npx skills add GregoryBabonaux/rulebook
 ```
 
 **Claude Code plugin** (skills and companion hooks):
 ```
-/plugin marketplace add <owner>/rulebook
+/plugin marketplace add GregoryBabonaux/rulebook
 /plugin install rulebook@rulebook
 ```
 Auto-update is off by default for third-party marketplaces. To turn it on, open `/plugin` → Marketplaces → rulebook → *Enable auto-update*. The plugin's hooks only run in projects that have a `rulebook/` folder, and step aside when the project installed its own with `rulebook init`.

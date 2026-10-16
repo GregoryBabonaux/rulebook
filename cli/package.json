@@ -23,8 +23,8 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/<owner>/rulebook.git",
+    "url": "git+https://github.com/GregoryBabonaux/rulebook.git",
     "directory": "cli"
   },
-  "homepage": "https://github.com/<owner>/rulebook#readme"
+  "homepage": "https://github.com/GregoryBabonaux/rulebook#readme"
 }
