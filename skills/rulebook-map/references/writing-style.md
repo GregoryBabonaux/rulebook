@@ -25,8 +25,14 @@ Anything you deduced rather than read is phrased as such ("Probably…", "The co
 - Comments and names are never evidence on their own.
 - A test is evidence only if one of its assertions checks the rule's outcome; its excerpt is
   that assertion. A test that only runs the code is not evidence of the rule.
+- Cite the test of **this** case, not its neighbour: tests of one rule often sit side by side
+  (accepted / refused / disabled). Read the test's name and its setup before citing it.
 
 ## Edge cases
+An edge case marked `verified` points at the assertion that checks it, and uses the values that
+test uses (the same number, the same unit, or one stated conversion: "60 000 ms, soit 60 s"). A
+case whose value you chose yourself is `read`, with the line of code that decides it.
+
 `Given <situation>, when <action>, then <outcome>.` — written in the reference's language:
 in French, `Étant donné <situation>, quand <action>, alors <résultat>.` One case per bullet, plain
 words, with its own confidence and a `path:line` reference when you have one.
