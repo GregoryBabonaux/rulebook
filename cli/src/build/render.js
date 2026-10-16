@@ -50,10 +50,14 @@ function renderRule(card, data, L) {
 </article>`;
 }
 
+const renderDetails = (details) => (details?.length
+  ? `<dl class="details">${details.map((d) => `<dt>${inline(d.label)}</dt><dd>${inline(d.text)}</dd>`).join('')}</dl>`
+  : '');
+
 function renderDomain(domain, index, data, L) {
   const n = index + 1;
   if (!domain.extracted) {
-    return `<section class="domain is-empty" id="${escapeHtml(domain.code)}"><h2>${n}. ${inline(domain.title)}</h2><p class="lede">${inline(domain.description)}</p><p class="muted">${escapeHtml(L.notExtracted)}</p></section>`;
+    return `<section class="domain is-empty" id="${escapeHtml(domain.code)}"><h2>${n}. ${inline(domain.title)}</h2><p class="lede">${inline(domain.description)}</p>${renderDetails(domain.details)}<p class="muted">${escapeHtml(L.notExtracted)}</p></section>`;
   }
   const policies = domain.policies.map((p, i) => `<section class="policy" id="${escapeHtml(p.card.id)}" data-kind="policy" data-search="${escapeHtml([p.card.id, p.card.title, p.card.sections.statement].join(' ').toLowerCase())}">
   <h3>${n}.${i + 1} ${inline(p.card.title)}</h3>
@@ -65,7 +69,63 @@ function renderDomain(domain, index, data, L) {
   const others = domain.otherRules.length
     ? `<section class="policy" data-kind="policy"><h3>${n}.${domain.policies.length + 1} ${escapeHtml(L.otherRules)}</h3>${domain.otherRules.map((r) => renderRule(r, data, L)).join('\n')}</section>`
     : '';
-  return `<section class="domain" id="${escapeHtml(domain.code)}"><h2>${n}. ${inline(domain.title)}</h2>${domain.description ? `<p class="lede">${inline(domain.description)}</p>` : ''}${policies}${others}</section>`;
+  return `<section class="domain" id="${escapeHtml(domain.code)}"><h2>${n}. ${inline(domain.title)}</h2>${domain.description ? `<p class="lede">${inline(domain.description)}</p>` : ''}${renderDetails(domain.details)}${policies}${others}</section>`;
+}
+
+const CONFIDENCES = ['verified', 'read', 'inferred', 'conflicting'];
+const allRules = (domain) => [...domain.policies.flatMap((p) => p.rules), ...domain.otherRules];
+
+// What the interactive map needs: the tree (ids only) and every rule's card, once.
+function mapModel(data) {
+  const rules = {};
+  const domains = data.domains.map((d) => {
+    for (const card of allRules(d)) {
+      const tag = tagFor(card, data.since);
+      rules[card.id] = {
+        title: card.title, rule: card.sections.rule ?? '', context: card.sections.context ?? '',
+        confidence: card.meta.confidence ?? 'inferred', category: card.meta.category ?? '', status: card.meta.status,
+        tag: tag?.type ?? null,
+        evidence: card.evidence.map((ev) => ({ label: `${ev.path.split('/').pop()}:${ev.start}`, href: evidenceHref(data.project.repoUrl, data.project.commit, ev, data.evidenceBase) })),
+        edgeCases: card.edgeCases.map((e) => ({ id: e.id, text: e.text, confidence: e.confidence })),
+        history: card.history.map((h) => ({ date: h.date, change: h.change, note: h.note })),
+        openQuestions: card.sections.openQuestions ?? '',
+      };
+    }
+    return {
+      code: d.code, title: d.title, description: d.description, extracted: d.extracted, details: d.details ?? [],
+      policies: d.policies.map((p) => ({ id: p.card.id, title: p.card.title, statement: p.card.sections.statement ?? '', rules: p.rules.map((r) => r.id) })),
+      otherRules: d.otherRules.map((r) => r.id),
+    };
+  });
+  return { name: data.project.name, domains, rules };
+}
+
+function renderDashboard(data, L) {
+  const rules = data.domains.flatMap(allRules);
+  const verified = rules.filter((r) => r.meta.confidence === 'verified').length;
+  const pct = rules.length ? Math.round((verified / rules.length) * 100) : 0;
+  const kpi = (value, label) => `<div class="kpi"><b>${escapeHtml(value)}</b><span>${escapeHtml(label)}</span></div>`;
+  const bars = data.domains.map((d) => {
+    const own = allRules(d);
+    if (!d.extracted) return `<div class="bar-row" data-domain="${escapeHtml(d.code)}"><a href="#${escapeHtml(d.code)}">${inline(d.title)}</a><span class="bar empty"></span><span class="muted">${escapeHtml(L.notExtracted)}</span></div>`;
+    const segs = CONFIDENCES.map((c) => {
+      const n = own.filter((r) => (r.meta.confidence ?? 'inferred') === c).length;
+      return n ? `<span class="seg conf-${c}" style="width:${Math.round((n / own.length) * 100)}%" title="${escapeHtml(`${L.conf[c]} · ${n}`)}"></span>` : '';
+    }).join('');
+    return `<div class="bar-row" data-domain="${escapeHtml(d.code)}"><a href="#${escapeHtml(d.code)}">${inline(d.title)}</a><span class="bar">${segs}</span><span class="muted">${own.length}</span></div>`;
+  }).join('');
+  const recent = data.since.items.slice(0, 8).map((i) => `<li><span class="tag tag-${i.type}">${escapeHtml(L.tag[i.type])}</span> <a href="#${escapeHtml(i.id)}">${escapeHtml(i.id)}</a> · ${inline(i.title)}</li>`).join('');
+  const pending = data.toValidate.slice(0, 8).map((v) => `<li><span class="label">${escapeHtml(L.item[v.type])}</span> ${v.id ? `<a href="#${escapeHtml(v.id)}">${escapeHtml(v.id)}</a> · ` : ''}${inline(v.text)}</li>`).join('');
+  return `<section class="view" id="view-dashboard" hidden>
+  <div class="kpis">${kpi(`${data.counts.extracted} / ${data.counts.domains}`, L.kpiExtracted)}${kpi(String(rules.length), L.kpiRules)}${kpi(`${pct} %`, L.kpiVerified)}${kpi(String(data.toValidate.length), L.kpiToValidate)}</div>
+  <h2 class="small">${escapeHtml(L.byDomain)}</h2>
+  <div class="bars">${bars}</div>
+  <p class="map-legend muted">${CONFIDENCES.map((k) => `<span><span class="dot conf-${k}"></span>${escapeHtml(L.conf[k])}</span>`).join(' ')}</p>
+  <div class="dash-cols">
+    <div><h2 class="small">${escapeHtml(L.recentChanges)}</h2>${recent ? `<ul class="plain">${recent}</ul>` : `<p class="muted">${escapeHtml(L.noRecentChanges)}</p>`}</div>
+    <div><h2 class="small">${escapeHtml(L.toValidate)}</h2>${pending ? `<ul class="plain">${pending}</ul>` : `<p class="muted">${escapeHtml(L.nothingToValidate)}</p>`}</div>
+  </div>
+</section>`;
 }
 
 export function renderHtml(model, { evidenceBase = '..' } = {}) {
@@ -90,11 +150,29 @@ export function renderHtml(model, { evidenceBase = '..' } = {}) {
   <select id="f-status" aria-label="${escapeHtml(L.anyStatus)}"><option value="">${escapeHtml(L.anyStatus)}</option>${Object.entries(L.status).map(([k, v]) => `<option value="${k}">${escapeHtml(v)}</option>`).join('')}</select>
   <span class="muted" id="shown" aria-live="polite"></span>
 </div>`;
-  const labels = { shown: L.shown('{n}'), noMatch: L.noMatch };
+  const labels = {
+    shown: L.shown('{n}'), noMatch: L.noMatch, conf: L.conf, tag: L.tag, change: L.change, otherRules: L.otherRules,
+    edgeCases: L.edgeCases, history: L.history, toValidate: L.toValidate, policy: L.policy, notExtracted: L.notExtracted,
+    openInDocument: L.openInDocument, close: L.close,
+  };
   const json = JSON.stringify(labels).replace(/</g, '\\u003c');
+  const mapJson = JSON.stringify(mapModel(data)).replace(/</g, '\\u003c');
   const body = data.counts.rules || data.counts.policies
     ? data.domains.map((d, i) => renderDomain(d, i, data, L)).join('\n')
     : `<p class="muted">${escapeHtml(L.empty)}</p>${data.domains.map((d, i) => renderDomain(d, i, data, L)).join('\n')}`;
+  const views = `<nav class="views" role="tablist" aria-label="${escapeHtml(L.views)}">
+  <button type="button" role="tab" data-view="document" aria-selected="true">${escapeHtml(L.viewDocument)}</button>
+  <button type="button" role="tab" data-view="map" aria-selected="false">${escapeHtml(L.viewMap)}</button>
+  <button type="button" role="tab" data-view="dashboard" aria-selected="false">${escapeHtml(L.viewDashboard)}</button>
+</nav>`;
+  const mapView = `<section class="view" id="view-map" hidden>
+  <div class="map-frame wide">
+    <div class="map-tools"><button type="button" data-zoom="in" aria-label="+">+</button><button type="button" data-zoom="out" aria-label="−">−</button><button type="button" data-zoom="fit" aria-label="${escapeHtml(L.fit)}">⤢</button><span class="muted">${escapeHtml(L.mapHint)}</span></div>
+    <svg id="mindmap" role="img" aria-label="${escapeHtml(L.viewMap)}"><g id="mm-viewport"></g></svg>
+    <aside class="map-panel" id="mm-panel" hidden></aside>
+    <p class="map-legend muted">${Object.keys(L.conf).map((k) => `<span><span class="dot conf-${k}"></span>${escapeHtml(L.conf[k])}</span>`).join(' ')}</p>
+  </div>
+</section>`;
 
   return `<!doctype html>
 <html lang="${lang}">
@@ -113,17 +191,25 @@ ${asset('viewer.css')}
   <div class="title-row"><h1>${escapeHtml(L.title)}</h1><button type="button" id="theme" class="theme" aria-label="${escapeHtml(L.theme)}">◐</button></div>
   <p class="lede">${escapeHtml(L.intro(data.counts.rules, data.counts.domains))}</p>
 </header>
+${views}
+${controls}
+<section class="view" id="view-document">
 ${since}
 ${toc}
-${controls}
 <p class="muted no-match" id="no-match" hidden>${escapeHtml(L.noMatch)}</p>
 ${body}
 ${toValidate}
+</section>
+${mapView}
+${renderDashboard(data, L)}
 <footer class="footer muted"><p>${escapeHtml(L.footer(data.project.version, data.project.commit ?? '—'))} ${escapeHtml(L.coverage(data.counts.extracted, data.counts.domains))}</p></footer>
 </main>
 <script id="rulebook-labels" type="application/json">${json}</script>
+<script id="rulebook-data" type="application/json">${mapJson}</script>
 <script>
+${asset('layout.js')}
 ${asset('viewer.js')}
+${asset('mindmap.js')}
 </script>
 </body>
 </html>

@@ -50,11 +50,19 @@ One paragraph describing the domain.
 # Business domains
 
 - **PAY** · Payments — How the shop takes and refunds money.
+  - **Covers**: paying an order, refunds, chargebacks.
+  - **Concepts**: order, payment, refund, refund window.
+  - **Code**: `app/Services/Payment*`, `app/Policies/OrderPolicy.php`, `config/shop.php`
+  - **To check**: the refund window is hardcoded in two places.
 - **STK** · Stock — Inventory and reservations.
+  - **Covers**: …
 ```
 
-One line per domain: `- **CODE** · Title — one-sentence description`. Domains listed here
-without a domain file yet are shown as "not extracted yet".
+One line per domain: `- **CODE** · Title — one-sentence description`, followed by indented
+details `  - **Label**: text`. The map must be worth reading on its own, before any rule is
+extracted: say what the domain covers, its key concepts, where its code lives and what will need
+checking. Write the labels in the reference's language (`Couvre`, `Notions`, `Code`, `À vérifier`).
+The HTML shows them for every domain, extracted or not.
 
 ## Syntax rules
 

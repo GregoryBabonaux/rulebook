@@ -45,6 +45,7 @@ export function buildData({ name, commit, today, version, config, domainsMap, do
       code: file.domain.code,
       title: known?.title ?? file.domain.title,
       description: file.domain.description || known?.description || '',
+      details: known?.details ?? [],
       file,
     });
   }
@@ -54,7 +55,7 @@ export function buildData({ name, commit, today, version, config, domainsMap, do
     const cards = d.file?.cards ?? [];
     const policies = cards.filter((c) => c.kind === 'policy').map((card) => ({ card, rules: cards.filter((r) => r.kind === 'rule' && r.policy === card.id) }));
     return {
-      code: d.code, title: d.title, description: d.description, extracted: Boolean(d.file),
+      code: d.code, title: d.title, description: d.description, details: d.details ?? [], extracted: Boolean(d.file),
       policies, otherRules: cards.filter((r) => r.kind === 'rule' && !r.policy),
     };
   });
