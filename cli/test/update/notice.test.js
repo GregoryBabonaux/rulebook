@@ -89,3 +89,28 @@ test('check prints the notice after its notices', async () => {
   assert.equal(io.out, 'rulebook 99.0.0 available — npx rulebook-cli@latest update\n');
   assert.ok(isNewer('99.0.0', VERSION));
 });
+
+test('a cache that parses to a non-object, or a future checkedAt, is treated as empty/stale', () => {
+  const env = tmpEnv();
+  const spawned = [];
+  fs.writeFileSync(cacheFile(env), '5');
+  assert.deepEqual(readCache(cacheFile(env)), {});
+  assert.equal(updateNotice({ env, now: NOW, current: '0.1.0', spawnCheck: (...a) => spawned.push(a) }), null);
+  writeCache(cacheFile(env), { checkedAt: NOW.getTime() + 365 * 24 * 3600e3 });
+  updateNotice({ env, now: NOW, current: '0.1.0', spawnCheck: (...a) => spawned.push(a) });
+  writeCache(cacheFile(env), { checkedAt: 'soon' });
+  updateNotice({ env, now: NOW, current: '0.1.0', spawnCheck: (...a) => spawned.push(a) });
+  assert.equal(spawned.length, 3);
+});
+
+test('the notice never reaches the model on post-edit, only on stop', async () => {
+  const repo = makeRepo(baseFiles());
+  const env = tmpEnv();
+  writeCache(cacheFile(env), { checkedAt: Date.now(), latest: '99.0.0' });
+  const edit = fakeIo(repo.dir, { env, stdin: '' });
+  await run(['hook', 'claude', 'post-edit'], edit);
+  assert.equal(edit.out, '');
+  const stop = fakeIo(repo.dir, { env, stdin: '' });
+  await run(['hook', 'claude', 'stop'], stop);
+  assert.match(JSON.parse(stop.out).systemMessage, /rulebook 99\.0\.0 available/);
+});

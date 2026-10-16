@@ -87,7 +87,11 @@ export async function run(argv, io) {
   if (cmd === 'init') return runInit(io, opts, VERSION);
   if (cmd === 'doctor') return runDoctor(io, opts, VERSION);
   if (cmd === 'update') return runUpdate(io, opts, VERSION);
-  if (cmd === 'hook') return runHook(io, positional[0] ?? '', positional[1] ?? '', opts, () => { const n = notice(io); return n ? [n] : []; });
+  if (cmd === 'hook') {
+    // The update notice is for the human: only on turn-end events, never in the model's post-edit context.
+    const extra = positional[1] === 'stop' ? () => { const n = notice(io); return n ? [n] : []; } : () => [];
+    return runHook(io, positional[0] ?? '', positional[1] ?? '', opts, extra);
+  }
   io.stderr.write(`rulebook: unknown command "${cmd ?? ''}". Commands: index, check, hook, init, doctor, update\n`);
   return 1;
 }

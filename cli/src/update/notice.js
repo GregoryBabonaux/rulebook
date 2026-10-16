@@ -15,7 +15,12 @@ export function cacheFile(env) {
 }
 
 export function readCache(file) {
-  try { return JSON.parse(fs.readFileSync(file, 'utf8')) ?? {}; } catch { return {}; }
+  try {
+    const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+    return data && typeof data === 'object' && !Array.isArray(data) ? data : {};
+  } catch {
+    return {};
+  }
 }
 
 export function writeCache(file, data) {
@@ -48,7 +53,8 @@ export function updateNotice({ env, now, current, spawnCheck = spawnWorker }) {
   const file = cacheFile(env);
   const cache = readCache(file);
   const t = now.getTime();
-  if (!cache.checkedAt || t - cache.checkedAt > DAY) {
+  const fresh = Number.isFinite(cache.checkedAt) && cache.checkedAt <= t && t - cache.checkedAt <= DAY;
+  if (!fresh) {
     cache.checkedAt = t;
     writeCache(file, cache);
     spawnCheck(file, env.RULEBOOK_REGISTRY_URL || DEFAULT_REGISTRY);
