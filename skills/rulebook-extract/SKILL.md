@@ -46,15 +46,18 @@ One file per domain: `rulebook/<CODE>-<slug>.md`, starting with `# <CODE> · <Ti
    sub-agents run in the background, wait for it to finish; never stop or hand back with
    `Audit: pending`. Set `Audit: passed` or `failed: <reason>`; fix or downgrade (`inferred`)
    every failure.
-7. **Checkpoint — stop here.** Show the policies, the rule titles, every `conflicting` card,
-   every audit fix and every open question. Ask the user to validate. Change nothing more
-   before the answer.
-8. **Apply the answer**, then run `rulebook index --strict` and fix every warning and
-   unresolved anchor until it exits 0 (fallback without the CLI: re-open every cited line).
+7. **Check and build — without asking.** Run `rulebook index --strict` and fix every warning
+   and unresolved anchor until it exits 0 (fallback without the CLI: re-open every cited line).
+   Then run `rulebook build`: the document is produced first, corrections come after.
+8. **Report and offer corrections.** Give the path of `rulebook/rulebook.html` first. Then show
+   the policies, the rule titles, every `conflicting` card, every audit fix and the main open
+   questions, and ask what to correct: rename, merge or drop a policy, reword or remove a rule.
+9. **Apply the corrections** the user asks for, then run `rulebook index --strict` and
+   `rulebook build` again.
 
 ## Boundaries
 Write only under `rulebook/`. Never change source code or tests. Next free IDs only (`ids.md`).
-- If `rulebook/rulebook.html` exists, finish with `rulebook build` so the document matches the cards. Never edit the HTML yourself (`references/cli.md`).
+- Always end with `rulebook build`, so the document matches the cards. Never edit the HTML yourself (`references/cli.md`).
 
 ## Common mistakes
 | Mistake | Instead |
@@ -65,3 +68,4 @@ Write only under `rulebook/`. Never change source code or tests. Next free IDs o
 | A policy for rounding or a technical limit | `## Other operating rules`, no policy |
 | Evidence pointing at the caller | Cite the lines that decide |
 | No `Audit:` line | Every rule card gets one from step 6 |
+| Asking for validation before building | Build the HTML first (step 7), then offer corrections |

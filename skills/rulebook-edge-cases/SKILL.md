@@ -29,14 +29,16 @@ the code, what actually happens. Facts only: you describe the system, you do not
    - `verified` only when a test asserts exactly that case; otherwise `read` (or `inferred`).
    - A case that looks like a gap or a bug is still written as what the code does, and is
      also added to `Open questions.` for a human to decide.
-4. **Checkpoint — stop here.** Show the new cases per rule and ask the user to validate.
-   Write nothing before the answer.
-5. **Write** into the cards, then run `rulebook index` and fix any warning (without the CLI:
-   check each new line against the format in `references/card-template.md`).
+4. **Write and build — without asking.** Write the cases into the cards, run `rulebook index`
+   and fix any warning (without the CLI: check each new line against the format in
+   `references/card-template.md`), then run `rulebook build`.
+5. **Report and offer corrections.** Give the path of `rulebook/rulebook.html` first, then the
+   new cases per rule and the new open questions, and ask what to correct. Apply the
+   corrections, then run `rulebook index` and `rulebook build` again.
 
 ## Boundaries
 - Never write or change tests or source code. You may *suggest* a test in your report.
-- If `rulebook/rulebook.html` exists, finish with `rulebook build` so the document matches the cards. Never edit the HTML yourself (`references/cli.md`).
+- Always end with `rulebook build`, so the document matches the cards. Never edit the HTML yourself (`references/cli.md`).
 - Write only the `Edge cases.` and `Open questions.` sections of the target cards.
 - Number cases after the highest existing `.E<n>`; never renumber.
 

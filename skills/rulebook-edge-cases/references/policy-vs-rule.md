@@ -23,4 +23,4 @@ Put them under `## Other operating rules`. Do not invent a "why" for them.
 - A policy has **no direct code evidence**. Its evidence is the operating rules under it.
 - A policy with no operating rule under it does not belong in the reference yet.
 - Group rules under one policy only when they share the same why.
-- Every policy is validated by a human at the checkpoint: you propose, they decide.
+- Every policy is reviewed by a human after the first build: you propose, they decide.

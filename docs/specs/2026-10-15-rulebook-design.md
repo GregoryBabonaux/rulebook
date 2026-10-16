@@ -213,7 +213,7 @@ Two halves share the same reference files:
 1. Ask about scope (whole repo or sub-folders) and the language of the reference.
 2. Survey the tree, routes and entry points, models, schema and migrations, module names, README.
 3. Propose 4 to 12 domains, each with a code, a one-sentence description, its folders and suggested hotspots.
-4. **Checkpoint:** the user renames, merges, splits or drops domains and validates the hotspots.
+4. **Build, then corrections:** the map is written and the HTML built; the user then renames, merges, splits or drops domains and confirms the hotspots.
 5. Write `config.json`, `index.md` and an initial `.index.json` (hotspots, no anchors).
 
 **`rulebook-extract` (level 2, per domain)**
@@ -222,14 +222,14 @@ Two halves share the same reference files:
 2. Draft the operating-rule cards, then group the rules that share a *why* into policy cards.
 3. **Coverage sweep:** scan hotspots, validators, policies, guards, enums, DB constraints, scheduled jobs and config. List every decision point not attached to a card, then either create a card or record it as "out of scope" with a reason.
 4. **Blind audit:** a fresh reviewer (a sub-agent if available) gets only the cards. For each card it opens the cited lines, checks that they exist and support the statement, and returns `passed` or `failed: <reason>`. Cards that fail are fixed or downgraded to `inferred`.
-5. **Checkpoint:** the user reviews the policies, `conflicting` rules and open questions.
+5. **Build, then corrections:** after the audit, `index --strict` and `build` run; the user then reviews the policies, `conflicting` rules and open questions in the document.
 6. Write the domain file and update `.index.json` (`rulebook index` rebuilds the anchors from the cards).
 
 **`rulebook-edge-cases` (level 3, on demand)**
 
 1. For each target rule, probe boundaries (`<` vs `<=`), null and absent values, forbidden states, operation order, timezones, rounding, concurrency and retries.
 2. Write each case as Given/When/Then with its own confidence and evidence. If no test covers it, mark it so and optionally suggest a test (never write it).
-3. **Checkpoint**, then write the cases into the cards.
+3. Write the cases into the cards and build, then offer corrections.
 
 **`rulebook-sync` (companion brain)**
 
@@ -452,7 +452,7 @@ Not verified: whether `systemMessage` is displayed in an interactive session (he
 ## 12. Decisions log (from brainstorming)
 
 1. Generic pack, for any codebase. Cluengo is the first test ground.
-2. Three levels, each validated before the next.
+2. Three levels, each validated before the next. *Amended 2026-10-16:* each level writes its cards and builds the HTML first, then offers corrections; the user reviews the document, not a chat summary. Sync keeps its validation before rewriting validated cards.
 3. Policy = why, rule = how, linked by `implements`.
 4. Readers are both business and dev: plain language on top, evidence below.
 5. Output is Markdown (the source of truth) plus a generated HTML document, with external tools (Notion, Drive…) **proposed** as output targets when an MCP is detected.
