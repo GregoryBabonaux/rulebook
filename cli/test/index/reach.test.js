@@ -81,3 +81,15 @@ test('framework naming conventions count: a Laravel scopeActive is called as act
   await run(['index'], io);
   assert.doesNotMatch(io.err, /dead code/);
 });
+
+test('an export list is not a call', async () => {
+  const src = [
+    'function checkPassword(p) {', '  if (p.length < 12) throw new Error();', '}', '',
+    'module.exports = { checkPassword };', '',
+  ].join('\n');
+  const md = cardsCiting('checkPassword').replace('app/Policies/OrderPolicy.php:4-7', 'src/password.js:1-3');
+  const repo = makeRepo({ ...baseFiles(), 'src/password.js': src, 'src/index.js': "export { checkPassword } from './password';\n", 'rulebook/PAY-payments.md': md });
+  const io = fakeIo(repo.dir);
+  await run(['index'], io);
+  assert.match(io.err, /PAY-R001 "checkPassword" is never referenced — possible dead code/);
+});

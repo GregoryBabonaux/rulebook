@@ -9,6 +9,8 @@ const ENTRY_POINTS = new Set([
   'index', 'show', 'store', 'update', 'destroy', 'create', 'edit', 'call', 'invoke', 'init',
 ]);
 
+const EXPORT_OR_IMPORT = /^\s*(module\.exports\b|exports\.\w+\s*=|export\s*(\{|\*|default\b)|import\b|from\s+\S+\s+import\b|use\s+[\w\\]+)/;
+
 const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 // The names the code calls a method by: a Laravel scopeActive is called as active(),
@@ -48,7 +50,8 @@ export function reachability(root, cards) {
     let tests = 0;
     for (const f of files) {
       for (const line of f.text.split('\n')) {
-        if (!word.test(line) || declaration.test(line)) continue;
+        // a declaration, an export list or an import is not a call
+        if (!word.test(line) || declaration.test(line) || EXPORT_OR_IMPORT.test(line)) continue;
         if (TEST_PATH.test(f.path)) tests++; else app++;
       }
     }
