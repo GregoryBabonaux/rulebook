@@ -129,3 +129,16 @@ test('section labels written with a colon are understood', () => {
   assert.deepEqual(card.evidence.map((e) => e.path), ['a.js']);
   assert.equal(card.sections.context, 'Un contexte.');
 });
+
+test('an edge case whose tail cannot be parsed is reported', () => {
+  const md = `# PAY · Payments
+### PAY-R001 · One
+**Edge cases.**
+- **PAY-R001.E1** Given x, when y, then z. — inferred — src/a.js:3,9
+- **PAY-R001.E2** Given x, when y, then z. — read — src/a.js:3
+`;
+  const { cards, warnings } = parseDomainFile(md);
+  assert.equal(cards[0].edgeCases[1].confidence, 'read');
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0].message, /edge case PAY-R001\.E1: unreadable confidence or reference/);
+});
