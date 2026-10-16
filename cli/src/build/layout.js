@@ -22,3 +22,19 @@ function tidyLayout(root, opts) {
   visit(root, 0, null);
   return { nodes: placed, height: Math.max(next, 1) * row };
 }
+
+// Manual moves: each node may carry an offset { dx, dy }; a node's position adds the offsets of
+// itself and of every ancestor, so moving a node moves its whole branch and nothing else.
+function placeWithOffsets(placed, offsets) {
+  const shift = new Map();
+  const moved = new Map();
+  return placed.map(function (p) {
+    const own = (offsets && offsets[p.node.id]) || { dx: 0, dy: 0 };
+    const inherited = p.parent ? shift.get(p.parent) : { dx: 0, dy: 0 };
+    const total = { dx: inherited.dx + own.dx, dy: inherited.dy + own.dy };
+    shift.set(p, total);
+    const entry = { node: p.node, depth: p.depth, parent: p.parent ? moved.get(p.parent) : null, x: p.x + total.dx, y: p.y + total.dy };
+    moved.set(p, entry);
+    return entry;
+  });
+}

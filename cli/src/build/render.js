@@ -54,10 +54,15 @@ const renderDetails = (details) => (details?.length
   ? `<dl class="details">${details.map((d) => `<dt>${inline(d.label)}</dt><dd>${inline(d.text)}</dd>`).join('')}</dl>`
   : '');
 
+// One hue per domain, carried by the sidebar, the sections, the map branches and the dashboard bars.
+const DOMAIN_COLORS = ['#6366f1', '#14b8a6', '#f59e0b', '#ec4899', '#0ea5e9', '#8b5cf6', '#22c55e', '#ef4444', '#06b6d4', '#d946ef', '#84cc16', '#f97316'];
+export const domainColor = (i) => DOMAIN_COLORS[i % DOMAIN_COLORS.length];
+
 function renderDomain(domain, index, data, L) {
   const n = index + 1;
+  const dom = `style="--dom:${domainColor(index)}"`;
   if (!domain.extracted) {
-    return `<section class="domain is-empty" id="${escapeHtml(domain.code)}"><h2>${n}. ${inline(domain.title)}</h2><p class="lede">${inline(domain.description)}</p>${renderDetails(domain.details)}<p class="muted">${escapeHtml(L.notExtracted)}</p></section>`;
+    return `<section class="domain is-empty" id="${escapeHtml(domain.code)}" ${dom}><h2>${n}. ${inline(domain.title)}</h2><p class="lede">${inline(domain.description)}</p>${renderDetails(domain.details)}<p class="muted">${escapeHtml(L.notExtracted)}</p></section>`;
   }
   const policies = domain.policies.map((p, i) => `<section class="policy" id="${escapeHtml(p.card.id)}" data-kind="policy" data-search="${escapeHtml([p.card.id, p.card.title, p.card.sections.statement].join(' ').toLowerCase())}">
   <h3>${n}.${i + 1} ${inline(p.card.title)}</h3>
@@ -69,7 +74,7 @@ function renderDomain(domain, index, data, L) {
   const others = domain.otherRules.length
     ? `<section class="policy" data-kind="policy"><h3>${n}.${domain.policies.length + 1} ${escapeHtml(L.otherRules)}</h3>${domain.otherRules.map((r) => renderRule(r, data, L)).join('\n')}</section>`
     : '';
-  return `<section class="domain" id="${escapeHtml(domain.code)}"><h2>${n}. ${inline(domain.title)}</h2>${domain.description ? `<p class="lede">${inline(domain.description)}</p>` : ''}${renderDetails(domain.details)}${policies}${others}</section>`;
+  return `<section class="domain" id="${escapeHtml(domain.code)}" ${dom}><h2>${n}. ${inline(domain.title)}</h2>${domain.description ? `<p class="lede">${inline(domain.description)}</p>` : ''}${renderDetails(domain.details)}${policies}${others}</section>`;
 }
 
 const CONFIDENCES = ['verified', 'read', 'inferred', 'conflicting'];
@@ -78,7 +83,7 @@ const allRules = (domain) => [...domain.policies.flatMap((p) => p.rules), ...dom
 // What the interactive map needs: the tree (ids only) and every rule's card, once.
 function mapModel(data) {
   const rules = {};
-  const domains = data.domains.map((d) => {
+  const domains = data.domains.map((d, index) => {
     for (const card of allRules(d)) {
       const tag = tagFor(card, data.since);
       rules[card.id] = {
@@ -92,7 +97,7 @@ function mapModel(data) {
       };
     }
     return {
-      code: d.code, title: d.title, description: d.description, extracted: d.extracted, details: d.details ?? [],
+      code: d.code, title: d.title, description: d.description, extracted: d.extracted, details: d.details ?? [], color: domainColor(index),
       policies: d.policies.map((p) => ({ id: p.card.id, title: p.card.title, statement: p.card.sections.statement ?? '', rules: p.rules.map((r) => r.id) })),
       otherRules: d.otherRules.map((r) => r.id),
     };
@@ -105,14 +110,14 @@ function renderDashboard(data, L) {
   const verified = rules.filter((r) => r.meta.confidence === 'verified').length;
   const pct = rules.length ? Math.round((verified / rules.length) * 100) : 0;
   const kpi = (value, label) => `<div class="kpi"><b>${escapeHtml(value)}</b><span>${escapeHtml(label)}</span></div>`;
-  const bars = data.domains.map((d) => {
+  const bars = data.domains.map((d, index) => {
     const own = allRules(d);
-    if (!d.extracted) return `<div class="bar-row" data-domain="${escapeHtml(d.code)}"><a href="#${escapeHtml(d.code)}">${inline(d.title)}</a><span class="bar empty"></span><span class="muted">${escapeHtml(L.notExtracted)}</span></div>`;
+    if (!d.extracted) return `<div class="bar-row" data-domain="${escapeHtml(d.code)}" style="--dom:${domainColor(index)}"><a href="#${escapeHtml(d.code)}">${inline(d.title)}</a><span class="bar empty"></span><span class="muted">${escapeHtml(L.notExtracted)}</span></div>`;
     const segs = CONFIDENCES.map((c) => {
       const n = own.filter((r) => (r.meta.confidence ?? 'inferred') === c).length;
       return n ? `<span class="seg conf-${c}" style="width:${Math.round((n / own.length) * 100)}%" title="${escapeHtml(`${L.conf[c]} · ${n}`)}"></span>` : '';
     }).join('');
-    return `<div class="bar-row" data-domain="${escapeHtml(d.code)}"><a href="#${escapeHtml(d.code)}">${inline(d.title)}</a><span class="bar">${segs}</span><span class="muted">${own.length}</span></div>`;
+    return `<div class="bar-row" data-domain="${escapeHtml(d.code)}" style="--dom:${domainColor(index)}"><a href="#${escapeHtml(d.code)}">${inline(d.title)}</a><span class="bar">${segs}</span><span class="muted">${own.length}</span></div>`;
   }).join('');
   const recent = data.since.items.slice(0, 8).map((i) => `<li><span class="tag tag-${i.type}">${escapeHtml(L.tag[i.type])}</span> <a href="#${escapeHtml(i.id)}">${escapeHtml(i.id)}</a> · ${inline(i.title)}</li>`).join('');
   const pending = data.toValidate.slice(0, 8).map((v) => `<li><span class="label">${escapeHtml(L.item[v.type])}</span> ${v.id ? `<a href="#${escapeHtml(v.id)}">${escapeHtml(v.id)}</a> · ` : ''}${inline(v.text)}</li>`).join('');
@@ -167,7 +172,7 @@ export function renderHtml(model, { evidenceBase = '..' } = {}) {
 </nav>`;
   const mapView = `<section class="view" id="view-map" hidden>
   <div class="map-frame wide">
-    <div class="map-tools"><button type="button" data-zoom="in" aria-label="+">+</button><button type="button" data-zoom="out" aria-label="−">−</button><button type="button" data-zoom="fit" aria-label="${escapeHtml(L.fit)}">⤢</button><span class="muted">${escapeHtml(L.mapHint)}</span></div>
+    <div class="map-tools"><button type="button" data-zoom="in" aria-label="+">+</button><button type="button" data-zoom="out" aria-label="−">−</button><button type="button" data-zoom="fit" aria-label="${escapeHtml(L.fit)}">⤢</button><button type="button" data-zoom="reset" class="wide-btn">${escapeHtml(L.relayout)}</button><span class="muted">${escapeHtml(L.mapHint)}</span></div>
     <svg id="mindmap" role="img" aria-label="${escapeHtml(L.viewMap)}"><g id="mm-viewport"></g></svg>
     <aside class="map-panel" id="mm-panel" hidden></aside>
     <p class="map-legend muted">${Object.keys(L.conf).map((k) => `<span><span class="dot conf-${k}"></span>${escapeHtml(L.conf[k])}</span>`).join(' ')}</p>
@@ -185,15 +190,20 @@ ${asset('viewer.css')}
 </style>
 </head>
 <body>
+<div class="shell">
+<aside class="sidebar">
+  <div class="brand"><span class="brand-mark" aria-hidden="true"></span><div><strong>${escapeHtml(data.project.name)}</strong><span>${escapeHtml(L.title)}</span></div><button type="button" id="theme" class="theme" aria-label="${escapeHtml(L.theme)}">◐</button></div>
+  ${views}
+  ${controls}
+  <nav class="side-domains" aria-label="${escapeHtml(L.toc)}">${data.domains.map((d, i) => `<a class="side-domain" href="#${escapeHtml(d.code)}" style="--dom:${domainColor(i)}"><span class="swatch"></span><span class="name">${inline(d.title)}</span><span class="count">${d.extracted ? ruleCount(d) : '—'}</span></a>`).join('')}</nav>
+</aside>
 <main class="page">
-<header class="masthead">
-  <p class="muted">${escapeHtml(data.project.name)} · ${escapeHtml(data.project.builtAt)} · ${escapeHtml(data.project.commit ?? '')}</p>
-  <div class="title-row"><h1>${escapeHtml(L.title)}</h1><button type="button" id="theme" class="theme" aria-label="${escapeHtml(L.theme)}">◐</button></div>
+<header class="hero">
+  <p class="hero-meta">${escapeHtml(data.project.builtAt)}${data.project.commit ? ` · ${escapeHtml(data.project.commit)}` : ''}</p>
+  <h1>${escapeHtml(L.title)}</h1>
   <p class="lede">${escapeHtml(L.intro(data.counts.rules, data.counts.domains))}</p>
 </header>
-${views}
 <noscript><p class="noscript">${escapeHtml(L.noScript)}</p></noscript>
-${controls}
 <section class="view" id="view-document">
 ${since}
 ${toc}
@@ -205,6 +215,7 @@ ${mapView}
 ${renderDashboard(data, L)}
 <footer class="footer muted"><p>${escapeHtml(L.footer(data.project.version, data.project.commit ?? '—'))} ${escapeHtml(L.coverage(data.counts.extracted, data.counts.domains))}</p></footer>
 </main>
+</div>
 <script id="rulebook-labels" type="application/json">${json}</script>
 <script id="rulebook-data" type="application/json">${mapJson}</script>
 <script>
