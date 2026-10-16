@@ -1,0 +1,53 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { loadProject, domainFiles } from '../project.js';
+import { headSha } from '../git.js';
+import { parseDomainFile } from '../parse/cards.js';
+import { parseIndexMd } from '../parse/indexmd.js';
+import { buildData } from './data.js';
+import { renderHtml } from './render.js';
+
+const pad = (n) => String(n).padStart(2, '0');
+export const localDate = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+export function nextPublished(published, today) {
+  if (!published?.current) return { current: today, previous: null };
+  if (published.current === today) return { current: today, previous: published.previous ?? null };
+  return { current: today, previous: published.current };
+}
+
+const readText = (p) => (fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : '');
+
+export function runBuild(io, opts, version) {
+  let project;
+  try { project = loadProject(io.cwd, opts.dir); } catch (err) { io.stderr.write(`rulebook: ${err.message}\n`); return 1; }
+  if (!project) { io.stderr.write(`rulebook: no ${opts.dir}/ folder in this git repository\n`); return 1; }
+
+  const today = localDate(io.now ? io.now() : new Date());
+  const publishedPath = path.join(project.dir, '.published.json');
+  let published = null;
+  try { published = JSON.parse(readText(publishedPath) || 'null'); } catch { published = null; }
+  const next = nextPublished(published, today);
+  const sinceFrom = opts.scope.kind === 'since' ? opts.scope.sha : next.previous;
+
+  const files = domainFiles(project.dir).map((f) => parseDomainFile(readText(path.join(project.dir, f)), `${project.dirName}/${f}`));
+  const data = buildData({
+    name: path.basename(project.root),
+    commit: headSha(project.root),
+    today,
+    version,
+    config: project.config,
+    domainsMap: parseIndexMd(readText(path.join(project.dir, 'index.md'))),
+    domainFiles: files,
+    inboxText: readText(path.join(project.dir, 'inbox.md')),
+    sinceFrom,
+  });
+
+  const outRel = opts.out ?? `${project.dirName}/rulebook.html`;
+  const outAbs = path.resolve(project.root, outRel);
+  fs.mkdirSync(path.dirname(outAbs), { recursive: true });
+  fs.writeFileSync(outAbs, renderHtml(data));
+  fs.writeFileSync(publishedPath, `${JSON.stringify(next)}\n`);
+  io.stdout.write(`rulebook: built ${outRel.replace(/\\/g, '/')} (${data.counts.rules} rules, ${data.counts.domains} domains)\n`);
+  return 0;
+}
