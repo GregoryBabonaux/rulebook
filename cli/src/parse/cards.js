@@ -39,7 +39,9 @@ function parseEdge(id, rest) {
   let confidence = null;
   if (parts.length > 1 && /^\S+:\d+(-\d+)?$/.test(parts[parts.length - 1].trim())) ref = parts.pop().trim();
   if (parts.length > 1 && CONFIDENCE.includes(parts[parts.length - 1].trim())) confidence = parts.pop().trim();
-  return { id, text: parts.join(' — ').trim(), confidence, ref };
+  // a tail that still looks like a confidence or a reference was not understood
+  const malformed = parts.length > 1 && parts.slice(1).some((p) => CONFIDENCE.includes(p.trim()) || /\S+:\d/.test(p));
+  return { id, text: parts.join(' — ').trim(), confidence, ref, malformed };
 }
 
 export function parseDomainFile(text, file = '') {
@@ -120,7 +122,11 @@ export function parseDomainFile(text, file = '') {
       return;
     }
     if (section === 'edgeCases') {
-      if ((m = trimmed.match(EDGE))) card.edgeCases.push(parseEdge(m[1], m[2]));
+      if ((m = trimmed.match(EDGE))) {
+        const { malformed, ...edge } = parseEdge(m[1], m[2]);
+        if (malformed) warn(i, `edge case ${edge.id}: unreadable confidence or reference (use "— <confidence> — <path>:<line>")`);
+        card.edgeCases.push(edge);
+      }
       else if (trimmed.startsWith('-')) warn(i, `unreadable edge case "${trimmed}"`);
       return;
     }

@@ -1,0 +1,6 @@
+{
+  "formatVersion": 1,
+  "language": "en",
+  "repoUrl": null,
+  "hotspots": ["src/**", "db/**", "config/**"]
+}

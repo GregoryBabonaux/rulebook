@@ -1,0 +1,30 @@
+{
+  "domains": ["ORD", "PRC", "ACC"],
+  "rules": [
+    { "key": "refund-window", "policy": "withdrawal", "anchors": [{ "file": "src/orders/refund.js", "lines": [7, 10] }] },
+    { "key": "refund-admin", "policy": "fraud", "anchors": [{ "file": "src/orders/refund.js", "lines": [12, 17] }] },
+    { "key": "order-transitions", "policy": null, "anchors": [{ "file": "src/orders/state.js", "lines": [9, 14] }] },
+    { "key": "cancel-before-shipping", "policy": "cancel", "anchors": [{ "file": "src/orders/state.js", "lines": [2, 3] }] },
+    { "key": "one-coupon", "policy": "no-stacking", "anchors": [{ "file": "src/pricing/discount.js", "lines": [4, 6] }] },
+    { "key": "coupon-expiry", "policy": null, "anchors": [{ "file": "src/pricing/discount.js", "lines": [9, 11] }] },
+    { "key": "discount-cap", "policy": null, "anchors": [{ "file": "src/pricing/discount.js", "lines": [12, 12] }] },
+    { "key": "rounding", "policy": null, "technical": true, "anchors": [{ "file": "src/pricing/discount.js", "lines": [17, 19] }] },
+    { "key": "password-length", "policy": "account-security", "anchors": [{ "file": "src/accounts/password.js", "lines": [4, 9] }] },
+    { "key": "lockout", "policy": "account-security", "anchors": [{ "file": "src/accounts/password.js", "lines": [11, 19] }] },
+    { "key": "email-unique", "policy": null, "anchors": [{ "file": "db/schema.sql", "lines": [3, 3] }] },
+    { "key": "total-non-negative", "policy": null, "anchors": [{ "file": "db/schema.sql", "lines": [11, 11] }] }
+  ],
+  "policies": ["withdrawal", "fraud", "cancel", "no-stacking", "account-security"],
+  "edgeCases": [
+    { "key": "refund-last-day", "rule": "refund-window", "verified": true, "mentions": ["14"] },
+    { "key": "refund-never-delivered", "rule": "refund-window", "mentions": ["deliver", "livr"] },
+    { "key": "lock-fifth-attempt", "rule": "lockout", "mentions": ["5", "fifth", "cinquième"] },
+    { "key": "lock-expiry-instant", "rule": "lockout", "mentions": ["15"] },
+    { "key": "coupon-expiry-instant", "rule": "coupon-expiry", "mentions": ["expir"] }
+  ],
+  "traps": {
+    "lyingComment": { "rule": "refund-window", "mustMention": "14", "mustNotMention": "30" },
+    "deadCode": { "file": "src/orders/refund.js", "lines": [19, 22] },
+    "technicalChoice": { "rule": "rounding" }
+  }
+}

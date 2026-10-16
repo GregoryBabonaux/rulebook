@@ -1,0 +1,10 @@
+{
+  "name": "rulebook",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync": "node scripts/sync-references.mjs",
+    "check": "node scripts/sync-references.mjs --check",
+    "test": "node --test \"scripts/*.test.mjs\" \"tests/skills/*.test.mjs\" && npm --prefix cli test"
+  }
+}
