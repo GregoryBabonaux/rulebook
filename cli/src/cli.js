@@ -4,8 +4,10 @@ import { headSha } from './git.js';
 import { loadCards, buildIndex, writeIndex } from './index/build.js';
 import { checkProject } from './check/run.js';
 import { runHook } from './hook/run.js';
+import { runInit } from './install/init.js';
 
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+export const VERSION = pkg.version;
 
 export function parseOptions(args) {
   const o = {
@@ -76,6 +78,7 @@ export async function run(argv, io) {
   }
   if (cmd === 'index') return runIndex(io, opts);
   if (cmd === 'check') return runCheck(io, opts);
+  if (cmd === 'init') return runInit(io, opts, VERSION);
   if (cmd === 'hook') return runHook(io, positional[0] ?? '', positional[1] ?? '', opts);
   io.stderr.write(`rulebook: unknown command "${cmd ?? ''}". Commands: index, check, hook, init, doctor, update\n`);
   return 1;
