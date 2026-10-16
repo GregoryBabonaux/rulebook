@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Référentiel des règles · rulebook</title>
+<style>
+:root {
+  --bg: #fbfaf7; --surface: #f3f1ec; --text: #1f1e1b; --muted: #6b6860; --faint: #9a968c;
+  --line: #e4e0d7; --accent: #2f5d8a; --green: #1d7a55; --amber: #9a6512; --red: #b23b32;
+  --tag-new-bg: #e3f1e8; --tag-new: #1d6b48; --tag-changed-bg: #e4edf7; --tag-changed: #24527d;
+  --tag-retired-bg: #eeece6; --tag-retired: #6b6860; --question: #c9902e;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #171614; --surface: #211f1c; --text: #ebe8e1; --muted: #a7a399; --faint: #7d796f;
+    --line: #34312c; --accent: #8db8e3; --green: #6cc39b; --amber: #e0b062; --red: #ec8a80;
+    --tag-new-bg: #1f3a2d; --tag-new: #9fdcbd; --tag-changed-bg: #1f2f42; --tag-changed: #a9cbee;
+    --tag-retired-bg: #2a2825; --tag-retired: #a7a399; --question: #d8a650; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #171614; --surface: #211f1c; --text: #ebe8e1; --muted: #a7a399; --faint: #7d796f;
+  --line: #34312c; --accent: #8db8e3; --green: #6cc39b; --amber: #e0b062; --red: #ec8a80;
+  --tag-new-bg: #1f3a2d; --tag-new: #9fdcbd; --tag-changed-bg: #1f2f42; --tag-changed: #a9cbee;
+  --tag-retired-bg: #2a2825; --tag-retired: #a7a399; --question: #d8a650; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.65 var(--sans); }
+.page { max-width: 44rem; margin: 0 auto; padding: 3rem 1rem 4rem; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code { font: 0.88em var(--mono); background: var(--surface); padding: 0.05em 0.3em; border-radius: 4px; }
+h1 { font: 500 2rem/1.2 var(--sans); margin: 0.25rem 0 0.5rem; letter-spacing: -0.01em; }
+h2 { font: 500 1.45rem/1.3 var(--sans); margin: 0 0 0.4rem; }
+h2.small { font-size: 1rem; margin-bottom: 0.5rem; }
+h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
+.muted { color: var(--muted); }
+.lede { color: var(--muted); margin: 0 0 1rem; }
+.label { font-size: 0.8rem; text-transform: none; color: var(--muted); font-weight: 500; margin-right: 0.35rem; }
+.title-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.theme { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 999px; width: 2.2rem; height: 2.2rem; cursor: pointer; font-size: 1rem; }
+.masthead { margin-bottom: 2rem; }
+.since { background: var(--surface); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 2rem; }
+.since ul { list-style: none; padding: 0; margin: 0; }
+.since li { padding: 0.2rem 0; }
+.toc { margin-bottom: 2rem; }
+.toc ol { margin: 0; padding-left: 1.25rem; line-height: 2; }
+.controls { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; padding: 0.75rem 0; margin-bottom: 1rem; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--bg); z-index: 1; }
+.controls input, .controls select { font: inherit; font-size: 0.9rem; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 0.35rem 0.6rem; }
+.controls input { flex: 1 1 12rem; min-width: 0; }
+.domain { padding-top: 2.5rem; margin-top: 1rem; border-top: 1px solid var(--line); }
+.domain.is-empty h2 { color: var(--muted); }
+.policy-statement { font-family: var(--serif); font-size: 1.05rem; color: var(--muted); margin: 0 0 0.5rem; }
+.rule { padding: 1.1rem 0; border-bottom: 1px solid var(--line); }
+.rule:last-child { border-bottom: 0; }
+.rule.is-retired { opacity: 0.6; }
+.rule-head { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; }
+.rid { font-family: var(--mono); color: var(--faint); }
+.rule-title { font: 500 1rem/1.4 var(--sans); margin: 0.25rem 0 0.15rem; }
+.statement { font: 1.12rem/1.65 var(--serif); margin: 0.2rem 0 0.4rem; }
+.context { color: var(--muted); margin: 0 0 0.5rem; }
+.meta, .cases, .evidence { font-size: 0.9rem; color: var(--muted); margin: 0.35rem 0; }
+.cases ul { margin: 0.15rem 0 0; padding-left: 1.1rem; }
+.dot { display: inline-block; width: 0.5rem; height: 0.5rem; border-radius: 50%; margin-right: 0.45rem; vertical-align: 0.08em; background: var(--faint); }
+.conf-verified { background: var(--green); } .conf-read { background: var(--accent); }
+.conf-inferred { background: var(--faint); } .conf-conflicting { background: var(--red); }
+.tag { font-size: 0.75rem; padding: 0.05rem 0.5rem; border-radius: 6px; }
+.tag-new { background: var(--tag-new-bg); color: var(--tag-new); }
+.tag-changed { background: var(--tag-changed-bg); color: var(--tag-changed); }
+.tag-retired { background: var(--tag-retired-bg); color: var(--tag-retired); }
+.history { font-size: 0.85rem; color: var(--muted); }
+.history summary { cursor: pointer; }
+.question { border-left: 2px solid var(--question); padding: 0.1rem 0 0.1rem 0.9rem; margin-top: 0.6rem; color: var(--muted); }
+.question strong { color: var(--text); font-weight: 500; }
+.to-validate { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--line); }
+.to-validate ul { padding-left: 1.1rem; }
+.to-validate li { margin: 0.35rem 0; }
+.footer { margin-top: 3rem; font-size: 0.85rem; }
+.pending { margin: 0.6rem 0 0; font-size: 0.9rem; }
+[hidden] { display: none !important; }
+[id] { scroll-margin-top: 5.5rem; }
+@media (max-width: 30rem) {
+  .page { padding-top: 1.5rem; } h1 { font-size: 1.6rem; } .statement { font-size: 1.05rem; }
+  .controls { position: static; }
+  [id] { scroll-margin-top: 1rem; }
+}
+@media print {
+  :root, :root[data-theme="dark"], :root:not([data-theme="light"]) {
+    --bg: #fff; --surface: #f3f1ec; --text: #000; --muted: #444; --faint: #666; --line: #ccc;
+    --accent: #000; --tag-new-bg: #fff; --tag-new: #000; --tag-changed-bg: #fff; --tag-changed: #000;
+    --tag-retired-bg: #fff; --tag-retired: #444; --question: #999; color-scheme: light;
+  }
+  .controls, .theme { display: none; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  .page { max-width: none; padding: 0; }
+  .rule { break-inside: avoid; }
+  .since { background: none; border: 1px solid #ccc; }
+  a { color: inherit; }
+}
+
+</style>
+</head>
+<body>
+<main class="page">
+<header class="masthead">
+  <p class="muted">rulebook · 2026-10-16 · a365123</p>
+  <div class="title-row"><h1>Référentiel des règles</h1><button type="button" id="theme" class="theme" aria-label="Changer de thème">◐</button></div>
+  <p class="lede">3 règles réparties en 2 domaines. Chaque règle dit ce que fait le produit, pourquoi, et où le vérifier dans le code.</p>
+</header>
+<section class="since" id="since"><h2 class="small">Depuis la version du 2026-09-01</h2><ul><li><span class="tag tag-new">nouvelle</span> <a href="#PAY-R019">PAY-R019</a> · Un remboursement de plus de 500 € demande un administrateur</li><li><span class="tag tag-new">nouvelle</span> <a href="#PAY-R012">PAY-R012</a> · Remboursement possible jusqu&#39;à 14 jours après la livraison</li></ul><p class="pending"><a href="#to-validate">1 point à valider</a></p></section>
+<nav class="toc" id="toc"><h2 class="small">Sommaire</h2><ol><li class=""><a href="#PAY">Paiements</a> <span class="muted">· 3 règles</span></li><li class="muted"><a href="#ORD">Commandes</a> <span class="muted">· pas encore extrait</span></li></ol></nav>
+<div class="controls" role="search">
+  <input type="search" id="q" placeholder="Rechercher une règle" aria-label="Rechercher une règle">
+  <select id="f-kind" aria-label="Règles métier et de gestion"><option value="">Règles métier et de gestion</option><option value="policy">Règles métier</option><option value="rule">Règles de gestion</option></select>
+  <select id="f-confidence" aria-label="Toute confiance"><option value="">Toute confiance</option><option value="verified">Prouvée par le code et un test</option><option value="read">Lue dans le code, pas testée</option><option value="inferred">Déduite des noms ou de la configuration</option><option value="conflicting">Preuves contradictoires</option></select>
+  <select id="f-category" aria-label="Toute catégorie"><option value="">Toute catégorie</option><option value="validation">Validation</option><option value="calculation">Calcul</option><option value="authorization">Autorisation</option><option value="state-transition">Changement d&#39;état</option><option value="derivation">Dérivation</option><option value="data-constraint">Contrainte de données</option><option value="timing">Délais</option><option value="integration">Intégration</option></select>
+  <select id="f-status" aria-label="Tout statut"><option value="">Tout statut</option><option value="candidate">Candidate</option><option value="active">Active</option><option value="changed">Modifiée</option><option value="retired">Retirée</option></select>
+  <span class="muted" id="shown" aria-live="polite"></span>
+</div>
+<p class="muted no-match" id="no-match" hidden>Aucune règle ne correspond à ces filtres.</p>
+<section class="domain" id="PAY"><h2>1. Paiements</h2><p class="lede">Comment la boutique encaisse, rembourse et protège le client en cas de litige.</p><section class="policy" id="PAY-P03" data-kind="policy" data-search="pay-p03 droit de rétractation un client doit pouvoir renoncer à un achat dans un délai donné après l&#39;avoir reçu.">
+  <h3>1.1 Droit de rétractation</h3>
+  <p class="policy-statement"><span class="label">Règle métier</span> Un client doit pouvoir renoncer à un achat dans un délai donné après l&#39;avoir reçu.</p>
+  
+  
+  <article class="rule" id="PAY-R012" data-kind="rule" data-category="timing" data-confidence="verified" data-status="changed" data-search="pay-r012 remboursement possible jusqu&#39;à 14 jours après la livraison un remboursement ne peut être demandé que si la commande a été livrée il y a 14 jours ou moins. le délai part de la livraison, pas de la commande. c&#39;est la façon dont le produit applique le droit de rétractation. étant donné une commande jamais livrée, quand le client demande un remboursement, alors la demande est refusée. étant donné une livraison il y a exactement 14 jours, quand le client demande un remboursement, alors la demande est acceptée.">
+  <div class="rule-head"><a class="rid" href="#PAY-R012">PAY-R012</a><span class="tag tag-new">nouvelle le 2026-10-02</span></div>
+  <h4 class="rule-title">Remboursement possible jusqu&#39;à 14 jours après la livraison</h4>
+  <p class="statement">Un remboursement ne peut être demandé que si la commande a été livrée il y a 14 jours ou moins.</p>
+  <p class="context">Le délai part de la livraison, pas de la commande. C&#39;est la façon dont le produit applique le droit de rétractation.</p>
+  <p class="meta"><span class="label">Paramètres</span> <code>14</code> jours, en dur dans la policy.</p>
+  <div class="cases"><span class="label">Cas particuliers</span><ul><li id="PAY-R012.E1">Étant donné une commande jamais livrée, quand le client demande un remboursement, alors la demande est refusée.</li><li id="PAY-R012.E2">Étant donné une livraison il y a exactement 14 jours, quand le client demande un remboursement, alors la demande est acceptée.</li></ul></div>
+  <p class="evidence"><span class="dot conf-verified" aria-hidden="true"></span>Prouvée par le code et un test · <a href="../../../app/Policies/OrderPolicy.php">OrderPolicy.php:9</a> · <a href="../../../tests/RefundTest.php">RefundTest.php:3</a></p>
+  <details class="history"><summary>Historique</summary><ul><li>2026-10-14 · modifiée · délai passé de 30 à 14 jours</li><li>2026-10-02 · créée</li></ul></details>
+  <aside class="question"><strong>À valider</strong> Les jours fériés comptent-ils dans les 14 jours ? Aujourd&#39;hui, oui.</aside>
+</article>
+<article class="rule" id="PAY-R019" data-kind="rule" data-category="authorization" data-confidence="read" data-status="active" data-search="pay-r019 un remboursement de plus de 500 € demande un administrateur un remboursement de plus de 500 € doit être approuvé par un administrateur avant d&#39;être versé. protège la boutique contre les remboursements importants faits par erreur depuis le support.">
+  <div class="rule-head"><a class="rid" href="#PAY-R019">PAY-R019</a><span class="tag tag-new">nouvelle le 2026-10-15</span></div>
+  <h4 class="rule-title">Un remboursement de plus de 500 € demande un administrateur</h4>
+  <p class="statement">Un remboursement de plus de 500 € doit être approuvé par un administrateur avant d&#39;être versé.</p>
+  <p class="context">Protège la boutique contre les remboursements importants faits par erreur depuis le support.</p>
+  
+  
+  <p class="evidence"><span class="dot conf-read" aria-hidden="true"></span>Lue dans le code, pas testée · <a href="../../../app/Services/RefundService.php">RefundService.php:6</a></p>
+  <details class="history"><summary>Historique</summary><ul><li>2026-10-15 · créée</li></ul></details>
+  
+</article>
+</section><section class="policy" data-kind="policy"><h3>1.2 Autres règles de gestion</h3><article class="rule" id="PAY-R020" data-kind="rule" data-category="integration" data-confidence="inferred" data-status="active" data-search="pay-r020 le remboursement revient sur le moyen de paiement d&#39;origine un remboursement est toujours renvoyé sur la carte utilisée pour la commande. déduit du nom de la méthode de paiement ; aucun chemin d&#39;exécution lu de bout en bout.">
+  <div class="rule-head"><a class="rid" href="#PAY-R020">PAY-R020</a></div>
+  <h4 class="rule-title">Le remboursement revient sur le moyen de paiement d&#39;origine</h4>
+  <p class="statement">Un remboursement est toujours renvoyé sur la carte utilisée pour la commande.</p>
+  <p class="context">Déduit du nom de la méthode de paiement ; aucun chemin d&#39;exécution lu de bout en bout.</p>
+  
+  
+  <p class="evidence"><span class="dot conf-inferred" aria-hidden="true"></span>Déduite des noms ou de la configuration</p>
+  
+  
+</article></section></section>
+<section class="domain is-empty" id="ORD"><h2>2. Commandes</h2><p class="lede">Du panier à la livraison.</p><p class="muted">pas encore extrait</p></section>
+<section class="to-validate" id="to-validate"><h2>À valider</h2><ul><li><span class="label">Question ouverte</span> <a href="#PAY-R012">PAY-R012</a> · Les jours fériés comptent-ils dans les 14 jours ? Aujourd&#39;hui, oui.</li></ul></section>
+<footer class="footer muted"><p>Généré par rulebook 0.1.0 depuis le commit a365123. 1 domaine(s) extrait(s) sur 2.</p></footer>
+</main>
+<script id="rulebook-labels" type="application/json">{"shown":"{n} affichées","noMatch":"Aucune règle ne correspond à ces filtres."}</script>
+<script>
+(() => {
+  const labels = JSON.parse(document.getElementById('rulebook-labels').textContent);
+  const root = document.documentElement;
+  try { const saved = localStorage.getItem('rulebook-theme'); if (saved) root.dataset.theme = saved; } catch { /* storage may be blocked */ }
+  document.getElementById('theme').addEventListener('click', () => {
+    const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme = dark ? 'light' : 'dark';
+    try { localStorage.setItem('rulebook-theme', root.dataset.theme); } catch { /* ignore */ }
+  });
+
+  const q = document.getElementById('q');
+  const kind = document.getElementById('f-kind');
+  const confidence = document.getElementById('f-confidence');
+  const category = document.getElementById('f-category');
+  const status = document.getElementById('f-status');
+  const shown = document.getElementById('shown');
+  const noMatch = document.getElementById('no-match');
+  const rules = [...document.querySelectorAll('article.rule')];
+  const policies = [...document.querySelectorAll('section.policy')];
+  const domains = [...document.querySelectorAll('section.domain:not(.is-empty)')];
+
+  function apply() {
+    const terms = q.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    const matches = (el) => terms.every((term) => (el.dataset.search || '').includes(term));
+    let count = 0;
+    for (const r of rules) {
+      const policy = r.closest('section.policy');
+      const ok = kind.value !== 'policy'
+        && (!confidence.value || r.dataset.confidence === confidence.value)
+        && (!category.value || r.dataset.category === category.value)
+        && (!status.value || r.dataset.status === status.value)
+        && (matches(r) || (policy && matches(policy)));
+      r.hidden = !ok;
+      if (ok) count++;
+    }
+    for (const p of policies) {
+      const anyRule = [...p.querySelectorAll('article.rule')].some((r) => !r.hidden);
+      const selfMatch = kind.value !== 'rule' && !confidence.value && !category.value && !status.value && p.dataset.search && matches(p);
+      p.hidden = !(anyRule || selfMatch);
+    }
+    const filtering = terms.length || kind.value || confidence.value || category.value || status.value;
+    for (const d of domains) d.hidden = Boolean(filtering) && ![...d.querySelectorAll('section.policy')].some((p) => !p.hidden);
+    shown.textContent = filtering ? labels.shown.replace('{n}', count) : '';
+    noMatch.hidden = !filtering || count > 0 || policies.some((p) => !p.hidden);
+  }
+  for (const el of [q, kind, confidence, category, status]) el.addEventListener('input', apply);
+})();
+
+</script>
+</body>
+</html>

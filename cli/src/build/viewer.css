@@ -1,0 +1,98 @@
+:root {
+  --bg: #fbfaf7; --surface: #f3f1ec; --text: #1f1e1b; --muted: #6b6860; --faint: #9a968c;
+  --line: #e4e0d7; --accent: #2f5d8a; --green: #1d7a55; --amber: #9a6512; --red: #b23b32;
+  --tag-new-bg: #e3f1e8; --tag-new: #1d6b48; --tag-changed-bg: #e4edf7; --tag-changed: #24527d;
+  --tag-retired-bg: #eeece6; --tag-retired: #6b6860; --question: #c9902e;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #171614; --surface: #211f1c; --text: #ebe8e1; --muted: #a7a399; --faint: #7d796f;
+    --line: #34312c; --accent: #8db8e3; --green: #6cc39b; --amber: #e0b062; --red: #ec8a80;
+    --tag-new-bg: #1f3a2d; --tag-new: #9fdcbd; --tag-changed-bg: #1f2f42; --tag-changed: #a9cbee;
+    --tag-retired-bg: #2a2825; --tag-retired: #a7a399; --question: #d8a650; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #171614; --surface: #211f1c; --text: #ebe8e1; --muted: #a7a399; --faint: #7d796f;
+  --line: #34312c; --accent: #8db8e3; --green: #6cc39b; --amber: #e0b062; --red: #ec8a80;
+  --tag-new-bg: #1f3a2d; --tag-new: #9fdcbd; --tag-changed-bg: #1f2f42; --tag-changed: #a9cbee;
+  --tag-retired-bg: #2a2825; --tag-retired: #a7a399; --question: #d8a650; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.65 var(--sans); }
+.page { max-width: 44rem; margin: 0 auto; padding: 3rem 1rem 4rem; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code { font: 0.88em var(--mono); background: var(--surface); padding: 0.05em 0.3em; border-radius: 4px; }
+h1 { font: 500 2rem/1.2 var(--sans); margin: 0.25rem 0 0.5rem; letter-spacing: -0.01em; }
+h2 { font: 500 1.45rem/1.3 var(--sans); margin: 0 0 0.4rem; }
+h2.small { font-size: 1rem; margin-bottom: 0.5rem; }
+h3 { font: 500 1.1rem/1.35 var(--sans); margin: 2rem 0 0.25rem; }
+.muted { color: var(--muted); }
+.lede { color: var(--muted); margin: 0 0 1rem; }
+.label { font-size: 0.8rem; text-transform: none; color: var(--muted); font-weight: 500; margin-right: 0.35rem; }
+.title-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.theme { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 999px; width: 2.2rem; height: 2.2rem; cursor: pointer; font-size: 1rem; }
+.masthead { margin-bottom: 2rem; }
+.since { background: var(--surface); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 2rem; }
+.since ul { list-style: none; padding: 0; margin: 0; }
+.since li { padding: 0.2rem 0; }
+.toc { margin-bottom: 2rem; }
+.toc ol { margin: 0; padding-left: 1.25rem; line-height: 2; }
+.controls { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; padding: 0.75rem 0; margin-bottom: 1rem; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--bg); z-index: 1; }
+.controls input, .controls select { font: inherit; font-size: 0.9rem; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 0.35rem 0.6rem; }
+.controls input { flex: 1 1 12rem; min-width: 0; }
+.domain { padding-top: 2.5rem; margin-top: 1rem; border-top: 1px solid var(--line); }
+.domain.is-empty h2 { color: var(--muted); }
+.policy-statement { font-family: var(--serif); font-size: 1.05rem; color: var(--muted); margin: 0 0 0.5rem; }
+.rule { padding: 1.1rem 0; border-bottom: 1px solid var(--line); }
+.rule:last-child { border-bottom: 0; }
+.rule.is-retired { opacity: 0.6; }
+.rule-head { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; }
+.rid { font-family: var(--mono); color: var(--faint); }
+.rule-title { font: 500 1rem/1.4 var(--sans); margin: 0.25rem 0 0.15rem; }
+.statement { font: 1.12rem/1.65 var(--serif); margin: 0.2rem 0 0.4rem; }
+.context { color: var(--muted); margin: 0 0 0.5rem; }
+.meta, .cases, .evidence { font-size: 0.9rem; color: var(--muted); margin: 0.35rem 0; }
+.cases ul { margin: 0.15rem 0 0; padding-left: 1.1rem; }
+.dot { display: inline-block; width: 0.5rem; height: 0.5rem; border-radius: 50%; margin-right: 0.45rem; vertical-align: 0.08em; background: var(--faint); }
+.conf-verified { background: var(--green); } .conf-read { background: var(--accent); }
+.conf-inferred { background: var(--faint); } .conf-conflicting { background: var(--red); }
+.tag { font-size: 0.75rem; padding: 0.05rem 0.5rem; border-radius: 6px; }
+.tag-new { background: var(--tag-new-bg); color: var(--tag-new); }
+.tag-changed { background: var(--tag-changed-bg); color: var(--tag-changed); }
+.tag-retired { background: var(--tag-retired-bg); color: var(--tag-retired); }
+.history { font-size: 0.85rem; color: var(--muted); }
+.history summary { cursor: pointer; }
+.question { border-left: 2px solid var(--question); padding: 0.1rem 0 0.1rem 0.9rem; margin-top: 0.6rem; color: var(--muted); }
+.question strong { color: var(--text); font-weight: 500; }
+.to-validate { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--line); }
+.to-validate ul { padding-left: 1.1rem; }
+.to-validate li { margin: 0.35rem 0; }
+.footer { margin-top: 3rem; font-size: 0.85rem; }
+.pending { margin: 0.6rem 0 0; font-size: 0.9rem; }
+[hidden] { display: none !important; }
+[id] { scroll-margin-top: 5.5rem; }
+@media (max-width: 30rem) {
+  .page { padding-top: 1.5rem; } h1 { font-size: 1.6rem; } .statement { font-size: 1.05rem; }
+  .controls { position: static; }
+  [id] { scroll-margin-top: 1rem; }
+}
+@media print {
+  :root, :root[data-theme="dark"], :root:not([data-theme="light"]) {
+    --bg: #fff; --surface: #f3f1ec; --text: #000; --muted: #444; --faint: #666; --line: #ccc;
+    --accent: #000; --tag-new-bg: #fff; --tag-new: #000; --tag-changed-bg: #fff; --tag-changed: #000;
+    --tag-retired-bg: #fff; --tag-retired: #444; --question: #999; color-scheme: light;
+  }
+  .controls, .theme { display: none; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  .page { max-width: none; padding: 0; }
+  .rule { break-inside: avoid; }
+  .since { background: none; border: 1px solid #ccc; }
+  a { color: inherit; }
+}
