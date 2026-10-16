@@ -84,3 +84,15 @@ test('comparisons with constants or configuration, calculations, booleans and st
     assert.equal(classifyLine(line, 'src/X.js'), null, line);
   }
 });
+
+test('in templates, styling is not a decision point, but template conditions are', () => {
+  const view = 'resources/views/gameplay/end.blade.php';
+  for (const line of [
+    '<div style="padding:12px 20px max(env(safe-area-inset-bottom,24px),24px);">',
+    `<div style="font-size:22px;font-weight:800;color:{{ $n === 0 ? 'green' : 'red' }}">`,
+    `<p class="text-sm">{{ $count }} énigme{{ $count > 1 ? 's' : '' }}</p>`,
+  ]) assert.equal(classifyLine(line, view), null, line);
+  assert.equal(classifyLine(`@if($stats['puzzles_revealed'] > 0)`, view), 'condition');
+  assert.equal(classifyLine("  {% if order.total >= 50 %}", 'src/views/cart.njk'), 'condition');
+  assert.equal(classifyLine("if ($ratio >= 1) $badges[] = ['label' => 'Parcours parfait'];", view), 'condition');
+});

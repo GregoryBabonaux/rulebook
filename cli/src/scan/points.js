@@ -57,9 +57,15 @@ const SCHEMA = /->(unique|nullable|default|foreign|constrained|primary|unsigned)
 const COMMENT = /^(\/\/|#|\*|\/\*|--|<!--|\{\{--)/;
 const IMPORT = /^(use|import|from|require|using|package|namespace|#include)\b/;
 
+const TEMPLATE_FILE = /\.(blade\.php|html?|njk|twig|vue|svelte|erb|hbs|jinja2?|j2|liquid|ejs)$/i;
+const MARKUP = /<\/?[a-zA-Z][\w-]*[\s>/]|\b(style|class)\s*=/;
+const TEMPLATE_CONDITION = /@(if|elseif|unless|switch|case)\b|\{%-?\s*(if|elif|elsif|unless|when)\b|\bv-(if|else-if|show)\s*=|\bx-(if|show)\s*=/;
+
 export function classifyLine(line, file) {
   const code = line.trim();
   if (!code || COMMENT.test(code) || IMPORT.test(code)) return null;
+  // in a template, markup and styling are not decisions; a template condition is
+  if (TEMPLATE_FILE.test(file) && MARKUP.test(code) && !TEMPLATE_CONDITION.test(code)) return null;
   if (SCHEMA_FILE.test(file) && SCHEMA.test(code)) return 'schema';
   for (const [kind, patterns] of FAMILIES) {
     if (patterns.some((re) => re.test(code))) return kind;
