@@ -53,7 +53,7 @@ if (kind === 'edge') {
   const edges = acc.flatMap((c) => c.edgeCases);
   const prc = all.find((c) => c.id === 'PRC-R002');
   check('lockout: 5th attempt case', edges.some((e) => /\b(5|fifth|5th)\b/i.test(e.text)), edges.map((e) => e.text).join(' / '));
-  check('lockout: expiry instant case', edges.some((e) => /15/.test(e.text) && /(exact|instant|moment|precisely|at the)/i.test(e.text)));
+  check('lockout: expiry instant case', edges.some((e) => /lock/i.test(e.text) && /(exact|instant|moment|precisely)/i.test(e.text) && /(expir|until|ends|over)/i.test(e.text)));
   check('coupon: expiry instant case', (prc?.edgeCases ?? []).some((e) => /expir/i.test(e.text)));
   const allEdges = all.flatMap((c) => c.edgeCases);
   check('Given/When/Then wording', allEdges.length > 0 && allEdges.every((e) => /given/i.test(e.text) && /when/i.test(e.text) && /then/i.test(e.text)));
