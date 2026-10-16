@@ -29,7 +29,8 @@ One file per domain: `rulebook/<CODE>-<slug>.md`, starting with `# <CODE> · <Ti
    large (more than about 80 points to review or 3,000 lines), split the reading between
    parallel readers when you can start sub-agents: one sub-area each, its list of points,
    and the instruction to return each decision with its exact lines, the tests that assert
-   it, dead code and open gaps. You write the cards.
+   it, dead code and open gaps. **Wait for every reader to finish** before writing: never
+   hand back while a reader is still running. You write the cards.
 1. **Read from the entry points** of the domain (routes, commands, jobs, exported functions)
    down to the code that decides. Note each decision: a check that refuses, a calculation,
    a state change, a permission, a limit, a constraint.
