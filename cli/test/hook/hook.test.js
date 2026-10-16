@@ -70,3 +70,22 @@ test('unknown agent prints plain text lines', async () => {
   await run(['hook', 'kiro', 'post-edit'], io);
   assert.equal(io.out, `${L[0]}\n`);
 });
+
+test('a plugin hook stays silent when the project has its own rulebook hooks', async () => {
+  const repo = await changedRepo();
+  fs.mkdirSync(path.join(repo.dir, '.claude'), { recursive: true });
+  fs.writeFileSync(path.join(repo.dir, '.claude/settings.json'), JSON.stringify({ hooks: { PostToolUse: [{ hooks: [{ type: 'command', command: 'rb hook claude post-edit --stamp 0.1.0' }] }] } }));
+  const viaPlugin = fakeIo(repo.dir, { stdin: '' });
+  await run(['hook', 'claude', 'post-edit', '--via', 'plugin'], viaPlugin);
+  assert.equal(viaPlugin.out, '');
+  const project = fakeIo(repo.dir, { stdin: '' });
+  await run(['hook', 'claude', 'post-edit'], project);
+  assert.match(project.out, /PAY-R012 may have changed/);
+});
+
+test('a plugin hook answers normally when the project has no rulebook hooks', async () => {
+  const repo = await changedRepo();
+  const io = fakeIo(repo.dir, { stdin: '' });
+  await run(['hook', 'claude', 'post-edit', '--via', 'plugin'], io);
+  assert.match(io.out, /PAY-R012 may have changed/);
+});

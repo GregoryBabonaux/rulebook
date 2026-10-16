@@ -66,6 +66,6 @@ test('update refreshes installed adapters with the stored bin and prints skill c
   assert.equal(json.hooks.PostToolUse.length, 1);
   assert.equal(json.hooks.PostToolUse[0].hooks[0].command, `${BIN} hook claude post-edit --stamp ${VERSION} || true`);
   assert.match(io.out, /updated for claude, cursor/);
-  assert.match(io.out, /claude plugin update rulebook@<marketplace>/);
+  assert.match(io.out, /claude plugin update rulebook@rulebook/);
   assert.match(io.out, /npx skills update/);
 });

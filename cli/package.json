@@ -3,9 +3,28 @@
   "version": "0.1.0",
   "description": "Keeps a living reference of a codebase's business rules: evidence index and change detection.",
   "type": "module",
-  "bin": { "rulebook": "bin/rulebook.js" },
-  "files": ["bin", "src"],
-  "engines": { "node": ">=20" },
-  "scripts": { "test": "node --test \"test/**/*.test.js\"" },
-  "license": "MIT"
+  "bin": {
+    "rulebook": "bin/rulebook.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "skills",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"test/**/*.test.js\"",
+    "prepack": "node ../scripts/bundle-skills.mjs"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/<owner>/rulebook.git",
+    "directory": "cli"
+  },
+  "homepage": "https://github.com/<owner>/rulebook#readme"
 }

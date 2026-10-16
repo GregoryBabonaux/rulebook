@@ -37,7 +37,11 @@ export function diagnose(root, version) {
     const text = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
     const stamp = text.includes(` hook ${a.agent} `) ? text.match(STAMP)?.[1] : null;
     if (!stamp) {
-      if (detected.includes(a.agent)) warn(`${a.agent}: detected but no rulebook hooks — run rulebook init`);
+      if (detected.includes(a.agent)) {
+        warn(a.agent === 'claude'
+          ? 'claude: detected but no project rulebook hooks — fine if the rulebook plugin is installed, otherwise run rulebook init'
+          : `${a.agent}: detected but no rulebook hooks — run rulebook init`);
+      }
       continue;
     }
     if (stamp === version) ok(`${a.agent}: hooks installed`);
