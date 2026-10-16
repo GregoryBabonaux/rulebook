@@ -57,3 +57,4 @@ a one-line description and the places in the code where its rules live. Nothing 
 | `hotspots: []` | Globs for every domain's rule-bearing code |
 | A bare list of domain names | Details under each domain; the map is read on its own |
 | Stopping at the Markdown | `rulebook build`: the HTML is the deliverable |
+| Writing or touching up the HTML yourself | Only `rulebook build` writes it (`references/cli.md`) |

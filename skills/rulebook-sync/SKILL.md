@@ -49,6 +49,7 @@ means* for the rule, propose it, and apply it only after the human validates.
 
 ## Boundaries
 Write only under `rulebook/`. Never edit source or tests, never commit unless asked.
+- If `rulebook/rulebook.html` exists, finish with `rulebook build` so the document matches the cards. Never edit the HTML yourself (`references/cli.md`).
 
 ## Common mistakes
 | Mistake | Instead |

@@ -155,3 +155,10 @@ test('app shell: sidebar with search, views and coloured domain links', () => {
   assert.match(map.domains[0].color, /^#[0-9a-f]{6}$/i);
   assert.notEqual(map.domains[0].color, map.domains[1].color);
 });
+
+test('the document is signed by the generator and fully reproducible', () => {
+  const a = renderHtml(data());
+  const b = renderHtml(data());
+  assert.equal(a, b, 'same cards, same file, byte for byte');
+  assert.match(a, /<meta name="generator" content="rulebook-cli 0\.1\.0">/);
+});

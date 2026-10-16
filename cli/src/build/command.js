@@ -23,7 +23,11 @@ export function runBuild(io, opts, version) {
   try { project = loadProject(io.cwd, opts.dir); } catch (err) { io.stderr.write(`rulebook: ${err.message}\n`); return 1; }
   if (!project) { io.stderr.write(`rulebook: no ${opts.dir}/ folder in this git repository\n`); return 1; }
 
-  const today = localDate(io.now ? io.now() : new Date());
+  // SOURCE_DATE_EPOCH (reproducible-builds.org) pins the date, so the same cards give the same file
+  const epoch = Number(io.env?.SOURCE_DATE_EPOCH);
+  const today = Number.isFinite(epoch) && io.env.SOURCE_DATE_EPOCH !== ''
+    ? new Date(epoch * 1000).toISOString().slice(0, 10)
+    : localDate(io.now ? io.now() : new Date());
   const publishedPath = path.join(project.dir, '.published.json');
   let published = null;
   try { published = JSON.parse(readText(publishedPath) || 'null'); } catch { published = null; }

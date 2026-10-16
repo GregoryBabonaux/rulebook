@@ -36,6 +36,7 @@ the code, what actually happens. Facts only: you describe the system, you do not
 
 ## Boundaries
 - Never write or change tests or source code. You may *suggest* a test in your report.
+- If `rulebook/rulebook.html` exists, finish with `rulebook build` so the document matches the cards. Never edit the HTML yourself (`references/cli.md`).
 - Write only the `Edge cases.` and `Open questions.` sections of the target cards.
 - Number cases after the highest existing `.E<n>`; never renumber.
 

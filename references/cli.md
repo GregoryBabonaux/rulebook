@@ -11,6 +11,11 @@ manual fallback for environments without Node.
 | To publish | `rulebook build` → `rulebook/rulebook.html` | Leave the Markdown as the deliverable; say the HTML could not be built. |
 | To check the installation | `rulebook doctor --quiet` | — |
 
+**The HTML document is only ever produced by `rulebook build`.** Never write, rewrite or patch
+`rulebook.html` yourself, and never generate an HTML page of your own in its place: every
+rulebook, in every project, must be the same document. Without the CLI, deliver the Markdown
+and say the HTML could not be built. `rulebook doctor` flags an HTML file the CLI did not sign.
+
 ## The inbox — `rulebook/inbox.md`
 Written by `rulebook check` and the agent hooks:
 

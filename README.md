@@ -110,6 +110,8 @@ rulebook update     # refresh hooks and skill copies installed by the CLI
 
 Node 22 or later, no dependencies. Without Node, the skills fall back to manual checks.
 
+**One document, for everyone.** `rulebook.html` is never written by the agent: only `rulebook build` renders it, from a template shipped in the package, with no AI involved. The same CLI version and the same cards give the same file, byte for byte (set `SOURCE_DATE_EPOCH` to pin the date). The file is signed with `<meta name="generator" content="rulebook-cli x.y.z">`, and `rulebook doctor` flags one the CLI did not produce.
+
 ## Updates
 
 skills, CLI and hooks share one version.

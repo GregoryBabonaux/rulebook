@@ -27,3 +27,4 @@ it never changes the cards.
 ## Boundaries
 - Never send content outside the machine without an explicit yes for that destination.
 - Do not commit `rulebook.html` or `.published.json` unless asked.
+- Only `rulebook build` writes `rulebook.html`: never write, patch or replace it yourself (`references/cli.md`).

@@ -183,6 +183,7 @@ export function renderHtml(model, { evidenceBase = '..' } = {}) {
 <html lang="${lang}">
 <head>
 <meta charset="utf-8">
+<meta name="generator" content="rulebook-cli ${escapeHtml(data.project.version)}">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(L.title)} · ${escapeHtml(data.project.name)}</title>
 <style>

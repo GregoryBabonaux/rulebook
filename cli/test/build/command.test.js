@@ -75,3 +75,11 @@ test('evidence links follow the output location; a non-http repoUrl is refused',
   assert.doesNotMatch(html, /javascript:/);
   assert.match(io.err, /repoUrl must start with http:\/\/ or https:\/\//);
 });
+
+test('SOURCE_DATE_EPOCH pins the build date, for reproducible documents', async () => {
+  const repo = makeRepo(baseFiles());
+  const io = fakeIo(repo.dir);
+  io.env = { ...io.env, SOURCE_DATE_EPOCH: String(Date.parse('2025-03-04T12:00:00Z') / 1000) };
+  await run(['build'], io);
+  assert.match(fs.readFileSync(path.join(repo.dir, 'rulebook/rulebook.html'), 'utf8'), /class="hero-meta">2025-03-04 · /);
+});

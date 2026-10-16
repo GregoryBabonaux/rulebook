@@ -54,6 +54,7 @@ One file per domain: `rulebook/<CODE>-<slug>.md`, starting with `# <CODE> · <Ti
 
 ## Boundaries
 Write only under `rulebook/`. Never change source code or tests. Next free IDs only (`ids.md`).
+- If `rulebook/rulebook.html` exists, finish with `rulebook build` so the document matches the cards. Never edit the HTML yourself (`references/cli.md`).
 
 ## Common mistakes
 | Mistake | Instead |
