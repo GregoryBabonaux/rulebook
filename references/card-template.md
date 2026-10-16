@@ -44,6 +44,18 @@ One paragraph describing the domain.
 ### PAY-R020 · …
 ```
 
+## Domain map — `rulebook/index.md`
+
+```markdown
+# Business domains
+
+- **PAY** · Payments — How the shop takes and refunds money.
+- **STK** · Stock — Inventory and reservations.
+```
+
+One line per domain: `- **CODE** · Title — one-sentence description`. Domains listed here
+without a domain file yet are shown as "not extracted yet".
+
 ## Syntax rules
 
 - **Metadata line:** `- **Label:** value`, with segments separated by ` · `. Put the colon inside the bold.
