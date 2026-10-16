@@ -54,3 +54,23 @@ only tests call, two contradictory password minimums, a rule decided in a templa
 - The gain is on mechanical errors; a test cited that does not assert the rule is now the
   main failure, and the next thing to check mechanically.
 - Found while running: the agent handed back before its parallel readers finished (skill fixed).
+
+### JEU, third run (skill with every-branch, asserting tests, audit checklist, scan follow)
+
+| | v1 (0.1.0) | v2 (scan) | v3 (precision) |
+|---|---|---|---|
+| Cards | 43 | 78 | 37 |
+| Old rules found again | — | 46 / 48 | 46 / 48 |
+| First audit failures | 21 / 43 (49 %) | 17 / 78 (22 %) | 6 / 37 (16 %) |
+| — statement wrong or too broad | ~5 | 8 | 2 |
+| — a cited test does not assert the rule | ~8 | 9 | 1 |
+| — edge case or detail | — | — | 4 |
+| not-rules.md sample wrong (every 3rd entry) | — | 1 / 25 | 0 / 30 |
+
+- v3 groups decisions into fewer, broader cards (2.2 enforcement lines per card, against 1.7)
+  and leaves the admin field review to PAR, as the map says: 63 of v2's 78 cards are covered.
+  The skill now asks for one card per decision.
+- The scan follow found the recap badges (Blade view), missed by v1 and v2.
+- A name-based check "the cited test mentions the rule's class or method" was tried and
+  dropped: 12 hints on v2, only 2 of them among the 10 cards the audit failed for a test.
+- v3 is installed in Cluengo after fixing its 6 audit failures.
