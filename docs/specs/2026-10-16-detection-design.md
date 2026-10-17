@@ -8,7 +8,7 @@ Date: 2026-10-16. Status: approved by Grégory ("fais tout"). Follows the main d
 REA (morluto/rea) is powerful because deterministic tools do the reading and return facts
 with their evidence, limitations and coverage; the agent orchestrates. rulebook did the
 opposite: the agent read the code and decided alone what was a rule. The first real
-extraction (Cluengo, domain JEU, 43 rules) showed the cost:
+extraction (a real Laravel project, domain JEU, 43 rules) showed the cost:
 - 21 cards out of 43 failed the first blind audit, mostly for mechanical reasons
   (evidence outside the deciding lines, a cited test that does not assert the claim, a
   parameter at the wrong line);
@@ -42,7 +42,7 @@ extraction (Cluengo, domain JEU, 43 rules) showed the cost:
    check reports as dead code; it splits large domains between parallel readers with
    distinct scopes; it may run the cited tests only when they cannot touch a real database.
    `rulebook-map` writes `Code` details as backticked paths or globs, which the scan uses.
-6. **Measure.** The shop fixture gains the traps seen on Cluengo: client-trusted state, a
+6. **Measure.** The shop fixture gains the traps seen on that project: client-trusted state, a
    method called only by tests, two contradictory thresholds, a rule decided in a view.
    The scorer checks them; the scan has its own deterministic recall test.
 

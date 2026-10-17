@@ -60,7 +60,7 @@ export function score(rulebookDir, expected, appRoot = path.dirname(rulebookDir)
         && !rulesCitingTrapFiles.some((c) => new RegExp(`\\b${lyingComment.mustNotMention}\\b`).test(statementOf(c))) ? 'pass' : 'fail',
       deadCode: rules.some((c) => c.evidence.some((ev) => overlaps(ev, deadCode))) ? 'fail' : 'pass',
       technicalChoice: technicalCards.every((c) => !c.policy && !c.meta.implements) ? 'pass' : 'fail',
-      // traps seen on a real codebase (Cluengo): code only tests call gets no card
+      // traps seen on a real Laravel codebase: code only tests call gets no card
       testOnly: rules.some((c) => c.evidence.some((ev) => overlaps(ev, testOnly))) ? 'fail' : 'pass',
       // a rule decided on a value the client sends must say so
       clientTrusted: cardsFor(clientTrusted.rule).some((c) => clientTrusted.mentions.some((m) => `${c.sections.context ?? ''} ${c.sections.openQuestions ?? ''}`.toLowerCase().includes(m))) ? 'pass' : 'fail',

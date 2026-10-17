@@ -419,7 +419,7 @@ rulebook/
 - **Adapter tests:** for each agent, a recorded hook payload goes through `rulebook hook`, and the output must match that agent's expected format.
 - **End-to-end companion test**, scripted in headless Claude Code and in at least one other agent (Codex or Vibe). Three edit paths, direct, sub-agent and shell, must all produce an inbox entry.
 - **Skill evals** on a fixture app with a hand-written ground-truth catalogue (around 30 rules, of which 10 are policies, plus edge cases). The metrics are rule recall and precision, citation validity (100% expected after the audit), and policy-vs-rule agreement.
-- **Dogfooding:** the first real run is on Cluengo (Laravel). A second run on a well-known open-source project produces `examples/`.
+- **Dogfooding:** the first real run is on a real Laravel project. A second run on a well-known open-source project produces `examples/`.
 
 ## 10. Spike evidence (2026-10-15, throwaway)
 
@@ -451,7 +451,7 @@ Not verified: whether `systemMessage` is displayed in an interactive session (he
 
 ## 12. Decisions log (from brainstorming)
 
-1. Generic pack, for any codebase. Cluengo is the first test ground.
+1. Generic pack, for any codebase. A real Laravel project is the first test ground.
 2. Three levels, each validated before the next. *Amended 2026-10-16:* each level writes its cards and builds the HTML first, then offers corrections; the user reviews the document, not a chat summary. Sync keeps its validation before rewriting validated cards.
 3. Policy = why, rule = how, linked by `implements`.
 4. Readers are both business and dev: plain language on top, evidence below.

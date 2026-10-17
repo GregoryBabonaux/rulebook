@@ -1,6 +1,6 @@
 # rulebook-extract — scan and coverage (plan "stronger detection"), sonnet, 2026-10-16
 
-Fixture: the shop with the traps seen on Cluengo (a discount on a client-sent flag, a function
+Fixture: the shop with the traps seen on a real Laravel project (a discount on a client-sent flag, a function
 only tests call, two contradictory password minimums, a rule decided in a template).
 
 | Run | Skill | CLI | Criteria | Recall | Precision | Traps |
@@ -11,7 +11,7 @@ only tests call, two contradictory password minimums, a rule decided in a templa
 
 - The baseline misses only the two new criteria: three decision points left unaccounted for
   (two dead functions, a unit constant) and no Scope paragraph. On nine files a careful agent
-  reads everything; the scan matters on large domains (Cluengo JEU: 122 points the first
+  reads everything; the scan matters on large domains (the real project's JEU domain: 122 points the first
   extraction never examined).
 - Both green runs ran the scan first, dismissed dead code in `not-rules.md` with a reason,
   and left 0 points to review.
@@ -22,7 +22,7 @@ only tests call, two contradictory password minimums, a rule decided in a templa
   reachability counted an export list as a call; the fixture's functions were not wired to any
   route, and its login route was inverted (flagged by the 4b blind audit).
 
-## On a real project (Cluengo, Laravel), 2026-10-16
+## On a real Laravel project, 2026-10-16
 
 | Domain | Skill | Rules | Decision points examined | First blind audit |
 |---|---|---|---|---|
@@ -73,7 +73,7 @@ only tests call, two contradictory password minimums, a rule decided in a templa
 - The scan follow found the recap badges (Blade view), missed by v1 and v2.
 - A name-based check "the cited test mentions the rule's class or method" was tried and
   dropped: 12 hints on v2, only 2 of them among the 10 cards the audit failed for a test.
-- v3 is installed in Cluengo after fixing its 6 audit failures.
+- v3 is installed in the project after fixing its 6 audit failures.
 
 ### JEU, fourth run (one card per decision, readers in the foreground)
 

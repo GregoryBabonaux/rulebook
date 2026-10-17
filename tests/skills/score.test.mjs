@@ -39,7 +39,7 @@ test('a degraded rulebook scores lower', () => {
   assert.equal(s.traps.deadCode, 'fail');
 });
 
-test('the Cluengo traps fail when a rulebook falls into them', () => {
+test('the traps seen on a real project fail when a rulebook falls into them', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'rulebook-score-'));
   for (const f of fs.readdirSync(GOLDEN)) fs.copyFileSync(path.join(GOLDEN, f), path.join(tmp, f));
   const acc = path.join(tmp, 'ACC-accounts.md');
