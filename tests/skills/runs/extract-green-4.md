@@ -92,3 +92,20 @@ only tests call, two contradictory password minimums, a rule decided in a templa
 - What remains is citations: a test from the neighbouring case, or an edge case whose value
   differs from the test it cites. The two auditors of v4 disagree in severity (10 / 31 and
   1 / 31): audit variance is of the same order as the differences between v3 and v4.
+
+### JEU, fifth run, audited twice independently (citation rules added to the skill)
+
+67 cards (1.7 enforcement lines per card), 0 points to review, 168 not-rules written by hand.
+
+| | Auditor A | Auditor B | Both | Either |
+|---|---|---|---|---|
+| Failures | 13 (19 %) | 13 (19 %) | 8 (12 %) | 18 (27 %) |
+
+- Agreed failures: statements broader than the code (a quiz without coordinates is not open at
+  once — the same trap as in v2 and v4 —, the reveal button shown to guests, abandoning a
+  closed quiz still advances), one missing enforcement line, one `verified` without a test of
+  the condition, one wrong context claim about normalisation.
+- One audit catches about 70 % of what two catch: the skill now asks for two independent
+  auditors above ~30 cards and fixes the union.
+- Across five runs, first-audit failures settle around 15-20 % (from 49 % with 0.1.0); the audit
+  step exists to catch them, and the double audit leaves fewer behind.

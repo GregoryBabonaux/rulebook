@@ -68,8 +68,10 @@ One file per domain: `rulebook/<CODE>-<slug>.md`, starting with `# <CODE> · <Ti
    referenced only by tests, or never, is probably dead — check, and remove its card if so.
    Run `rulebook scan --domain <CODE>` again until no point is left to review.
 6. **Blind audit.** If you can start a sub-agent, give it only the card files, the repository
-   and the checklist of `references/audit.md`, unchanged (split a large domain between two
-   auditors). Otherwise, do it yourself as a separate pass with that checklist, reading only
+   and the checklist of `references/audit.md`, unchanged. For more than about 30 rule cards,
+   run **two independent auditors on every card** and fix the union of their failures: on a
+   67-card domain each auditor found 13 failures, they agreed on 8, and each missed 5 of the
+   other's. Split very large domains in halves to keep each audit short. Otherwise, do it yourself as a separate pass with that checklist, reading only
    the cards and the cited lines — not your notes. **Wait for the audit result before going on**: if
    sub-agents run in the background, wait for it to finish; never stop or hand back with
    `Audit: pending`. Set `Audit: passed` or `failed: <reason>`; fix or downgrade (`inferred`)
