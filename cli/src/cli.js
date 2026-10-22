@@ -13,6 +13,7 @@ import { runBuild } from './build/command.js';
 import { runSkills } from './install/skills.js';
 import { runScan } from './scan/run.js';
 import { runData } from './data/command.js';
+import { runExport } from './export/okf.js';
 
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 export const VERSION = pkg.version;
@@ -105,6 +106,7 @@ Usage: rulebook <command> [options]
   scan     list the decision points of the hotspots and their coverage by cards [--domain <CODE>] [--format md|json]
   check    match code changes against the index and write rulebook/inbox.md [--staged | --since <sha>] [--format json] [--strict]
   build    render rulebook/rulebook.html [--since <YYYY-MM-DD>] [--out <path>]
+  export   write the rulebook as an Open Knowledge Format (OKF 0.2) bundle: export okf [--out <dir>]
   data     read a SQL dump or a JSON export, read only: data <source> tables | data <source> rows <table> [--where c=v] [--columns a,b] [--limit n] [--count]
   hook     answer an agent hook: rulebook hook <agent> <post-edit|stop>
   init     install the companion: agent hooks, AGENTS.md block, pre-commit [--agents a,b] [--bin <cmd>] [--yes]
@@ -120,6 +122,7 @@ Common option: --dir <folder> (default: rulebook)
   if (cmd === 'check') return runCheck(io, opts);
   if (cmd === 'scan') return runScan(io, opts);
   if (cmd === 'data') return runData(io, rest);
+  if (cmd === 'export') return runExport(io, rest, opts, VERSION);
   if (cmd === 'build') return runBuild(io, opts, VERSION);
   if (cmd === 'init') return runInit(io, opts, VERSION);
   if (cmd === 'doctor') return runDoctor(io, opts, VERSION);
@@ -130,6 +133,6 @@ Common option: --dir <folder> (default: rulebook)
     const extra = positional[1] === 'stop' ? () => { const n = notice(io); return n ? [n] : []; } : () => [];
     return runHook(io, positional[0] ?? '', positional[1] ?? '', opts, extra);
   }
-  io.stderr.write(`rulebook: unknown command "${cmd ?? ''}". Commands: index, scan, check, build, hook, init, doctor, update, skills, data\n`);
+  io.stderr.write(`rulebook: unknown command "${cmd ?? ''}". Commands: index, scan, check, build, hook, init, doctor, update, skills, data, export\n`);
   return 1;
 }
