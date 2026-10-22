@@ -161,6 +161,8 @@ rulebook index      # reconstruye el índice de pruebas, informa de problemas
 rulebook scan       # lista los puntos de decisión que ninguna ficha cubre todavía
 rulebook check      # detecta cambios de reglas, escribe la bandeja de entrada
 rulebook build      # genera rulebook/rulebook.html
+rulebook export okf  # la referencia como bundle Open Knowledge Format
+rulebook data       # lee un dump SQL o un export JSON, solo lectura
 rulebook doctor     # comprueba la instalación
 rulebook update     # refresca los hooks y las copias de skills instalados por la CLI
 rulebook --help
@@ -181,6 +183,10 @@ El agente nunca escribe `rulebook.html`. Solo `rulebook build` lo genera, a part
 **¿Cómo sé si una regla es correcta?** Cada regla cita las líneas que la deciden y lleva un nivel de confianza: *probada por el código y un test*, *leída en el código*, *deducida* o *contradictoria*. Una auditoría a ciegas la verifica: una segunda pasada que solo ve la ficha y el código citado. `rulebook index --strict` falla cuando una cita ya no existe. También falla cuando un símbolo citado no está en sus líneas, y señala los métodos que solo llaman los tests. Para encontrar las reglas que nadie escribió, `rulebook scan` lista los puntos de decisión del código (rechazos, condiciones sobre valores fijos, permisos, límites, cambios de estado) que ninguna ficha cubre, y el documento muestra esa cobertura por dominio.
 
 **¿Cómo se prueba?** Con una aplicación de prueba llena de trampas (un comentario que miente, código muerto, una decisión técnica disfrazada de regla) y un evaluador. Cada skill se ejecutó primero *sin* la skill para observar los fallos, y después se escribió para corregirlos. Consulta [`tests/skills/runs/`](https://github.com/GregoryBabonaux/rulebook/tree/main/tests/skills/runs).
+
+**¿Puede leer mis datos?** Sí, en solo lectura. La primera vez que se ejecuta una skill, propone usar una base de datos a la que tu agente accede mediante un servidor MCP, un dump SQL o un export JSON, y guarda tu respuesta en `rulebook/config.json`. Los datos revelan reglas que el código solo esconde: un tipo de IVA guardado por producto, un plazo en una tabla de ajustes, o un libro al 20 % cuando la regla dice 5,5 %. Las fichas citan tablas, recuentos e ids, nunca datos personales. `rulebook data` lee dumps y exports sin servidor de base de datos.
+
+**¿Puedo usar las reglas en otras herramientas?** `rulebook export okf` escribe la referencia como bundle [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf): un archivo Markdown por dominio, política y regla, con sus fuentes, su auditoría y su historial, para catálogos de datos, wikis y otros agentes. Las skills también leen, como contexto, el conocimiento OKF que ya tenga tu proyecto.
 
 **¿Dónde está el formato de las fichas?** En [`references/card-template.md`](https://github.com/GregoryBabonaux/rulebook/blob/main/references/card-template.md).
 

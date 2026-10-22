@@ -161,6 +161,8 @@ rulebook index      # Beleg-Index neu aufbauen, Probleme melden
 rulebook scan       # Entscheidungspunkte auflisten, die noch keine Karte abdeckt
 rulebook check      # Regeländerungen erkennen, den Posteingang schreiben
 rulebook build      # rulebook/rulebook.html erzeugen
+rulebook export okf  # das Rulebook als Open-Knowledge-Format-Bundle
+rulebook data       # einen SQL-Dump oder JSON-Export lesen, nur lesend
 rulebook doctor     # die Installation prüfen
 rulebook update     # die von der CLI installierten Hooks und Skill-Kopien auffrischen
 rulebook --help
@@ -181,6 +183,10 @@ Der Agent schreibt `rulebook.html` nie selbst. Nur `rulebook build` erzeugt die 
 **Woher weiß ich, dass eine Regel stimmt?** Jede Regel nennt die Zeilen, die sie entscheiden, und trägt eine Vertrauensstufe: *durch Code und Test belegt*, *im Code gelesen*, *abgeleitet* oder *widersprüchlich*. Ein Blind-Audit prüft sie: ein zweiter Durchgang, der nur die Karte und den zitierten Code sieht. `rulebook index --strict` schlägt fehl, wenn ein Zitat nicht mehr existiert. Er schlägt auch fehl, wenn ein zitiertes Symbol nicht in seinen Zeilen steht, und meldet Methoden, die nur Tests aufrufen. Um Regeln zu finden, die niemand aufgeschrieben hat, listet `rulebook scan` die Entscheidungspunkte des Codes (Ablehnungen, Bedingungen auf feste Werte, Berechtigungen, Limits, Zustandswechsel), die keine Karte abdeckt, und das Dokument zeigt diese Abdeckung pro Domäne.
 
 **Wie wird es getestet?** Mit einer Test-App voller Fallen (ein lügender Kommentar, toter Code, eine als Regel getarnte technische Entscheidung) und einem Bewertungsskript. Jede Skill wurde zuerst *ohne* die Skill ausgeführt, um die Fehler zu beobachten, und dann so geschrieben, dass sie diese behebt. Siehe [`tests/skills/runs/`](https://github.com/GregoryBabonaux/rulebook/tree/main/tests/skills/runs).
+
+**Kann es meine Daten lesen?** Ja, nur lesend. Beim ersten Aufruf einer Skill bietet rulebook an, eine Datenbank zu nutzen, die Ihr Agent über einen MCP-Server erreicht, einen SQL-Dump oder einen JSON-Export, und merkt sich Ihre Antwort in `rulebook/config.json`. Daten zeigen Regeln, die der Code allein verbirgt: einen pro Produkt gespeicherten Mehrwertsteuersatz, eine Frist in einer Einstellungstabelle oder ein Buch mit 20 %, obwohl die Regel 5,5 % sagt. Karten zitieren Tabellen, Anzahlen und IDs, nie personenbezogene Daten. `rulebook data` liest Dumps und Exporte ohne Datenbankserver.
+
+**Kann ich die Regeln in anderen Werkzeugen nutzen?** `rulebook export okf` schreibt das Rulebook als [Open-Knowledge-Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf)-Bundle: eine Markdown-Datei pro Domäne, Richtlinie und Regel, mit Quellen, Audit und Historie, für Datenkataloge, Wikis und andere Agenten. Die Skills lesen außerdem vorhandenes OKF-Wissen Ihres Projekts als Kontext.
 
 **Wo ist das Kartenformat beschrieben?** In [`references/card-template.md`](https://github.com/GregoryBabonaux/rulebook/blob/main/references/card-template.md).
 

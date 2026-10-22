@@ -161,6 +161,8 @@ rulebook index      # rebuild the evidence index, report problems
 rulebook scan       # list the decision points no card covers yet
 rulebook check      # detect rule changes, write the inbox
 rulebook build      # render rulebook/rulebook.html
+rulebook export okf  # the rulebook as an Open Knowledge Format bundle
+rulebook data       # read a SQL dump or a JSON export, read only
 rulebook doctor     # check the installation
 rulebook update     # refresh the hooks and skill copies installed by the CLI
 rulebook --help
@@ -181,6 +183,10 @@ The agent never writes `rulebook.html`. Only `rulebook build` renders it, from a
 **How do I know a rule is right?** Each rule cites the lines that decide it and carries a confidence level: *proven by code and a test*, *read in the code*, *inferred*, or *contradictory*. A blind audit checks it: a second pass that sees only the card and the cited code. `rulebook index --strict` fails when a citation no longer exists. It also fails when a cited symbol is not in its lines, and it flags methods that only tests call. To catch rules nobody wrote down, `rulebook scan` lists the decision points of the code (refusals, conditions on fixed values, permissions, limits, state changes) that no card covers, and the document shows that coverage per domain.
 
 **How is it tested?** With a fixture app full of traps (a lying comment, dead code, a technical choice disguised as a rule) and a scorer. Each skill was first run *without* the skill to observe the failures, then written to fix them. See [`tests/skills/runs/`](https://github.com/GregoryBabonaux/rulebook/tree/main/tests/skills/runs).
+
+**Can it read my data?** Yes, read only. The first time a skill runs, it offers to use a database your agent can reach through an MCP server, a SQL dump or a JSON export, and remembers your answer in `rulebook/config.json`. Data shows rules the code alone hides: a VAT rate stored per product, a delay in a settings table, or a book at 20 % when the rule says 5.5 %. Cards cite tables, counts and ids, never personal data. `rulebook data` reads dumps and exports without a database server.
+
+**Can I use the rules in other tools?** `rulebook export okf` writes the rulebook as an [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf) bundle: one Markdown file per domain, policy and rule, with its sources, audit and history, for data catalogs, wikis and other agents. Skills also read OKF knowledge already in your project, as context.
 
 **Where is the card format?** In [`references/card-template.md`](https://github.com/GregoryBabonaux/rulebook/blob/main/references/card-template.md).
 
