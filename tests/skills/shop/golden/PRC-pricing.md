@@ -47,3 +47,20 @@ How coupons and discounts change what a customer pays.
 
 **Evidence.**
 - enforcement — src/pricing/discount.js:17-19 `roundCents`
+
+### PRC-R005 · Books use the reduced VAT rate
+- **Kind:** rule · **Category:** validation
+- **Status:** active · **Confidence:** read · **Audit:** passed
+
+**Rule.** A product of the book category can only be saved with a VAT rate of 5.5 %.
+
+**Context.** The check runs when a product is saved; rows saved before it are not re-checked. The reference data holds one book at 20 % (Dune, id 2).
+
+**Parameters.** `BOOK_VAT_RATE = 0.055` — config/shop.json:4
+
+**Evidence.**
+- enforcement — src/pricing/vat.js:4-9 `checkVatRate`
+- config — config/shop.json:4
+- data — reference:products.vat_rate `category = 'book' AND vat_rate <> 0.055`
+
+**Open questions.** Should the book with id 2, at 20 %, be corrected to 5.5 %?

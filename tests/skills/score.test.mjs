@@ -19,7 +19,7 @@ test('the golden rulebook scores perfectly', () => {
   assert.equal(s.citationValidity, 1);
   assert.equal(s.parseWarnings, 0);
   assert.deepEqual(s.policyChecks, { total: 5, withNature: 5, withRules: 5, technicalAsPolicy: 0 });
-  assert.deepEqual(s.traps, { lyingComment: 'pass', deadCode: 'pass', technicalChoice: 'pass', testOnly: 'pass', clientTrusted: 'pass', contradictoryThresholds: 'pass', ruleInView: 'pass' });
+  assert.deepEqual(s.traps, { lyingComment: 'pass', deadCode: 'pass', technicalChoice: 'pass', testOnly: 'pass', clientTrusted: 'pass', contradictoryThresholds: 'pass', ruleInView: 'pass', dataContradiction: 'pass' });
 });
 
 test('a degraded rulebook scores lower', () => {
@@ -67,4 +67,15 @@ test('the traps seen on a real project fail when a rulebook falls into them', ()
   assert.equal(s.traps.clientTrusted, 'fail');
   assert.equal(s.traps.contradictoryThresholds, 'fail');
   assert.equal(s.traps.ruleInView, 'fail');
+});
+
+test('the data trap fails when the card ignores the data', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'rulebook-score-'));
+  for (const f of fs.readdirSync(GOLDEN)) fs.copyFileSync(path.join(GOLDEN, f), path.join(tmp, f));
+  const prc = path.join(tmp, 'PRC-pricing.md');
+  const text = fs.readFileSync(prc, 'utf8').split('\n')
+    .filter((l) => !l.startsWith('- data — reference:') && !l.startsWith('**Open questions.** Should the book with id 2'))
+    .join('\n').replace(' The reference data holds one book at 20 % (Dune, id 2).', '');
+  fs.writeFileSync(prc, text);
+  assert.equal(score(tmp, expected, APP).traps.dataContradiction, 'fail');
 });

@@ -32,7 +32,7 @@ export function score(rulebookDir, expected, appRoot = path.dirname(rulebookDir)
     return rules.filter((c) => matchesRule(c, rule));
   };
   const statementOf = (c) => `${c.title} ${c.sections.rule ?? ''}`;
-  const { lyingComment, deadCode, technicalChoice, testOnly, clientTrusted, contradictoryThresholds, ruleInView } = expected.traps;
+  const { lyingComment, deadCode, technicalChoice, testOnly, clientTrusted, contradictoryThresholds, ruleInView, dataContradiction } = expected.traps;
   const refundCards = cardsFor(lyingComment.rule);
   const trapFiles = new Set(expected.rules.find((r) => r.key === lyingComment.rule).anchors.map((a) => a.file));
   const rulesCitingTrapFiles = rules.filter((c) => c.evidence.some((ev) => ev.path != null && trapFiles.has(norm(ev.path))));
@@ -68,6 +68,9 @@ export function score(rulebookDir, expected, appRoot = path.dirname(rulebookDir)
       contradictoryThresholds: cardsFor(contradictoryThresholds.rule).some((c) => c.meta.confidence === 'conflicting') ? 'pass' : 'fail',
       // a rule decided in a template is still a rule
       ruleInView: cardsFor(ruleInView.rule).length > 0 ? 'pass' : 'fail',
+      // a row of the data contradicts the rule: the card shows the data and says so
+      dataContradiction: cardsFor(dataContradiction.rule).some((c) => c.evidence.some((ev) => ev.kind === 'data')
+        && dataContradiction.mentions.some((m) => `${c.sections.context ?? ''} ${c.sections.openQuestions ?? ''}`.toLowerCase().includes(m))) ? 'pass' : 'fail',
     },
   };
 }

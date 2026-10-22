@@ -2,5 +2,6 @@
   "formatVersion": 1,
   "language": "en",
   "repoUrl": null,
-  "hotspots": ["src/**", "db/**", "config/**"]
+  "hotspots": ["src/**", "db/**", "config/**"],
+  "data": { "sources": [{ "name": "reference", "kind": "sql-dump", "path": "db/reference.sql" }] }
 }

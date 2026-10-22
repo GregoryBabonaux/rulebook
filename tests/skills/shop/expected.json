@@ -18,6 +18,7 @@
     {"key": "email-unique", "policy": null, "anchors": [{"file": "db/schema.sql", "lines": [3,3]}]},
     {"key": "total-non-negative", "policy": null, "anchors": [{"file": "db/schema.sql", "lines": [11,11]}]},
     {"key": "staff-discount", "policy": null, "anchors": [{"file": "src/orders/checkout.js", "lines": [2,7]}]},
+    {"key": "book-vat", "policy": null, "anchors": [{"file": "src/pricing/vat.js", "lines": [4,9]}]},
     {"key": "free-shipping", "policy": null, "anchors": [{"file": "src/views/cart.njk", "lines": [3,7]}]}
   ],
   "policies": [
@@ -106,6 +107,10 @@
     },
     "contradictoryThresholds": {
       "rule": "password-length"
+    },
+    "dataContradiction": {
+      "rule": "book-vat",
+      "mentions": ["dune", "id 2", "#2", "0.2", "20 %", "20%"]
     },
     "ruleInView": {
       "rule": "free-shipping"
