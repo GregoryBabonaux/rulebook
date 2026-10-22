@@ -10,6 +10,8 @@ const META_SEGMENT = /^\*\*([^*]+?):\*\*\s*(.*)$/;
 // "**Label.** text", also tolerated: "**Label:**", "**Label :**", "**Label**:", "**Label**."
 const SECTION = /^\*\*([^*]+?)\s*([.:])?\*\*\s*([.:])?\s*(.*)$/;
 const EVIDENCE = /^-\s+(enforcement|test|config|schema|doc)\s+[—–-]\s+(\S+?):(\d+)(?:-(\d+))?(?:\s+`([^`]+)`)?\s*$/;
+// "- data — <source>:<table>[.<column>] `<filter>`": evidence read in a declared data source
+const DATA_EVIDENCE = /^-\s+data\s+[—–-]\s+([\w.-]+):([\w.-]+)(?:\s+`([^`]+)`)?\s*$/;
 const EDGE = /^-\s+\*\*([A-Z]{3}-R\d+\.E\d+)\*\*\s+(.+)$/;
 const HISTORY = /^-\s+(\d{4}-\d{2}-\d{2})\s+·\s+([0-9a-f]{4,40})\s+·\s+(created|changed|retired|reanchored)(?:\s+·\s+(.*?))?\s*$/;
 const CONFIDENCE = ['verified', 'read', 'inferred', 'conflicting'];
@@ -126,7 +128,9 @@ export function parseDomainFile(text, file = '') {
       return;
     }
     if (section === 'evidence') {
-      if ((m = trimmed.match(EVIDENCE))) {
+      if ((m = trimmed.match(DATA_EVIDENCE))) {
+        card.evidence.push({ kind: 'data', source: m[1], table: m[2], filter: m[3] ?? null, path: null, start: null, end: null, symbol: null });
+      } else if ((m = trimmed.match(EVIDENCE))) {
         card.evidence.push({ kind: m[1], path: m[2].replace(/\\/g, '/'), start: +m[3], end: m[4] ? +m[4] : +m[3], symbol: m[5] ?? null });
       } else if (trimmed.startsWith('-')) {
         warn(i, `unreadable evidence "${trimmed}"`);

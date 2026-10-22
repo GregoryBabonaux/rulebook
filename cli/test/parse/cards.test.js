@@ -150,3 +150,11 @@ test('a domain may carry a Scope paragraph under its title', () => {
   assert.equal(domain.scope, 'Read: app/Policies, app/Pay. Not read: the admin panel.');
   assert.equal(parseDomainFile(md.replace('**Scope.**', '**Périmètre.**')).domain.scope, 'Read: app/Policies, app/Pay. Not read: the admin panel.');
 });
+
+test('a data evidence line names a declared source, a table or column, and a filter', () => {
+  const md = DOMAIN_MD.replace('- test — tests/RefundTest.php:3-5 `test_refund_refused_after_window`', '- test — tests/RefundTest.php:3-5 `test_refund_refused_after_window`\n- data — shopdb:products.vat_rate `category = \'book\'`');
+  const { cards, warnings } = parseDomainFile(md);
+  assert.deepEqual(warnings, []);
+  const ev = cards.find((c) => c.id === 'PAY-R012').evidence.find((e) => e.kind === 'data');
+  assert.deepEqual(ev, { kind: 'data', source: 'shopdb', table: 'products.vat_rate', filter: "category = 'book'", path: null, start: null, end: null, symbol: null });
+});

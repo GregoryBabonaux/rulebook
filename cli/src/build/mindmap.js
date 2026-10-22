@@ -157,7 +157,7 @@
       <h3>${code(r.title)}</h3>
       ${r.rule ? `<p class="statement">${code(r.rule)}</p>` : ''}
       ${r.context ? `<p class="context">${code(r.context)}</p>` : ''}
-      <p class="evidence"><span class="dot conf-${esc(r.confidence)}"></span>${esc(L.conf[r.confidence] || r.confidence)}${r.evidence.length ? ` · ${r.evidence.map((e) => `<a href="${esc(e.href)}">${esc(e.label)}</a>`).join(' · ')}` : ''}</p>
+      <p class="evidence"><span class="dot conf-${esc(r.confidence)}"></span>${esc(L.conf[r.confidence] || r.confidence)}${r.evidence.length ? ` · ${r.evidence.map((e) => (e.href ? `<a href="${esc(e.href)}">${esc(e.label)}</a>` : `<span class="data-ev">${esc(e.label)}</span>`)).join(' · ')}` : ''}</p>
       ${r.edgeCases.length ? `<p class="label">${esc(L.edgeCases)}</p><ul>${r.edgeCases.map((e) => `<li>${code(e.text)}</li>`).join('')}</ul>` : ''}
       ${r.openQuestions ? `<aside class="question"><strong>${esc(L.toValidate)}</strong> ${code(r.openQuestions)}</aside>` : ''}
       ${r.history.length ? `<p class="label">${esc(L.history)}</p><ul>${r.history.map((h) => `<li>${esc(h.date)} · ${esc(L.change[h.change] || h.change)}${h.note ? ` · ${code(h.note)}` : ''}</li>`).join('')}</ul>` : ''}

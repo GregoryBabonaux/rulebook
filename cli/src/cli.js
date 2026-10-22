@@ -57,7 +57,7 @@ function runIndex(io, opts) {
     return 1;
   }
   const { cards, warnings } = loadCards(project);
-  const { index, unresolved, mismatches } = buildIndex(project.root, cards, headSha(project.root));
+  const { index, unresolved, mismatches } = buildIndex(project.root, cards, headSha(project.root), (project.config.data?.sources ?? []).map((s) => s.name));
   writeIndex(project.dir, index);
   for (const w of warnings) io.stderr.write(`rulebook: ${w.file}:${w.line} ${w.message}\n`);
   for (const u of unresolved) io.stderr.write(`rulebook: ${u.rule} evidence ${u.path} unresolved (${u.reason})\n`);

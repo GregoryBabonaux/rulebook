@@ -49,3 +49,14 @@ test('without --strict, mismatches are reported but the exit code stays 0', asyn
   assert.equal(await run(['index'], io), 0);
   assert.match(io.err, /symbol "cancel" not found/);
 });
+
+test('data evidence is not anchored; an undeclared source is reported', async () => {
+  const md = DOMAIN_MD.replace('- test — tests/RefundTest.php:3-5 `test_refund_refused_after_window`', '- test — tests/RefundTest.php:3-5 `test_refund_refused_after_window`\n- data — shopdb:products.vat_rate');
+  const declared = makeRepo({ ...withDomain(md), 'rulebook/config.json': JSON.stringify({ language: 'en', hotspots: [], data: { sources: [{ name: 'shopdb', kind: 'json', path: 'exports/shop.json' }] } }) });
+  const ok = fakeIo(declared.dir);
+  assert.equal(await run(['index', '--strict'], ok), 0, ok.err);
+  const undeclared = makeRepo(withDomain(md));
+  const io = fakeIo(undeclared.dir);
+  assert.equal(await run(['index', '--strict'], io), 1);
+  assert.match(io.err, /PAY-R012 evidence data shopdb:products\.vat_rate unresolved \(source "shopdb" is not declared in rulebook\/config\.json data\.sources\)/);
+});

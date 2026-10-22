@@ -8,7 +8,7 @@ import { domainFiles } from '../../cli/src/project.js';
 import { buildIndex } from '../../cli/src/index/build.js';
 
 const norm = (p) => p.replace(/\\/g, '/').replace(/^\.\//, '');
-const overlaps = (ev, anchor) => norm(ev.path) === anchor.file && ev.start <= anchor.lines[1] && ev.end >= anchor.lines[0];
+const overlaps = (ev, anchor) => ev.path != null && norm(ev.path) === anchor.file && ev.start <= anchor.lines[1] && ev.end >= anchor.lines[0];
 const matchesRule = (card, rule) => card.evidence.some((ev) => rule.anchors.some((a) => overlaps(ev, a)));
 
 export function score(rulebookDir, expected, appRoot = path.dirname(rulebookDir)) {
@@ -35,7 +35,7 @@ export function score(rulebookDir, expected, appRoot = path.dirname(rulebookDir)
   const { lyingComment, deadCode, technicalChoice, testOnly, clientTrusted, contradictoryThresholds, ruleInView } = expected.traps;
   const refundCards = cardsFor(lyingComment.rule);
   const trapFiles = new Set(expected.rules.find((r) => r.key === lyingComment.rule).anchors.map((a) => a.file));
-  const rulesCitingTrapFiles = rules.filter((c) => c.evidence.some((ev) => trapFiles.has(norm(ev.path))));
+  const rulesCitingTrapFiles = rules.filter((c) => c.evidence.some((ev) => ev.path != null && trapFiles.has(norm(ev.path))));
   const technicalCards = cardsFor(technicalChoice.rule);
   const implementingRules = (p) => rules.filter((r) => r.policy === p.id || r.meta.implements === p.id);
 

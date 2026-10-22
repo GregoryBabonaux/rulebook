@@ -30,7 +30,7 @@ export function scanProject(project) {
       if (!ranges.has(p)) ranges.set(p, []);
       ranges.get(p).push([s, e]);
     };
-    for (const ev of card.evidence) add(ev.path, ev.start, ev.end);
+    for (const ev of card.evidence) if (ev.path) add(ev.path, ev.start, ev.end);
     // a value cited in Parameters, or the line an edge case points at, is examined too
     const refs = [card.sections.parameters ?? '', ...card.edgeCases.map((e) => e.ref ?? '')].join(' ');
     for (const m of refs.matchAll(/([\w./-]+\.\w+):(\d+)(?:-(\d+))?/g)) add(m[1], +m[2], m[3] ? +m[3] : +m[2]);

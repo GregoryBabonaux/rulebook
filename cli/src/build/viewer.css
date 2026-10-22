@@ -219,3 +219,4 @@ circle.conf-inferred { fill: var(--grey); } circle.conf-conflicting { fill: var(
 
 /* the map gets the whole height */
 [data-view="map"] .hero { display: none; }
+.data-ev { color: var(--muted); }

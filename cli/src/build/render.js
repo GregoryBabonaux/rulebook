@@ -29,10 +29,14 @@ function tagFor(card, since, L) {
   return latest ? { type: latest.type, date: latest.date } : null;
 }
 
+// data read in a declared source: not a link, a description of where it was read
+const dataEvidence = (ev, L) => `<span class="data-ev">${escapeHtml(L.dataLabel)} · ${escapeHtml(ev.source)} · <code>${escapeHtml(ev.table)}</code>${ev.filter ? ` · <code>${escapeHtml(ev.filter)}</code>` : ''}</span>`;
+
 function renderRule(card, data, L) {
   const tag = tagFor(card, data.since, L);
   const conf = card.meta.confidence ?? 'inferred';
   const evidence = card.evidence.map((ev) => {
+    if (ev.kind === 'data') return dataEvidence(ev, L);
     const file = ev.path.split('/').pop();
     return `<a href="${escapeHtml(evidenceHref(data.project.repoUrl, data.project.commit, ev, data.evidenceBase))}">${escapeHtml(`${file}:${ev.start}`)}</a>`;
   }).join(' · ');
@@ -94,7 +98,7 @@ const CONFIDENCES = ['verified', 'read', 'inferred', 'conflicting'];
 const allRules = (domain) => [...domain.policies.flatMap((p) => p.rules), ...domain.otherRules];
 
 // What the interactive map needs: the tree (ids only) and every rule's card, once.
-function mapModel(data) {
+function mapModel(data, L) {
   const rules = {};
   const domains = data.domains.map((d, index) => {
     for (const card of allRules(d)) {
@@ -103,7 +107,9 @@ function mapModel(data) {
         title: card.title, rule: card.sections.rule ?? '', context: card.sections.context ?? '',
         confidence: card.meta.confidence ?? 'inferred', category: card.meta.category ?? '', status: card.meta.status,
         tag: tag?.type ?? null,
-        evidence: card.evidence.map((ev) => ({ label: `${ev.path.split('/').pop()}:${ev.start}`, href: evidenceHref(data.project.repoUrl, data.project.commit, ev, data.evidenceBase) })),
+        evidence: card.evidence.map((ev) => (ev.kind === 'data'
+          ? { label: `${L.dataLabel} · ${ev.source} · ${ev.table}${ev.filter ? ` · ${ev.filter}` : ''}`, href: null }
+          : { label: `${ev.path.split('/').pop()}:${ev.start}`, href: evidenceHref(data.project.repoUrl, data.project.commit, ev, data.evidenceBase) })),
         edgeCases: card.edgeCases.map((e) => ({ id: e.id, text: e.text, confidence: e.confidence })),
         history: card.history.map((h) => ({ date: h.date, change: h.change, note: h.note })),
         openQuestions: card.sections.openQuestions ?? '',
@@ -181,7 +187,7 @@ export function renderHtml(model, { evidenceBase = '..' } = {}) {
     openInDocument: L.openInDocument, close: L.close,
   };
   const json = JSON.stringify(labels).replace(/</g, '\\u003c');
-  const mapJson = JSON.stringify(mapModel(data)).replace(/</g, '\\u003c');
+  const mapJson = JSON.stringify(mapModel(data, L)).replace(/</g, '\\u003c');
   const body = data.counts.rules || data.counts.policies
     ? data.domains.map((d, i) => renderDomain(d, i, data, L)).join('\n')
     : `<p class="muted">${escapeHtml(L.empty)}</p>${data.domains.map((d, i) => renderDomain(d, i, data, L)).join('\n')}`;

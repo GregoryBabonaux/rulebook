@@ -16,13 +16,20 @@ export function loadCards(project) {
   return { cards, warnings };
 }
 
-export function buildIndex(root, cards, verifiedAt) {
+// dataSources: the names declared in config.json data.sources, or null to skip that check
+export function buildIndex(root, cards, verifiedAt, dataSources = null) {
   const anchors = [];
   const unresolved = [];
   const mismatches = [];
   for (const card of cards) {
     if (card.kind !== 'rule' || card.meta.status === 'retired') continue;
     for (const ev of card.evidence) {
+      if (ev.kind === 'data') {
+        if (dataSources && !dataSources.includes(ev.source)) {
+          unresolved.push({ rule: card.id, path: `data ${ev.source}:${ev.table}`, reason: `source "${ev.source}" is not declared in rulebook/config.json data.sources` });
+        }
+        continue;
+      }
       const abs = path.join(root, ev.path);
       if (!fs.existsSync(abs)) {
         unresolved.push({ rule: card.id, path: ev.path, reason: 'file not found' });

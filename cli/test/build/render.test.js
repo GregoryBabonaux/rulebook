@@ -184,3 +184,9 @@ test('without a scan, no coverage is shown', () => {
   const html = renderHtml(data({ language: 'fr' }));
   assert.doesNotMatch(html, /class="coverage"|points de décision/);
 });
+
+test('data evidence is shown as data, source, table and filter', () => {
+  const md = DOMAIN_MD.replace('- test — tests/RefundTest.php:3-5 `test_refund_refused_after_window`', '- test — tests/RefundTest.php:3-5 `test_refund_refused_after_window`\n- data — shopdb:products.vat_rate `category = \'book\'`');
+  const html = renderHtml(data({ language: 'fr' }, md));
+  assert.match(html, /<span class="data-ev">données · shopdb · <code>products\.vat_rate<\/code> · <code>category = &#39;book&#39;<\/code><\/span>/);
+});

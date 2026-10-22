@@ -227,6 +227,7 @@ circle.conf-inferred { fill: var(--grey); } circle.conf-conflicting { fill: var(
 
 /* the map gets the whole height */
 [data-view="map"] .hero { display: none; }
+.data-ev { color: var(--muted); }
 
 </style>
 </head>
@@ -251,7 +252,7 @@ circle.conf-inferred { fill: var(--grey); } circle.conf-conflicting { fill: var(
 </aside>
 <main class="page">
 <header class="hero">
-  <p class="hero-meta">2026-10-16 · 78a3792</p>
+  <p class="hero-meta">2026-10-16 · 3bc7f70</p>
   <h1>Référentiel des règles</h1>
   <p class="lede">3 règles réparties en 2 domaines. Chaque règle dit ce que fait le produit, pourquoi, et où le vérifier dans le code.</p>
 </header>
@@ -320,7 +321,7 @@ circle.conf-inferred { fill: var(--grey); } circle.conf-conflicting { fill: var(
     <div><h2 class="small">À valider</h2><ul class="plain"><li><span class="label">Question ouverte</span> <a href="#PAY-R012">PAY-R012</a> · Les jours fériés comptent-ils dans les 14 jours ? Aujourd&#39;hui, oui.</li></ul></div>
   </div>
 </section>
-<footer class="footer muted"><p>Généré par rulebook 0.2.0 depuis le commit 78a3792. 1 domaine(s) extrait(s) sur 2.</p></footer>
+<footer class="footer muted"><p>Généré par rulebook 0.2.0 depuis le commit 3bc7f70. 1 domaine(s) extrait(s) sur 2.</p></footer>
 </main>
 </div>
 <script id="rulebook-labels" type="application/json">{"shown":"{n} affichées","noMatch":"Aucune règle ne correspond à ces filtres.","conf":{"verified":"Prouvée par le code et un test","read":"Lue dans le code, pas testée","inferred":"Déduite des noms ou de la configuration","conflicting":"Preuves contradictoires"},"tag":{"new":"nouvelle","changed":"modifiée","retired":"retirée"},"change":{"created":"créée","changed":"modifiée","retired":"retirée","reanchored":"réancrée"},"otherRules":"Autres règles de gestion","edgeCases":"Cas particuliers","history":"Historique","toValidate":"À valider","policy":"Règle métier","notExtracted":"pas encore extrait","openInDocument":"Ouvrir dans le document","close":"Fermer"}</script>
@@ -598,7 +599,7 @@ function placeWithOffsets(placed, offsets) {
       <h3>${code(r.title)}</h3>
       ${r.rule ? `<p class="statement">${code(r.rule)}</p>` : ''}
       ${r.context ? `<p class="context">${code(r.context)}</p>` : ''}
-      <p class="evidence"><span class="dot conf-${esc(r.confidence)}"></span>${esc(L.conf[r.confidence] || r.confidence)}${r.evidence.length ? ` · ${r.evidence.map((e) => `<a href="${esc(e.href)}">${esc(e.label)}</a>`).join(' · ')}` : ''}</p>
+      <p class="evidence"><span class="dot conf-${esc(r.confidence)}"></span>${esc(L.conf[r.confidence] || r.confidence)}${r.evidence.length ? ` · ${r.evidence.map((e) => (e.href ? `<a href="${esc(e.href)}">${esc(e.label)}</a>` : `<span class="data-ev">${esc(e.label)}</span>`)).join(' · ')}` : ''}</p>
       ${r.edgeCases.length ? `<p class="label">${esc(L.edgeCases)}</p><ul>${r.edgeCases.map((e) => `<li>${code(e.text)}</li>`).join('')}</ul>` : ''}
       ${r.openQuestions ? `<aside class="question"><strong>${esc(L.toValidate)}</strong> ${code(r.openQuestions)}</aside>` : ''}
       ${r.history.length ? `<p class="label">${esc(L.history)}</p><ul>${r.history.map((h) => `<li>${esc(h.date)} · ${esc(L.change[h.change] || h.change)}${h.note ? ` · ${code(h.note)}` : ''}</li>`).join('')}</ul>` : ''}
