@@ -3,12 +3,12 @@
     "PostToolUse": [
       {
         "matcher": "Edit|Write|MultiEdit",
-        "hooks": [{ "type": "command", "command": "test -d rulebook && npx --yes rulebook-cli@0.2.0 hook claude post-edit --stamp 0.2.0 --via plugin || true" }]
+        "hooks": [{ "type": "command", "command": "test -d rulebook && npx --yes rulebook-cli@0.3.0 hook claude post-edit --stamp 0.3.0 --via plugin || true" }]
       }
     ],
     "Stop": [
       {
-        "hooks": [{ "type": "command", "command": "test -d rulebook && npx --yes rulebook-cli@0.2.0 hook claude stop --stamp 0.2.0 --via plugin || true" }]
+        "hooks": [{ "type": "command", "command": "test -d rulebook && npx --yes rulebook-cli@0.3.0 hook claude stop --stamp 0.3.0 --via plugin || true" }]
       }
     ]
   }

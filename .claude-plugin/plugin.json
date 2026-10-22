@@ -1,6 +1,6 @@
 {
   "name": "rulebook",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Extract a codebase's business rules into a living, evidence-backed reference, and keep it true while you code.",
   "author": {
     "name": "Grégory Babonaux"

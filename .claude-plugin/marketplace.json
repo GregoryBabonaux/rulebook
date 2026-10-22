@@ -9,7 +9,7 @@
       "name": "rulebook",
       "source": "./",
       "description": "Business-rule extraction skills and a companion that flags rule changes while you code.",
-      "version": "0.2.0"
+      "version": "0.3.0"
     }
   ]
 }
