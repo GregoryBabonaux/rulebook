@@ -84,7 +84,7 @@ context, never as evidence (`references/okf.md`).
    the cards and the cited lines — not your notes. **Wait for the audit result before going on**: if
    sub-agents run in the background, wait for it to finish; never stop or hand back with
    `Audit: pending`. Set `Audit: passed` or `failed: <reason>`; fix or downgrade (`inferred`)
-   every failure.
+   every failure, then have the fixed cards audited again before marking them `passed`.
 7. **Check and build — without asking.** Run `rulebook index --strict` and fix every warning
    and unresolved anchor until it exits 0 (fallback without the CLI: re-open every cited line).
    Then run `rulebook build`: the document is produced first, corrections come after.

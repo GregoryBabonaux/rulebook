@@ -109,3 +109,20 @@ only tests call, two contradictory password minimums, a rule decided in a templa
   auditors above ~30 cards and fixes the union.
 - Across five runs, first-audit failures settle around 15-20 % (from 49 % with 0.1.0); the audit
   step exists to catch them, and the double audit leaves fewer behind.
+
+## Data sources and OKF (2026-10-22)
+
+The shop gains a reference dump (`db/reference.sql`) with a book at 20 % VAT, while the code
+requires 5.5 % for books. The workspace has no data decision in `config.json`.
+
+| Run | Criteria | Recall | Precision | Traps |
+|---|---|---|---|---|
+| extract with the data question (scripted answer: use the dump) | 21/21 | 1.00 | 0.85 | 8/8 |
+
+- The skill found the dump, asked the data question once and recorded the source in
+  `config.json`; the card on book VAT cites the data (`- data — dump:products …`), keeps the
+  statement of what the code does, and asks whether the book with id 2 should be corrected.
+- `rulebook export okf` turned the result into a 30-concept bundle; the data evidence became
+  a scope-descriptor source.
+- Fixed afterwards: the agent marked its four audit fixes `passed` without re-auditing them;
+  the skill now asks for a second audit of fixed cards.
