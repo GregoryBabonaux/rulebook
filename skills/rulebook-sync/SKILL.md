@@ -12,6 +12,10 @@ means* for the rule, propose it, and apply it only after the human validates.
 
 **CLI.** `rulebook …` below means the rulebook CLI: `rulebook`, or `npx --yes rulebook-cli@latest`. Without Node, use the manual column of `references/cli.md`.
 
+**Data.** If `config.json` declares data sources, re-check the `data` evidence of the cards
+you touch (`references/data.md`, read only). Do not ask the data question here: sync stays
+quick; the next extraction asks it.
+
 ## Steps
 1. **Collect.** Run `rulebook check` (fallback: read `rulebook/inbox.md`). Work on the
    `- [ ]` lines. A `- [x]` line is a past dismissal: leave it.

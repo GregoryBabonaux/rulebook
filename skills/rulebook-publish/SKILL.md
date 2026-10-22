@@ -17,11 +17,15 @@ it never changes the cards.
    file: works offline, can be emailed, prints to PDF from a browser).
    - Options: `--since <YYYY-MM-DD>` to choose the "changes since" baseline, `--out <path>`.
    - Without the CLI: say the HTML could not be built and offer the Markdown files as they are.
-2. **External tools — only if you have them.** If you have tools that can write to Notion,
+2. **OKF bundle.** Offer `rulebook export okf` → `rulebook/okf/`, the same rulebook as an
+   Open Knowledge Format bundle for data catalogs, wikis and other agents
+   (`references/okf.md`). Run it when the user wants the rulebook shared with other tools, or
+   when a connector below takes Markdown files.
+3. **External tools — only if you have them.** If you have tools that can write to Notion,
    Google Drive, Confluence or a similar tool, **offer** to publish there and ask where
    (which space or folder, one page or one page per domain). Publish only after an explicit
    yes. Without such tools, do not mention or pretend a publication.
-3. **Report** the path of the HTML file, what was published where, and the build summary
+4. **Report** the path of the HTML file, the OKF bundle if exported, what was published where, and the build summary
    (rules, domains, items to validate).
 
 ## Boundaries

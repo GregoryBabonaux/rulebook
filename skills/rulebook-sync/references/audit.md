@@ -20,7 +20,10 @@ For **each operating rule card**, using only the card and the code:
 5. **Edge cases.** The line each case points at supports it. A `verified` case points at the
    assertion of the test of that very case, and its values are the ones that test uses.
 6. **Context and parameters.** No claim the code contradicts (values, line numbers).
-7. **Client-held state.** If the rule relies on a value the client can change (a form field,
+7. **Data.** A `data` evidence names a declared source, and its table and filter show what the
+   card says (a count, a value). No card copies personal data (names, e-mails, addresses, free
+   text written by users).
+8. **Client-held state.** If the rule relies on a value the client can change (a form field,
    a request body, an unlocked component property, a phase sent by the browser), the card says so.
 
 Comments never count: the code is the only truth. A small line offset that still covers the

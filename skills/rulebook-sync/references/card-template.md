@@ -72,7 +72,8 @@ The HTML shows them for every domain, extracted or not.
 
 - **Metadata line:** `- **Label:** value`, with segments separated by ` · `. Put the colon inside the bold.
 - **Section:** `**Label.** text`. The text may continue on the following lines until a blank line.
-- **Evidence:** `- <kind> — <path>:<start>[-<end>] [`Symbol`]`. It may be followed by one indented excerpt line in backticks. The excerpt is 5 lines max in total.
+- **Evidence:** `- <kind> — <path>:<start>[-<end>] [`Symbol`]`. Data read in a declared source:
+  `- data — <source>:<table>[.<column>] [`<filter>`]` (see `data.md`). It may be followed by one indented excerpt line in backticks. The excerpt is 5 lines max in total.
 - **Edge case:** `- **<ID>** <Given/When/Then sentence> [— <confidence>] [— <path>:<line>]`.
 - **History:** `- <YYYY-MM-DD> · <sha> · <created|changed|retired|reanchored> [· note]`.
 - **Rules that implement no policy** go under `## Other operating rules`, or under any level-2 heading without a policy ID.
@@ -108,4 +109,4 @@ The HTML shows them for every domain, extracted or not.
 | confidence | `verified`, `read`, `inferred`, `conflicting` |
 | audit | `passed`, `failed: <reason>` |
 | status | `candidate`, `active`, `changed`, `retired` |
-| evidence kind | `enforcement`, `test`, `config`, `schema`, `doc` |
+| evidence kind | `enforcement`, `test`, `config`, `schema`, `doc`, `data` |

@@ -10,7 +10,9 @@ manual fallback for environments without Node.
 | After writing or editing cards | `rulebook index` — rebuilds `rulebook/.index.json`; reports parse warnings, unresolved evidence, a cited symbol absent from its lines, a test cited outside a test file, and methods referenced only by tests or never (**possible dead code**). Fix every warning; `--strict` fails on all but the dead-code hints. | Re-open each cited file and check that the lines exist and say what the card claims. |
 | To see what changed in the code | `rulebook check` (worktree), `rulebook check --since <sha>` | `git diff` and compare against the evidence lines of each card. |
 | To publish | `rulebook build` → `rulebook/rulebook.html` | Leave the Markdown as the deliverable; say the HTML could not be built. |
-| To check the installation | `rulebook doctor --quiet` | — |
+| To check the installation | `rulebook doctor --quiet` (also lists the declared data sources) | — |
+| To read a SQL dump or a JSON export | `rulebook data <source> tables`, `rulebook data <source> rows <table> --where col=value --columns a,b --limit 20` or `--count` (read only, see `data.md`) | Open the file and search it. |
+| To share the rulebook with other tools | `rulebook export okf` → `rulebook/okf/`, an Open Knowledge Format bundle (see `okf.md`) | Leave the Markdown cards as the deliverable. |
 
 **The HTML document is only ever produced by `rulebook build`.** Never write, rewrite or patch
 `rulebook.html` yourself, and never generate an HTML page of your own in its place: every

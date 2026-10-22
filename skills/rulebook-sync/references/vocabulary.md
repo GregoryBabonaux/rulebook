@@ -45,4 +45,5 @@ Never raise confidence because a comment or a function name agrees with you.
 | `retired` | No longer enforced. Keep the card and its ID. |
 
 ## Evidence kind
-`enforcement` (code that applies the rule), `test`, `config`, `schema`, `doc`.
+`enforcement` (code that applies the rule), `test`, `config`, `schema`, `doc`, `data` (a value
+or rows read in a declared data source, see `data.md`).

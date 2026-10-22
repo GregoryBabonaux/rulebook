@@ -22,6 +22,11 @@ silently accept code that moved since the last sync. Read `references/card-templ
 invisible (0 cards). Also skim `references/vocabulary.md`, `policy-vs-rule.md`, `writing-style.md`.
 One file per domain: `rulebook/<CODE>-<slug>.md`, starting with `# <CODE> · <Title>`.
 
+**Data.** Settle the data question once, as `references/data.md` says: use the sources recorded
+in `config.json`, respect a refusal, otherwise ask one question and record the answer. Read
+only, always, and never copy personal data. Read OKF knowledge already in the project as
+context, never as evidence (`references/okf.md`).
+
 ## Steps
 0. **Inventory.** Run `rulebook scan --domain <CODE> --format md`: the decision points of the
    domain's code, found by line patterns. It is your checklist, not the truth — it misses
@@ -62,6 +67,10 @@ One file per domain: `rulebook/<CODE>-<slug>.md`, starting with `# <CODE> · <Ti
    never generate it with a script or give reasons by file; "applique <ID>" only when that
    card's rule states what the line decides. Then go through what line patterns miss: enums and state
    tables, DB constraints, scheduled jobs, rules decided in views or templates.
+   **With a data source:** for each rule the data can show, follow `references/data.md` —
+   values that decide (cite them in `Parameters.`), rows that break the rule (count, up to
+   three ids), data that contradicts the code or itself (`conflicting`, or an open question),
+   states the code does not handle. Data never rewrites what the code does.
 5. **Write the domain files** directly in `rulebook/` (the audit needs them; no drafts folder),
    with `Verified at` and `History` as above, and a `**Scope.**` paragraph under the domain
    title: what you read, and what you did not. Run `rulebook index`: a method it reports as
@@ -79,7 +88,8 @@ One file per domain: `rulebook/<CODE>-<slug>.md`, starting with `# <CODE> · <Ti
 7. **Check and build — without asking.** Run `rulebook index --strict` and fix every warning
    and unresolved anchor until it exits 0 (fallback without the CLI: re-open every cited line).
    Then run `rulebook build`: the document is produced first, corrections come after.
-8. **Report and offer corrections.** Give the path of `rulebook/rulebook.html` first. Then show
+8. **Report and offer corrections.** Give the path of `rulebook/rulebook.html` first, and say
+   that `rulebook export okf` can share the rulebook with other tools (`references/okf.md`). Then show
    the policies, the rule titles, every `conflicting` card, every audit fix and the main open
    questions, and ask what to correct: rename, merge or drop a policy, reword or remove a rule.
 9. **Apply the corrections** the user asks for, then run `rulebook index --strict` and

@@ -21,7 +21,10 @@ the code, what actually happens. Facts only: you describe the system, you do not
    - forbidden or unexpected states, the order of checks (which error wins);
    - time: the exact instant of an expiry, time zones, daylight saving;
    - rounding, units, character counting;
-   - repetition and concurrency: retries, double submission, counters that never reset.
+   - repetition and concurrency: retries, double submission, counters that never reset;
+   - with a data source (`references/data.md`, read only): rows sitting exactly on a limit,
+     nulls, values outside what the code accepts, states no branch handles — real cases to
+     cite as counts and ids, never personal data.
 3. **Write each case** as one bullet in the card's `Edge cases.` section:
    `- **<rule id>.E<n>** Given <situation>, when <action>, then <outcome>. — <confidence> — <path>:<line>`
    - Exactly one reference: `path:line` or `path:start-end` — never a list like `path:3,9`
