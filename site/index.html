@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rulebook — the business rules hidden in your code, written down and proven</title>
+<meta name="description" content="Agent skills and a small CLI that turn the business rules buried in a codebase into a reference people can read, with the lines that prove each rule, and keep it true while you code.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,650;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main" data-i18n="skip">Skip to content</a>
+
+<header class="top">
+  <a class="brand" href="./" aria-label="rulebook home"><span class="mark" aria-hidden="true"></span>rulebook</a>
+  <nav aria-label="Sections">
+    <a href="#how" data-i18n="nav.how">How it works</a>
+    <a href="#data" data-i18n="nav.data">Data &amp; OKF</a>
+    <a href="#install" data-i18n="nav.install">Install</a>
+    <a href="https://github.com/GregoryBabonaux/rulebook">GitHub</a>
+    <label class="lang"><span class="visually-hidden" data-i18n="lang">Language</span>
+      <select id="lang">
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+        <option value="es">Español</option>
+        <option value="de">Deutsch</option>
+        <option value="pt">Português</option>
+        <option value="it">Italiano</option>
+      </select>
+    </label>
+  </nav>
+</header>
+
+<main id="main">
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero-copy">
+    <h1 id="hero-title" data-i18n="hero.title">Your code already knows the business rules. Now everyone can read them.</h1>
+    <p class="lede" data-i18n="hero.lede">rulebook gives your coding agent the skills to find every rule in a codebase, write it in plain words, and cite the exact lines that prove it. A small companion then notices when your edits change one.</p>
+    <div class="cta">
+      <div class="cmd" data-copy>
+        <code>npx skills add GregoryBabonaux/rulebook</code>
+        <button type="button" class="copy" data-i18n="copy">Copy</button>
+      </div>
+      <a class="ghost" href="#install" data-i18n="hero.other">Other ways to install</a>
+    </div>
+    <p class="agents" data-i18n="hero.agents">Works with Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, Mistral Vibe and any agent that reads <code>SKILL.md</code>.</p>
+  </div>
+
+  <figure class="demo">
+    <div class="code" role="group" aria-label="src/orders/refund.js">
+      <p class="file">src/orders/refund.js</p>
+      <pre><code><span class="ln" data-line="6"><i>6</i><span class="c">// Customers have 30 days to ask for a refund.</span></span>
+<span class="ln" data-line="7"><i>7</i>function canRequestRefund(order, now = Date.now()) {</span>
+<span class="ln" data-line="8"><i>8</i>  if (!order.deliveredAt) return false;</span>
+<span class="ln" data-line="9"><i>9</i>  return (now - order.deliveredAt) / DAY <b>&lt;= config.REFUND_WINDOW_DAYS</b>;</span>
+<span class="ln" data-line="10"><i>10</i>}</span></code></pre>
+      <p class="file cfg">config/shop.json · <code>"REFUND_WINDOW_DAYS": 14</code></p>
+    </div>
+    <div class="card">
+      <p class="rid">ORD-R001 · timing</p>
+      <h2 class="rule-title" data-i18n="card.title">Refund only up to 14 days after delivery</h2>
+      <p class="ctx" data-i18n="card.ctx">The comment above the code announces 30 days; the code applies the configured 14. <span class="win">The rule follows the code.</span></p>
+      <ul class="proof">
+        <li><button type="button" data-hl="9" data-i18n="card.p9">refund.js:9 decides</button></li>
+        <li><button type="button" data-hl="8" data-i18n="card.p8">refund.js:8 never delivered → refused</button></li>
+        <li><button type="button" data-hl="6" data-i18n="card.p6">refund.js:6 the comment says 30</button></li>
+      </ul>
+      <p class="question" data-i18n="card.q">Open question: is the comment a mistake to fix?</p>
+    </div>
+    <figcaption data-i18n="demo.caption">Point at a piece of evidence to see the line it cites.</figcaption>
+  </figure>
+</section>
+
+<section class="shots" aria-labelledby="shots-title">
+  <h2 id="shots-title" data-i18n="shots.title">One document for the whole team</h2>
+  <p class="section-lede" data-i18n="shots.lede">The rulebook is a single HTML file: it opens offline, goes by e-mail and prints to PDF. Product owners read the rules; developers follow the evidence to the line.</p>
+  <div class="shot-main">
+    <img src="https://raw.githubusercontent.com/GregoryBabonaux/rulebook/main/docs/images/document.png" alt="The document: a refund rule with its context, edge cases, contradictory evidence and an open question" loading="lazy" width="1440" height="900">
+  </div>
+  <div class="shot-pair">
+    <figure>
+      <img src="https://raw.githubusercontent.com/GregoryBabonaux/rulebook/main/docs/images/map.png" alt="The interactive map of domains, policies and rules" loading="lazy" width="1440" height="900">
+      <figcaption data-i18n="shots.map">A map you can unfold and rearrange, branch by branch.</figcaption>
+    </figure>
+    <figure>
+      <img src="https://raw.githubusercontent.com/GregoryBabonaux/rulebook/main/docs/images/dashboard-dark.png" alt="The dashboard in dark mode: rules per domain coloured by confidence, decision points examined" loading="lazy" width="1440" height="900">
+      <figcaption data-i18n="shots.dash">A dashboard: confidence per domain, what changed, what to decide.</figcaption>
+    </figure>
+  </div>
+  <p class="note" data-i18n="shots.note">Screenshots from a fictional shop full of traps; the sample document is in French, yours speaks your project's language.</p>
+</section>
+
+<section class="how" id="how" aria-labelledby="how-title">
+  <h2 id="how-title" data-i18n="how.title">Three passes, each one checked</h2>
+  <ol class="levels">
+    <li>
+      <h3 data-i18n="l1.title">Map the domains</h3>
+      <p data-i18n="l1.text">Orders, pricing, accounts: the capabilities your business talks about, with the folders where each one's code lives.</p>
+      <code>rulebook-map</code>
+    </li>
+    <li>
+      <h3 data-i18n="l2.title">Extract the rules</h3>
+      <p data-i18n="l2.text">Every decision point the scan finds is either a rule card or set aside with a reason. A blind audit then re-reads each card against the code it cites.</p>
+      <code>rulebook-extract</code>
+    </li>
+    <li>
+      <h3 data-i18n="l3.title">Find the edge cases</h3>
+      <p data-i18n="l3.text">What happens on the last day, at the exact limit, with a missing value: written as Given, when, then.</p>
+      <code>rulebook-edge-cases</code>
+    </li>
+  </ol>
+  <div class="ongoing">
+    <p data-i18n="ongoing.code"><strong>While you code,</strong> the companion runs after each edit and before each commit. When code behind a rule moves, one line appears: <code>ORD-R001 may have changed (refund.js) → rulebook/inbox.md</code>. <code>rulebook-sync</code> updates the cards, never silently.</p>
+    <p data-i18n="ongoing.share"><strong>When you share,</strong> <code>rulebook-publish</code> builds the document, and the OKF export hands the same rules to other tools.</p>
+  </div>
+</section>
+
+<section class="proofs" aria-labelledby="proofs-title">
+  <h2 id="proofs-title" data-i18n="proofs.title">Measured, not promised</h2>
+  <p class="section-lede" data-i18n="proofs.lede">The skills were rewritten after each measurement on a real Laravel project: the same domain, extracted again from scratch, then audited blind.</p>
+  <dl class="figures">
+    <div><dt data-i18n="fig1">Cards failing the first audit</dt><dd><span class="from">49 %</span><span class="to">16–19 %</span></dd></div>
+    <div><dt data-i18n="fig2">Decision points examined</dt><dd><span class="from">53</span><span class="to" data-i18n="fig2.to">196 of 196</span></dd></div>
+    <div><dt data-i18n="fig3">Rules found on that domain</dt><dd><span class="from">43</span><span class="to">62–67</span></dd></div>
+  </dl>
+  <p class="note" data-i18n="proofs.note">Five runs, October 2026. Details and caveats in <a href="https://github.com/GregoryBabonaux/rulebook/blob/main/tests/skills/runs/extract-green-4.md">tests/skills/runs</a>.</p>
+</section>
+
+<section class="data" id="data" aria-labelledby="data-title">
+  <div>
+    <h2 id="data-title" data-i18n="data.title">The data knows things the code doesn't</h2>
+    <p data-i18n="data.text">The first time a skill runs, it offers to read your data: a database your agent reaches through an MCP server, a SQL dump or a JSON export. It asks once and remembers. Read only, with limits, and never a name or an e-mail copied into the rulebook.</p>
+    <div class="vat" role="group">
+      <p class="rid">PRC-R005 · validation</p>
+      <p class="rule-title" data-i18n="vat.title">Books use the reduced VAT rate</p>
+      <p class="data-line"><code>data — reference:products.vat_rate `category = 'book' AND vat_rate &lt;&gt; 0.055`</code></p>
+      <p class="question" data-i18n="vat.q">Open question: the book with id 2 is still at 20 %. Correct it?</p>
+    </div>
+  </div>
+  <div>
+    <h2 data-i18n="okf.title">Rules other tools can use</h2>
+    <p data-i18n="okf.text"><code>rulebook export okf</code> writes the rulebook as an <a href="https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf">Open Knowledge Format</a> bundle: one Markdown file per domain, policy and rule, with its sources, its audit and its history. Data catalogs, wikis and other agents read it without knowing rulebook.</p>
+    <pre class="okf"><code>---
+type: Business Rule
+title: "Refund only up to 14 days after delivery"
+status: stable
+verified: { by: process:rulebook-blind-audit, at: 2026-10-16T00:00:00Z }
+sources:
+  - id: e1
+    resource: "src/orders/refund.js#L9"
+---</code></pre>
+  </div>
+</section>
+
+<section class="install" id="install" aria-labelledby="install-title">
+  <h2 id="install-title" data-i18n="install.title">Install</h2>
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" id="t-any" aria-controls="p-any" aria-selected="true" data-i18n="tab.any">Any agent</button>
+    <button type="button" role="tab" id="t-claude" aria-controls="p-claude" aria-selected="false" tabindex="-1" data-i18n="tab.claude">Claude Code plugin</button>
+    <button type="button" role="tab" id="t-npm" aria-controls="p-npm" aria-selected="false" tabindex="-1" data-i18n="tab.npm">npm only</button>
+  </div>
+  <div class="panel" role="tabpanel" id="p-any" aria-labelledby="t-any">
+    <p data-i18n="p.any">Skills for Codex, Cursor, Gemini CLI, Copilot, Mistral Vibe and the rest, in the project or globally with <code>-g</code>.</p>
+    <div class="cmd" data-copy><code>npx skills add GregoryBabonaux/rulebook</code><button type="button" class="copy" data-i18n="copy">Copy</button></div>
+  </div>
+  <div class="panel" role="tabpanel" id="p-claude" aria-labelledby="t-claude" hidden>
+    <p data-i18n="p.claude">Skills and the companion's hooks in one go, inside Claude Code.</p>
+    <div class="cmd" data-copy><code>/plugin marketplace add GregoryBabonaux/rulebook</code><button type="button" class="copy" data-i18n="copy">Copy</button></div>
+    <div class="cmd" data-copy><code>/plugin install rulebook@rulebook</code><button type="button" class="copy" data-i18n="copy">Copy</button></div>
+  </div>
+  <div class="panel" role="tabpanel" id="p-npm" aria-labelledby="t-npm" hidden>
+    <p data-i18n="p.npm">For agents that read <code>~/.agents/skills</code> or <code>~/.claude/skills</code>.</p>
+    <div class="cmd" data-copy><code>npx rulebook-cli skills --yes</code><button type="button" class="copy" data-i18n="copy">Copy</button></div>
+  </div>
+  <div class="then">
+    <p data-i18n="then.1">Then, in your project, turn on the companion. It shows what it will write and waits for <code>--yes</code>.</p>
+    <div class="cmd" data-copy><code>npx rulebook-cli init</code><button type="button" class="copy" data-i18n="copy">Copy</button></div>
+    <p data-i18n="then.2">And ask your agent: <em>“Map the business domains of this codebase.”</em></p>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <p data-i18n="foot">MIT licence. Node 22 or later for the companion; the skills also work without it.</p>
+  <p class="links">
+    <a href="https://github.com/GregoryBabonaux/rulebook">GitHub</a>
+    <a href="https://www.npmjs.com/package/rulebook-cli">npm</a>
+    <a id="readme" href="https://github.com/GregoryBabonaux/rulebook#readme" data-i18n="readme">README</a>
+  </p>
+</footer>
+
+<script src="i18n.js" defer></script>
+<script src="site.js" defer></script>
+</body>
+</html>
